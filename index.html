@@ -34,13 +34,14 @@ nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-t
 nav button{flex:0 0 auto;min-width:24vw;background:#fff;color:var(--navy);border-radius:0;padding:14px 10px;font-weight:700;font-size:13px;white-space:nowrap}
 nav button.on{background:var(--org);color:#fff}
 small{color:#5A6B82}
+.tr{display:grid;grid-template-columns:1fr 62px 66px 84px;gap:4px;padding:6px 0;border-bottom:1px solid var(--ln);font-size:14px;align-items:start}.tr.h{font-weight:700;background:#F4F6F9}.tr span:nth-child(n+2){text-align:right}
 button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:4px 10px;font-size:13px}
 #rcpt{display:none}
 @media print{@page{size:80mm auto;margin:3mm}body{background:#fff;padding:0}header,main,nav{display:none!important}#rcpt{display:block;width:72mm;color:#000;line-height:1.5}#rcpt .c{text-align:center}#rcpt .r{display:flex;justify-content:space-between;gap:8px}#rcpt .r.b{font-weight:700}#rcpt .r span:last-child{white-space:nowrap}#rcpt .big{font-size:1.5em;font-weight:700}#rcpt .dd{border-top:2px dashed #000;margin:8px 0}#rcpt .ss{border-top:3px solid #000;margin:8px 0 4px}#rcpt .it{margin:6px 0}#rcpt .nm{font-weight:700}#rcpt .tt{font-size:1.4em;font-weight:700}#rcpt .ft{margin-top:4px}}
 </style></head><body>
 <header><b>AUNG Gas Solutions</b><span id="net"></span></header>
 <main id="app"></main>
-<nav><button id="t1">ရောင်းချမှု</button><button id="t2">ပစ္စည်းများ</button><button id="t3">48kg Gas</button><button id="t6">Oxygen</button><button id="t4">ကြွေး</button><button id="t7">စရိတ်</button><button id="t8">စာရင်းချုပ်</button><button id="t5">ဒေတာ</button></nav>
+<nav><button id="t1">ရောင်းချမှု</button><button id="t2">ပစ္စည်းများ</button><button id="t3">48kg Gas</button><button id="t6">Oxygen</button><button id="t4">ဖောက်သည်</button><button id="t7">စရိတ်</button><button id="t8">စာရင်းချုပ်</button><button id="t5">ဒေတာ</button></nav>
 <div id="rcpt"></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -83,7 +84,7 @@ setTimeout(()=>window.print(),80)}
 function viewSale(){
 const app=$('#app');app.replaceChildren();
 const dl=h('datalist',{id:'pl'},products.map(p=>h('option',{value:p.name})));
-const cl=h('datalist',{id:'cl'},[...new Set(sales.filter(s=>s.cust).map(s=>s.cust))].map(c=>h('option',{value:c})));
+const cl=h('datalist',{id:'cl'},customers().map(c=>h('option',{value:c.name})));
 const pn=h('input',{list:'pl',placeholder:'ပစ္စည်းနာမည် ရိုက်ပါ / ရွေးပါ',autocomplete:'off'});
 const qty=h('input',{type:'number',inputmode:'decimal',step:'any',min:'0',placeholder:'ပမာဏ'});
 const un=h('select',{},UNITS.map(u=>h('option',{value:u},u)));
@@ -107,11 +108,11 @@ if(!p)return note(msg,'ပစ္စည်းစာရင်းထဲက ပစ�
 if(!(q>0))return note(msg,'ပမာဏကို 0 ထက်ကြီးအောင် ထည့်ပါ။');
 if(!f&&(isNaN(pc)||pc<=0))return note(msg,'ဈေးနှုန်းကို ကိုယ်တိုင် ထည့်ပါ (0 ထက်ကြီးရမယ်)။ လှူ/လက်ဆောင်ဆိုရင် FOC ကို အမှန်ခြစ်ပါ။');
 const g=gv(p,q,un.value);if(g===null)return note(msg,'Gas ကို "Gas (ပိဿာ)" မှာ ပိဿာနဲ့၊ "Gas ဗူးဖြည့်" မှာ ဘူးနဲ့ပဲ ထည့်ပါ။');if(!p.gas){const st=stockOf(p);if(st!==null){const inCart=lines.filter(l=>l.pid===p.id).reduce((a,l)=>a+l.qty,0);if(q+inCart>st&&!confirm('"'+p.name+'" လက်ကျန် '+Math.round(st*100)/100+' '+p.unit+' ပဲ ရှိတယ်။ ဆက်ထည့်မလား?'))return}}lines.push({pid:p.id,name:p.name,qty:q,unit:un.value,price:isNaN(pc)?0:pc,foc:f,gasViss:g,gasRole:p.gas||null,o2use:(p.o2==='refill'&&p.use>0)?q*p.use:0});msg.replaceChildren();pn.value=qty.value=pr.value='';foc.checked=false;draw()};
-save.onclick=async()=>{if(saving||!lines.length)return;const total=lines.reduce((s,l)=>s+amt(l),0),pm=pay.value,c=cust.value.trim();
+save.onclick=async()=>{if(saving||!lines.length)return;const total=lines.reduce((s,l)=>s+amt(l),0),pm=pay.value;let c=cust.value.trim(),newCust=false;
 let parts;if(pm==='split'){const a=parseFloat(aA.value);if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ခွဲရှင်းမရွေးပါနဲ့။');if(!(a>0&&a<total))return note(msg,'ပထမနည်းလမ်း ပမာဏက 0 ထက်ကြီးပြီး စုစုပေါင်းထက် ငယ်ရမယ်။');if(sA.value===sB.value)return note(msg,'နည်းလမ်း နှစ်ခု မတူရပါ။');parts=[{m:sA.value,a:a},{m:sB.value,a:total-a}]}else parts=[{m:pm,a:total}];
-const hasCr=parts.some(x=>x.m==='credit');if(hasCr){if(!c)return note(msg,'ကြွေးအတွက် ဖောက်သည်နာမည် ထည့်ပါ။');if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ကြွေးမရွေးပါနဲ့။')}
+const hasCr=parts.some(x=>x.m==='credit');if(hasCr){if(!c)return note(msg,'ကြွေးအတွက် ဖောက်သည်နာမည် ထည့်ပါ။');if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ကြွေးမရွေးပါနဲ့။');const ex=customers().find(x=>x.key===ck(c));if(ex)c=ex.name;else{if(!confirm('"'+c+'" က ဖောက်သည်စာရင်းမှာ မရှိသေးပါ။ ဖောက်သည်အသစ်အဖြစ် ထည့်မလား?\n(နာမည်မှားနေရင် Cancel နှိပ်ပြီး ပြင်ပါ)'))return;newCust=true}}
 saving=true;save.disabled=true;let pa=null;
-try{const asg=lines.map(l=>({...l,o2cyl:l.o2use?((stk.filter(e=>e.type==='ocyl'&&!e.closed).sort((a,b)=>a.at-b.at)[0]||{}).id||null):null,cylId:l.gasViss?((gasEv.filter(e=>e.type==='cyl'&&!e.closed&&e.role===l.gasRole).sort((a,b)=>a.at-b.at)[0]||{}).id||null):null}));const sale={id:saleId,at:Date.now(),pay:parts.length>1?'split':parts[0].m,parts,cust:hasCr?c:null,lines:asg,total};await add('sales',sale);if(prt.checked)pa=sale;const nm=asg.some(l=>(l.gasViss&&!l.cylId)||(l.o2use&&!l.o2cyl));lines=[];saleId=uuid();pay.value='cash';cust.value='';aA.value='';sync();await reload();note(msg,'သိမ်းပြီးပါပြီ။ ဖုန်းထဲမှာ သိမ်းထားပါတယ်။'+(nm?' (သတိ: အိုးကြီး မဖွင့်ရသေးလို့ "48kg Gas" / "Oxygen" tab မှာ အိုးဖွင့်ပါ)':''),1)}
+try{const asg=lines.map(l=>({...l,o2cyl:l.o2use?((stk.filter(e=>e.type==='ocyl'&&!e.closed).sort((a,b)=>a.at-b.at)[0]||{}).id||null):null,cylId:l.gasViss?((gasEv.filter(e=>e.type==='cyl'&&!e.closed&&e.role===l.gasRole).sort((a,b)=>a.at-b.at)[0]||{}).id||null):null}));const sale={id:saleId,at:Date.now(),pay:parts.length>1?'split':parts[0].m,parts,cust:hasCr?c:null,lines:asg,total};await add('sales',sale);if(newCust)await add('cf',{id:uuid(),at:Date.now(),type:'cust',name:c,phone:''});if(prt.checked)pa=sale;const nm=asg.some(l=>(l.gasViss&&!l.cylId)||(l.o2use&&!l.o2cyl));lines=[];saleId=uuid();pay.value='cash';cust.value='';aA.value='';sync();await reload();note(msg,'သိမ်းပြီးပါပြီ။ ဖုန်းထဲမှာ သိမ်းထားပါတယ်။'+(nm?' (သတိ: အိုးကြီး မဖွင့်ရသေးလို့ "48kg Gas" / "Oxygen" tab မှာ အိုးဖွင့်ပါ)':''),1)}
 catch(e){if(e&&e.name==='ConstraintError'){lines=[];saleId=uuid();note(msg,'ဒီရောင်းချမှုကို သိမ်းပြီးသားပါ၊ ထပ်မသိမ်းပါဘူး။',1)}else note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e)+'။ ထပ်ကြိုးစားပါ။')}
 saving=false;draw();drawToday();if(pa)printSale(pa)};
 const drawToday=()=>{const s0=new Date();s0.setHours(0,0,0,0);const t0=s0.getTime(),ts=sales.filter(s=>s.at>=t0),ok=ts.filter(s=>!s.voided);
@@ -124,25 +125,35 @@ h('div',{class:'card'},row('cash'),row('kpay'),row('wave'),row('aya'),h('div',{c
 h('div',{class:'card'},ts.length?ts.map(s=>h('div',{class:'li'},h('span',{class:s.voided?'void':''},new Date(s.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' · '+s.lines.map(l=>l.name+'×'+l.qty+(l.foc?' (FOC)':'')).join(', ')+' · '+payLabel(s)+(s.cust?' ('+s.cust+')':'')+(s.voided?' (ပယ်ဖျက်ပြီး)':'')),h('span',{},h('b',{class:s.voided?'void':''},money(stotal(s))),' ',s.voided?'':h('button',{class:'g',style:'color:var(--navy);border-color:var(--navy)',onclick:()=>printSale(s)},'Print'),' ',s.voided?'':h('button',{class:'g',onclick:async()=>{if(!confirm('ဒီရောင်းချမှုကို ပယ်ဖျက်မလား? စာရင်းထဲ ကျန်ရစ်ပြီး ပေါင်းချုပ်ထဲ မပါတော့ပါ။'))return;s.voided=true;s.voidedAt=Date.now();try{await put('sales',s);await reload();drawToday()}catch(e){alert('မပယ်ဖျက်နိုင်ပါ: '+e.message)}}},'ပယ်ဖျက်')))):h('small',{},'ယနေ့ မရောင်းရသေးပါ။')))};
 app.append(dl,cl,bkBanner(),h('div',{class:'card'},h('label',{},'ပစ္စည်း'),pn,h('div',{class:'row'},h('div',{},h('label',{},'ပမာဏ'),qty),h('div',{},h('label',{},'ယူနစ်'),un)),h('label',{},'ဈေး (ကိုယ်တိုင်ထည့်)'),pr,h('label',{style:'display:flex;align-items:center'},foc,'FOC (လှူ/လက်ဆောင် · ငွေမယူ)'),h('button',{class:'o',onclick:addLine,style:'background:var(--navy)'},'စာရင်းထဲ ထည့်မည်')),msg,h('div',{class:'card'},list,tot,h('label',{},'ငွေပေးချေမှု'),pay,split,cust,h('label',{style:'display:flex;align-items:center'},prt,'ဘောင်ချာ print ထုတ်မည်'),save),today);
 draw();drawToday()}
-function viewDebt(){
-const app=$('#app');app.replaceChildren();
-const msg=h('div'),m={};
-sales.filter(x=>!x.voided&&creditOf(x)>0&&x.cust).forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{name:x.cust,cr:0,pd:0}).cr+=creditOf(x)});
-pays.forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{name:x.cust,cr:0,pd:0}).pd+=x.amount});
-const rows=Object.values(m).map(c=>({...c,bal:c.cr-c.pd})).filter(c=>Math.abs(c.bal)>0.5).sort((a,b)=>b.bal-a.bal);
-const owe=rows.filter(c=>c.bal>0),sum=owe.reduce((a,c)=>a+c.bal,0);
-const sel=h('select',{},owe.map(c=>h('option',{value:c.name},c.name+' — '+money(c.bal))));
-const am=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ပြန်ပေးတဲ့ ပမာဏ'});
-const me=h('select',{},['cash','kpay','wave','aya'].map(k=>h('option',{value:k},PAY[k])));
-const bt=h('button',{class:'o',onclick:async()=>{const c=owe.find(x=>x.name===sel.value),a=parseFloat(am.value);
-if(!c)return note(msg,'ကြွေးကျန်တဲ့ ဖောက်သည် မရှိပါ။');if(!(a>0))return note(msg,'ပမာဏ ထည့်ပါ။');if(a>c.bal+0.5)return note(msg,'ကြွေးကျန် '+money(c.bal)+' ထက် မများရပါ။');
-if(!confirm(c.name+' ဆီက '+money(a)+' ('+PAY[me.value]+') ကောက်ခံတာ မှတ်မလား?'))return;bt.disabled=true;
-try{await add('pays',{id:uuid(),at:Date.now(),cust:c.name,amount:a,method:me.value});await reload();viewDebt()}catch(e){bt.disabled=false;note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ငွေကောက်ခံမှု မှတ်မည်');
-const st=t=>new Date(t).toLocaleDateString('en-GB')+' '+new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-app.append(h('div',{class:'card'},h('b',{},'ကြွေးကျန် စုစုပေါင်း'),h('div',{class:'tot',style:'text-align:left'},money(sum))),msg,
-owe.length?h('div',{class:'card'},h('b',{},'ကြွေးပြန်ရတာ မှတ်ရန်'),sel,am,me,bt):h('div',{class:'msg k'},'ကြွေးကျန်တဲ့ ဖောက်သည် မရှိပါ။'),
-h('h2',{},'ဖောက်သည်အလိုက်'),h('div',{class:'card'},rows.length?rows.map(c=>h('div',{class:'li'},h('span',{},c.name,h('br'),h('small',{},'ကြွေးယူ '+money(c.cr)+' · ပြန်ပေး '+money(c.pd))),h('b',{style:'color:'+(c.bal<0?'var(--red)':'var(--navy)')},money(c.bal)))):h('small',{},'မှတ်တမ်း မရှိသေးပါ။')),
-h('h2',{},'ပြန်ပေးမှတ်တမ်း'),h('div',{class:'card'},pays.length?pays.slice(0,10).map(x=>h('div',{class:'li'},h('span',{},st(x.at)+' · '+x.cust+' · '+PAY[x.method]),h('b',{},money(x.amount)))):h('small',{},'မရှိသေးပါ။')))}
+const ck=n=>String(n||'').trim().toLowerCase();
+function customers(){const m={},get=n=>{const k=ck(n);return m[k]=m[k]||{key:k,name:String(n).trim(),phone:'',cr:0,pd:0}};
+cf.filter(e=>e.type==='cust').sort((a,b)=>a.at-b.at).forEach(e=>{const c=get(e.name);if(e.phone!==undefined)c.phone=e.phone});
+[...sales].sort((a,b)=>a.at-b.at).forEach(x=>{if(x.cust){const c=get(x.cust);if(!x.voided)c.cr+=creditOf(x)}});
+pays.forEach(x=>{get(x.cust).pd+=x.amount});return Object.values(m).map(c=>({...c,bal:c.cr-c.pd}))}
+const sd_=t=>new Date(t).toLocaleDateString('en-GB')+' '+new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+function viewCust(){
+const app=$('#app');app.replaceChildren();const msg=h('div'),all=customers(),sum=all.filter(c=>c.bal>0.5).reduce((a,c)=>a+c.bal,0);
+const q=h('input',{placeholder:'ဖောက်သည် ရှာရန်'}),box=h('div',{class:'card'}),ni=h('input',{placeholder:'ဖောက်သည်နာမည် (ဥပမာ ကောင်းကွေ့တယို ဆိုင်)'}),pi=h('input',{placeholder:'ဖုန်းနံပါတ် (မထည့်လည်းရ)',inputmode:'tel'});
+const draw=()=>{const t=ck(q.value),L=all.filter(c=>ck(c.name).includes(t)||c.phone.includes(t)).sort((a,b)=>b.bal-a.bal||a.name.localeCompare(b.name));
+box.replaceChildren(...(L.length?L.map(c=>h('div',{class:'li',style:'cursor:pointer',onclick:()=>viewCustDetail(c.key)},h('span',{},c.name,c.phone?h('br'):'',c.phone?h('small',{},c.phone):''),h('b',{style:'color:'+(c.bal<-0.5?'var(--red)':c.bal>0.5?'var(--navy)':'#8A97AB')},money(c.bal)))):[h('small',{},'ဖောက်သည် မရှိသေးပါ။')]))};
+q.oninput=draw;
+const nb=h('button',{class:'o',onclick:async()=>{const n=ni.value.trim();if(!n)return note(msg,'နာမည် ထည့်ပါ။');if(all.some(c=>c.key===ck(n)))return note(msg,'ဒီနာမည်နဲ့ ဖောက်သည် ရှိပြီးသားပါ။');nb.disabled=true;try{await add('cf',{id:uuid(),at:Date.now(),type:'cust',name:n,phone:pi.value.trim()});await reload();viewCust()}catch(e){nb.disabled=false;note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ဖောက်သည် ထည့်မည်');
+app.append(h('div',{class:'card'},h('b',{},'ကြွေးကျန် စုစုပေါင်း'),h('div',{class:'tot',style:'text-align:left'},money(sum))),msg,h('div',{class:'card'},h('b',{},'ဖောက်သည်အသစ်'),ni,pi,nb),h('h2',{},'ဖောက်သည်များ ('+all.length+')'),q,box);draw()}
+function viewCustDetail(key){
+const c=customers().find(x=>x.key===key);if(!c)return viewCust();
+const app=$('#app');app.replaceChildren();const msg=h('div');
+const am=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ပေးတဲ့ပမာဏ'}),me=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));
+const pay=h('button',{class:'o',onclick:async()=>{const a=parseFloat(am.value);if(!(a>0))return note(msg,'ပမာဏ ထည့်ပါ။');if(a>c.bal+0.5)return note(msg,'ကြွေးကျန် '+money(c.bal)+' ထက် မများရပါ။');if(!confirm(c.name+' ဆီက '+money(a)+' ('+PAY[me.value]+') ရတာ မှတ်မလား?'))return;pay.disabled=true;try{await add('pays',{id:uuid(),at:Date.now(),cust:c.name,amount:a,method:me.value});await reload();viewCustDetail(key)}catch(e){pay.disabled=false;note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ငွေရှင်း (ပြန်ရတာ မှတ်မည်)');
+const allB=h('button',{class:'n',style:'margin-top:6px',onclick:()=>{am.value=Math.round(c.bal)}},'ကျန်သမျှ အကုန်ရှင်း');
+const ph=h('button',{class:'n',onclick:async()=>{const v=prompt('ဖုန်းနံပါတ်',c.phone);if(v===null)return;try{await add('cf',{id:uuid(),at:Date.now(),type:'cust',name:c.name,phone:v.trim()});await reload();viewCustDetail(key)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ဖုန်း ပြင်');
+const cs=sales.filter(x=>x.cust&&ck(x.cust)===key&&creditOf(x)>0),ps=pays.filter(x=>ck(x.cust)===key);
+const sh=cf.filter(e=>e.type==='shell'&&ck(e.cust)===key).sort((a,b)=>b.at-a.at),shn=sh.reduce((a,e)=>a+e.qty,0);
+const shGo=async sign=>{const q=parseFloat(prompt(sign>0?'ယူရန် ကျန်ခဲ့တဲ့ အိုးခွံ အရေအတွက်':'ပြန်ယူပြီးတဲ့ အိုးခွံ အရေအတွက်'));if(!(q>0))return;if(sign<0&&q>shn)return note(msg,'ယူရန်ကျန်တာ '+shn+' လုံးပဲ ရှိပါတယ်။');const nt=(prompt('မှတ်ချက် (မထည့်လည်းရ)')||'').trim();if(!confirm(c.name+' · အိုးခွံ '+(sign>0?'+':'−')+q+' မှတ်မလား?'))return;try{await add('cf',{id:uuid(),at:Date.now(),type:'shell',cust:c.name,qty:sign*q,note:nt});await reload();viewCustDetail(key)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
+app.append(h('button',{class:'n',onclick:()=>viewCust()},'← ဖောက်သည်စာရင်း'),h('div',{class:'card',style:'margin-top:8px'},h('b',{style:'font-size:18px'},c.name),h('div',{},c.phone||'ဖုန်းမရှိ'),h('div',{class:'tot',style:'text-align:left;color:'+(c.bal<-0.5?'var(--red)':'var(--navy)')},'ကြွေးကျန် '+money(c.bal)),h('small',{},'ကြွေးယူ '+money(c.cr)+' · ပြန်ပေး '+money(c.pd)),h('div',{style:'margin-top:6px'},ph)),msg,
+c.bal>0.5?h('div',{class:'card'},h('b',{},'ငွေရှင်းရန်'),am,me,pay,allB):'',
+h('div',{class:'card'},h('b',{},'အိုးခွံ ပြန်ယူရန် ကျန်'),h('div',{class:'tot',style:'text-align:left'},shn+' လုံး'),h('small',{},'မကုန်သေးလို့ နောက်ခေါက်မှ ပြန်ယူရမယ့် အိုးခွံ အရေအတွက်ကို ကိုယ်တိုင်မှတ်ပါ။'),h('div',{class:'row',style:'margin-top:6px'},h('button',{class:'n',onclick:()=>shGo(1)},'ယူရန် ကျန်ခဲ့ (+)'),h('button',{class:'n',onclick:()=>shGo(-1)},'ပြန်ယူပြီး (−)')),...sh.slice(0,5).map(e=>h('div',{class:'li'},h('small',{},sd_(e.at)+(e.note?' · '+e.note:'')),h('b',{},(e.qty>0?'+':'')+e.qty)))),
+h('h2',{},'ကြွေးယူခဲ့တာများ'),h('div',{class:'card'},cs.length?cs.map(x=>h('div',{class:'li',style:'align-items:flex-start'},h('span',{class:x.voided?'void':''},sd_(x.at)+(x.voided?' (ပယ်ဖျက်ပြီး)':''),...x.lines.map(l=>h('div',{},h('small',{},l.name+' × '+l.qty+' '+l.unit+(l.foc?' (FOC)':' @ '+Math.round(l.price).toLocaleString('en-US')))))),h('b',{class:x.voided?'void':''},money(creditOf(x))))):h('small',{},'မရှိသေးပါ။')),
+h('h2',{},'ပြန်ပေးခဲ့တာများ'),h('div',{class:'card'},ps.length?ps.map(x=>h('div',{class:'li'},h('span',{},sd_(x.at)+' · '+PAY[x.method]),h('b',{},money(x.amount)))):h('small',{},'မရှိသေးပါ။')))}
 /* products view */
 function viewProducts(){
 const app=$('#app');app.replaceChildren();
@@ -266,26 +277,36 @@ const all_=cf.filter(e=>e.type==='exp').sort((a,b)=>b.at-a.at).slice(0,25);
 app.append(h('div',{class:'card'},h('b',{},'စရိတ်အသစ်'),h('label',{},'အကြောင်းအရာ'),ds,h('label',{},'အမျိုးအစား'),cs,h('small',{},'အိမ်သုံး/လစာကို တစ်လ/တစ်ပတ် သတ်မှတ်ငွေတစ်ခုတည်းအဖြစ် မှတ်ပါ၊ ပုံမှန် အသေးအဖွဲ မဟုတ်ဘူး။'),h('label',{},'ငွေပမာဏ'),am,h('label',{},'ဘာနဲ့ပေးလဲ'),ms,bt),msg,
 h('h2',{},'ယနေ့ စရိတ်: '+money(td.reduce((a,e)=>a+e.amt,0))),h('div',{class:'card'},Object.keys(ECAT).filter(k=>bc[k]).length?Object.keys(ECAT).filter(k=>bc[k]).map(k=>h('div',{class:'li'},h('span',{},ECAT[k]),h('b',{},money(bc[k])))):h('small',{},'ယနေ့ စရိတ် မရှိသေးပါ။')),
 h('h2',{},'စရိတ်မှတ်တမ်း (နောက်ဆုံး ၂၅)'),h('div',{class:'card'},all_.length?all_.map(e=>h('div',{class:'li'},h('span',{class:e.voided?'void':''},dkey(e.at)+' '+tm(e.at)+' · '+e.desc,h('br'),h('small',{},ECAT[e.cat]+' · '+PAY[e.m]+(e.voided?' · ပယ်ဖျက်ပြီး':''))),h('span',{},h('b',{class:e.voided?'void':''},money(e.amt)),' ',e.voided?'':h('button',{class:'g',onclick:async()=>{if(!confirm('ဒီစရိတ်ကို ပယ်ဖျက်မလား? (မှတ်တမ်းထဲ ကျန်ရစ်မယ်)'))return;try{await put('cf',{...e,voided:true,voidedAt:Date.now()});await reload();viewExp()}catch(x){note(msg,'မပယ်ဖျက်နိုင်ပါ: '+(x&&x.message||x))}}},'ပယ်ဖျက်')))):h('small',{},'မရှိသေးပါ။')))}
-function viewReport(k){
-k=k||dkey(Date.now());const app=$('#app');app.replaceChildren();const msg=h('div'),[a,b]=dbounds(k);
+let repTab=1;
+function viewReport(k,tb){
+k=k||dkey(Date.now());if(tb)repTab=tb;const app=$('#app');app.replaceChildren();const msg=h('div'),[a,b]=dbounds(k);
 const di=h('input',{type:'date',value:k});di.onchange=()=>{if(di.value)viewReport(di.value)};
-const sd=sales.filter(s=>!s.voided&&s.at>=a&&s.at<=b),by={cash:0,kpay:0,wave:0,aya:0,credit:0};sd.forEach(s=>partsOf(s).forEach(x=>{by[x.m]+=x.a}));
-const focN=sd.reduce((x,s)=>x+s.lines.filter(l=>l.foc).length,0),col={cash:0,kpay:0,wave:0,aya:0};pays.filter(x=>x.at>=a&&x.at<=b).forEach(x=>{col[x.method]+=x.amount});
-const ed=exps().filter(e=>e.at>=a&&e.at<=b),ec={};ed.forEach(e=>{ec[e.cat]=(ec[e.cat]||0)+e.amt});
-const inc=MTH.reduce((x,m)=>x+by[m]+col[m],0),out=ed.reduce((x,e)=>x+e.amt,0),r2=x=>Math.round(x*100)/100;
+const num=n=>Math.round(n).toLocaleString('en-US'),r2=x=>Math.round(x*100)/100;
+const sd=sales.filter(s=>!s.voided&&s.at>=a&&s.at<=b).sort((x,y)=>x.at-y.at),by={cash:0,kpay:0,wave:0,aya:0,credit:0};sd.forEach(s=>partsOf(s).forEach(x=>{by[x.m]+=x.a}));
+const col={cash:0,kpay:0,wave:0,aya:0},pd=pays.filter(x=>x.at>=a&&x.at<=b).sort((x,y)=>x.at-y.at);pd.forEach(x=>{col[x.method]+=x.amount});
+const ed=exps().filter(e=>e.at>=a&&e.at<=b).sort((x,y)=>x.at-y.at),ec={},om={cash:0,kpay:0,wave:0,aya:0};ed.forEach(e=>{ec[e.cat]=(ec[e.cat]||0)+e.amt;om[e.m]+=e.amt});
 const row=(l,v,c)=>h('div',{class:'li'},h('span',{},l),h('b',{style:c?'color:'+c:''},v));
-const card=m=>{const f=flows(m,a,b),op=opening(m,k),ex=op===null?null:op+f.i-f.o,cl=cf.filter(e=>e.type==='bal'&&e.kind==='close'&&e.method===m&&e.date===k).sort((x,y)=>y.at-x.at)[0];
+const tr=(c1,c2,c3,c4,cls)=>h('div',{class:'tr'+(cls?' '+cls:'')},h('span',{},...(Array.isArray(c1)?c1:[c1])),h('span',{},c2),h('span',{},c3),h('span',{},c4));
+const tabs=h('div',{class:'row',style:'margin-bottom:8px'},...[['ရောင်းချမှု',1],['ငွေစာရင်း',2],['စရိတ်',3],['ကြွေး',4]].map(([t,i])=>h('button',{class:i===repTab?'':'n',style:'padding:10px 4px',onclick:()=>viewReport(k,i)},t)));
+let body=[];
+if(repTab===1){const rows=[];sd.forEach(s=>s.lines.forEach(l=>rows.push({s,l})));const agg={};rows.forEach(({l})=>{const o=agg[l.name]=agg[l.name]||{q:0,v:0,u:l.unit};o.q+=l.qty;o.v+=amt(l)});
+const total=sd.reduce((x,s)=>x+stotal(s),0),focN=rows.filter(({l})=>l.foc).length;
+body=[h('div',{class:'card'},h('b',{},'ရောင်းချမှု စာရင်း ('+sd.length+' ကြိမ်)'),tr('ပစ္စည်းအမည်','အရေအတွက်','ဈေးနှုန်း','သင့်ငွေ','h'),...(rows.length?rows.map(({s,l})=>tr([l.name,h('br'),h('small',{},tm(s.at)+' · '+payLabel(s)+(s.cust?' ('+s.cust+')':''))],l.qty+' '+l.unit,l.foc?'FOC':num(l.price),l.foc?'0':num(amt(l)))):[h('small',{},'ဒီနေ့ ရောင်းချမှု မရှိပါ။')]),tr('စုစုပေါင်း','','',num(total),'h'),focN?h('small',{},'FOC (လှူ/လက်ဆောင်) '+focN+' ခု ပါတယ်'):''),
+Object.keys(agg).length?h('div',{class:'card'},h('b',{},'ပစ္စည်းအလိုက် စုစုပေါင်း'),tr('ပစ္စည်းအမည်','အရေအတွက်','','သင့်ငွေ','h'),...Object.entries(agg).map(([n,o])=>tr(n,r2(o.q)+' '+o.u,'',num(o.v)))):'']}
+else if(repTab===2){const ops=MTH.map(m=>opening(m,k)),sumOp=ops.reduce((x,o)=>x+(o||0),0),unset=ops.filter(o=>o===null).length,sIn=MTH.reduce((x,m)=>x+by[m],0),cIn=MTH.reduce((x,m)=>x+col[m],0),oOut=MTH.reduce((x,m)=>x+om[m],0),clo=sumOp+sIn+cIn-oOut;
+const card=(m,i)=>{const op=ops[i],ex=op===null?null:op+by[m]+col[m]-om[m],cl=cf.filter(e=>e.type==='bal'&&e.kind==='close'&&e.method===m&&e.date===k).sort((x,y)=>y.at-x.at)[0];
 const ia=h('input',{type:'number',inputmode:'numeric',placeholder:op===null?'စတင်လက်ကျန် (ကိုယ်တိုင်ရေထား)':'ရေတွက်ထားတဲ့ ငွေ'});
 const go=async(rec,q)=>{if(!confirm(q))return;try{await add('cf',{id:uuid(),at:Date.now(),type:'bal',date:k,method:m,...rec});await reload();viewReport(k)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
-const setOpen=h('button',{class:'n',onclick:()=>{const v=parseFloat(ia.value);if(isNaN(v)||v<0)return note(msg,'ပမာဏ ထည့်ပါ။');go({kind:'open',amt:v},PAY[m]+' စတင်လက်ကျန်ကို '+money(v)+' အဖြစ် မှတ်မလား? ('+k+')')}},op===null?'စတင်လက်ကျန် မှတ်မည်':'စတင်လက်ကျန် ပြင်မည်');
+const setOpen=h('button',{class:'n',onclick:()=>{const v=parseFloat(ia.value);if(isNaN(v)||v<0)return note(msg,'ပမာဏ ထည့်ပါ။');go({kind:'open',amt:v},PAY[m]+' အဖွင့်ငွေကို '+money(v)+' အဖြစ် မှတ်မလား? ('+k+')')}},op===null?'အဖွင့်ငွေ မှတ်မည်':'အဖွင့်ငွေ ပြင်မည်');
 const setClose=h('button',{class:'n',onclick:()=>{const v=parseFloat(ia.value);if(isNaN(v)||v<0)return note(msg,'ရေတွက်ထားတဲ့ ပမာဏ ထည့်ပါ။');go({kind:'close',amt:v},PAY[m]+' ရေတွက်ထားတာ '+money(v)+(ex===null?'':' (စာရင်းအရ '+money(ex)+')')+' မှတ်မလား?')}},'ရေတွက်ပြီး ပိတ်မည်');
-return h('div',{class:'card'},h('b',{},PAY[m]),op===null?h('div',{class:'msg e'},'စတင်လက်ကျန် မသတ်မှတ်ရသေးပါ။ အောက်မှာ ကိုယ်တိုင်ရေပြီး ထည့်ပါ။'):h('div',{},row('စတင်',money(op)),row('+ ဝင်ငွေ',money(f.i)),row('− ထွက်ငွေ',money(f.o)),row('စာရင်းအရ ကျန်ရမယ့်',money(ex),'var(--navy)'),cl?row('ရေတွက်ထားတာ · ကွာ',money(cl.amt)+' · '+(cl.amt-ex>=0?'+':'')+r2(cl.amt-ex),Math.abs(cl.amt-ex)<0.5?'var(--ok)':'var(--red)'):''),ia,h('div',{class:'row',style:'margin-top:6px'},...(op===null?[setOpen]:[setClose,setOpen])))};
-app.append(h('div',{class:'card'},h('b',{},'နေ့စဉ် စာရင်းချုပ်'),di),msg,
-h('div',{class:'card'},h('b',{},'ရောင်းရငွေ ('+sd.length+' ကြိမ်)'),...MTH.map(m=>row(PAY[m],money(by[m]))),row('ကြွေး (မရသေး)',money(by.credit)),row('FOC (လှူ/လက်ဆောင်)',focN+' ခု')),
-h('div',{class:'card'},h('b',{},'ကြွေးပြန်ရငွေ'),...MTH.map(m=>row(PAY[m],money(col[m])))),
-h('div',{class:'card'},h('b',{},'စရိတ်'),...(ed.length?Object.keys(ECAT).filter(c=>ec[c]).map(c=>row(ECAT[c],money(ec[c]))):[h('small',{},'စရိတ် မရှိပါ။')])),
-h('div',{class:'card'},row('ဝင်ငွေ (ရောင်းရ+ကြွေးကောက်၊ ကြွေးမပါ)',money(inc)),row('ထွက်ငွေ (စရိတ်)',money(out)),row('ငွေစာရင်းအရ ကျန်',money(inc-out),inc-out<0?'var(--red)':'var(--ok)'),row('ကြွေးကျန် စုစုပေါင်း (ယခု)',money(debtTotal())),h('small',{},'အမြတ်အစား မဟုတ်ပါ၊ ဝယ်ဈေးမပါသေးပါ။')),
-h('h2',{},'ငွေလက်ကျန် ညှိနှိုင်းရန် (ရေတွက်ပြီး ယှဉ်ကြည့်ပါ)'),...MTH.map(card))}
+return h('div',{class:'card'},h('b',{},PAY[m]),op===null?h('div',{class:'msg e'},'အဖွင့်ငွေ မသတ်မှတ်ရသေးပါ။ အောက်မှာ ကိုယ်တိုင်ရေပြီး ထည့်ပါ။'):h('div',{},row('အဖွင့်ငွေ',money(op)),row('+ ရောင်းရငွေ',money(by[m])),row('+ ကြွေးကောက်ရငွေ',money(col[m])),row('− အသုံးစရိတ်',money(om[m])),row('= လက်ကျန်ငွေ (စာရင်းအရ)',money(ex),'var(--navy)'),cl?row('ရေတွက်ထားတာ · ကွာ',money(cl.amt)+' · '+(cl.amt-ex>=0?'+':'')+r2(cl.amt-ex),Math.abs(cl.amt-ex)<0.5?'var(--ok)':'var(--red)'):''),ia,h('div',{class:'row',style:'margin-top:6px'},...(op===null?[setOpen]:[setClose,setOpen])))};
+body=[h('div',{class:'card'},h('b',{},'ငွေစာရင်း (စုစုပေါင်း)'),row('အဖွင့်ငွေ',money(sumOp)),row('+ ရောင်းရငွေ',money(sIn)),row('+ ကြွေးကောက်ရငွေ',money(cIn)),row('− အသုံးစရိတ်',money(oOut)),h('div',{class:'li'},h('b',{},'= လက်ကျန်ငွေ'),h('b',{style:'font-size:18px;color:'+(clo<0?'var(--red)':'var(--ok)')},money(clo))),unset?h('div',{class:'msg e'},'အဖွင့်ငွေ မသတ်မှတ်ရသေးတာ '+unset+' ခု ရှိလို့ ဒီစုစုပေါင်း မပြည့်စုံသေးပါ။'):'',h('small',{},'ကြွေးရောင်းတာ ပါမလာပါဘူး (ပိုက်ဆံ မရသေးလို့)။ အမြတ်စာရင်း မဟုတ်ပါ။')),...MTH.map(card)]}
+else if(repTab===3){body=[h('div',{class:'card'},h('b',{},'ဒီနေ့ စရိတ်'),...(ed.length?ed.map(e=>h('div',{class:'li'},h('span',{},tm(e.at)+' · '+e.desc,h('br'),h('small',{},ECAT[e.cat]+' · '+PAY[e.m])),h('b',{},money(e.amt)))):[h('small',{},'စရိတ် မရှိပါ။')]),h('div',{class:'li'},h('b',{},'စုစုပေါင်း'),h('b',{},money(ed.reduce((x,e)=>x+e.amt,0))))),Object.keys(ec).length?h('div',{class:'card'},h('b',{},'အမျိုးအစားအလိုက်'),...Object.keys(ECAT).filter(c=>ec[c]).map(c=>row(ECAT[c],money(ec[c])))):'']}
+else{const cs=sd.filter(s=>creditOf(s)>0),top=customers().filter(c=>c.bal>0.5).sort((x,y)=>y.bal-x.bal).slice(0,10);
+body=[h('div',{class:'card'},h('b',{},'ဒီနေ့ ကြွေးယူတာ'),...(cs.length?cs.map(s=>h('div',{class:'li'},h('span',{},tm(s.at)+' · '+(s.cust||''),h('br'),h('small',{},s.lines.map(l=>l.name+'×'+l.qty).join(', '))),h('b',{},money(creditOf(s))))):[h('small',{},'မရှိပါ။')]),row('စုစုပေါင်း',money(by.credit))),
+h('div',{class:'card'},h('b',{},'ဒီနေ့ ကြွေးပြန်ရတာ'),...(pd.length?pd.map(x=>h('div',{class:'li'},h('span',{},tm(x.at)+' · '+x.cust+' · '+PAY[x.method]),h('b',{},money(x.amount)))):[h('small',{},'မရှိပါ။')])),
+h('div',{class:'card'},h('b',{},'ကြွေးကျန် (ယခု) '+money(debtTotal())),...(top.length?top.map(c=>row(c.name,money(c.bal))):[h('small',{},'ကြွေးကျန်တဲ့ ဖောက်သည် မရှိပါ။')]))]}
+app.append(h('div',{class:'card'},h('b',{},'နေ့စဉ် စာရင်းချုပ်'),di),tabs,msg,...body)}
 function viewOxy(){
 const app=$('#app');app.replaceChildren();const msg=h('div');
 const o2=products.filter(p=>p.cat==='အောက်ဆီဂျင်'),now=new Date(),t0=dbounds(dkey(Date.now()))[0],m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
@@ -312,7 +333,7 @@ const rcB=h('button',{onclick:()=>{const q=parseInt(xq.value),c=parseFloat(xc.va
 const srcCards=[h('div',{class:'card'},h('b',{},'အိုးကြီး (စက်ရုံမှာ ဖြည့်လာတာ)'),h('div',{},'ဆိုင်မှာ အပြည့် '+fullO+' လုံး · သုံးနေတာ '+liveO.length+' လုံး · အလွတ် (စက်ရုံ မပို့ရသေး) '+emptyO+' လုံး'),looseO?h('div',{class:'msg e'},'အိုးကြီးမဖွင့်ဘဲ ရောင်းထားတာ '+pc(looseO)+' % စာ ရှိတယ်။'):'',h('small',{},'ပထမဆုံး ဆိုင်မှာရှိသမျှ (သုံးနေတာပါ) ရေပြီး "အပြည့် ရရှိ" ထည့်ပါ။ စက်ရုံကို ပေးရတဲ့ငွေကို "စရိတ်" tab မှာ "စက်ရုံငွေချေ" နဲ့ မှတ်ပါ။'),xq,xc,h('div',{class:'row',style:'margin-top:8px'},rcB,rtB)),...liveO.map(cardO),h('div',{class:'card'},h('b',{},'အိုးကြီးအသစ် ဖွင့်သုံးရန်'),pcIn,openB)];
 app.append(msg,...srcCards,h('div',{class:'msg',style:'background:#E8EEF7;color:var(--navy)'},'Oxygen ပစ္စည်းတွေက "ပစ္စည်းများ" tab မှာ အမျိုးအစား "အောက်ဆီဂျင်" နဲ့ ထည့်ထားတာတွေပါ (ဥပမာ 10L O2၊ 40L O2)။ တစ်ခုချင်းစီကို "ဖောက်သည်အိုး ဖြည့်ပေး" လား "အိုးလဲပေး" လား ရွေးပါ။'),...(o2.length?o2.map(rowF):[h('div',{class:'msg e'},'Oxygen ပစ္စည်း မရှိသေးပါ။ "ပစ္စည်းများ" tab မှာ အမျိုးအစား "အောက်ဆီဂျင်" ရွေးပြီး ထည့်ပါ။')]))}
 /* shell */
-const VIEWS={1:viewSale,2:viewProducts,3:viewGas,4:viewDebt,5:viewData,6:viewOxy,7:viewExp,8:viewReport};
+const VIEWS={1:viewSale,2:viewProducts,3:viewGas,4:viewCust,5:viewData,6:viewOxy,7:viewExp,8:viewReport};
 const show=n=>{tab=n;for(let i=1;i<=8;i++)$('#t'+i).className=i==n?'on':'';try{$('#t'+n).scrollIntoView({inline:'center',block:'nearest'})}catch(e){}VIEWS[n]()};
 for(let i=1;i<=8;i++)$('#t'+i).onclick=()=>show(i);
 const net=()=>{const e=$('#net');e.textContent=navigator.onLine?'အွန်လိုင်း':'အော့ဖ်လိုင်း (ဆက်သုံးနိုင်)';e.className=navigator.onLine?'':'off'};
