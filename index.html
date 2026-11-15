@@ -35,13 +35,65 @@ nav button{flex:1;background:#fff;color:var(--navy);border-radius:0;padding:14px
 nav button.on{background:var(--org);color:#fff}
 small{color:#5A6B82}
 button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:4px 10px;font-size:13px}
+
 #rcpt{display:none}
-@media print{@page{size:80mm auto;margin:3mm}body{background:#fff;padding:0}header,main,nav{display:none!important}#rcpt{display:block;width:72mm;color:#000;font-size:13px;line-height:1.5}#rcpt .c{text-align:center}#rcpt .r{display:flex;justify-content:space-between;gap:6px}#rcpt hr{border:0;border-top:1px dashed #000;margin:6px 0}}
-</style></head><body>
-<header><b>AUNG Gas Solutions</b><span id="net"></span></header>
-<main id="app"></main>
-<nav><button id="t1">ရောင်းချမှု</button><button id="t2">ပစ္စည်းများ</button><button id="t3">48kg Gas</button><button id="t4">ကြွေး</button><button id="t5">ဒေတာ</button></nav>
-<div id="rcpt"></div>
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 3mm;
+  }
+
+  body {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  header, main, nav {
+    display: none !important;
+  }
+
+  #rcpt {
+    display: block !important;
+    width: 72mm;
+    color: #000;
+    font-family: "Noto Sans Myanmar", "Myanmar Text", sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    font-weight: 500;
+  }
+
+  #rcpt .c {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  #rcpt .c b {
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  #rcpt .r {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  #rcpt .r b {
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  #rcpt hr {
+    border: 0;
+    border-top: 1px dashed #000;
+    margin: 8px 0;
+  }
+}
+
 <script>
 const $=s=>document.querySelector(s);
 const h=(t,a={},...c)=>{const e=document.createElement(t);for(const k in a){if(k==='class')e.className=a[k];else if(k.startsWith('on'))e[k]=a[k];else e.setAttribute(k,a[k])}c.flat().forEach(x=>e.append(x));return e};
