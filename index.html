@@ -40,17 +40,11 @@ button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:
 @page{size:80mm auto;margin:3mm}
 body{background:#fff;padding:0}
 header,main,nav{display:none!important}
-#rcpt{display:block;width:72mm;color:#000;font-family:"Noto Sans Myanmar","Myanmar Text",sans-serif;font-size:12px;line-height:1.55}
+#rcpt{display:block;width:72mm;color:#000;font-family:"Noto Sans Myanmar","Myanmar Text",sans-serif;font-size:15px;line-height:1.65}
 #rcpt .c{text-align:center}
-#rcpt .brand{font-size:16px;font-weight:800;letter-spacing:.2px}
-#rcpt .contact{font-size:10.5px;text-align:center}
-#rcpt .meta{font-size:11px}
-#rcpt .r{display:flex;justify-content:space-between;gap:6px;align-items:flex-start}
-#rcpt .item{margin:5px 0}
-#rcpt .item-name{font-weight:700;overflow-wrap:anywhere}
-#rcpt .item-detail{display:flex;justify-content:space-between;gap:6px;font-size:11px}
-#rcpt .grand{font-size:15px;font-weight:800}
-#rcpt .thanks{font-weight:700;text-align:center;margin-top:8px}
+#rcpt .c b{font-size:19px;font-weight:800}
+#rcpt .r{display:flex;justify-content:space-between;gap:6px;font-size:14px;line-height:1.6}
+#rcpt .r b{font-size:17px;font-weight:800}
 #rcpt hr{border:0;border-top:1px dashed #000;margin:7px 0}
 }
 </style></head><body>
@@ -86,33 +80,12 @@ const note=(box,t,k)=>{box.replaceChildren(h('div',{class:'msg '+(k?'k':'e')},t)
 const PAY={cash:'ငွေသား',kpay:'KPay',wave:'Wave Pay',aya:'AyA Pay',credit:'ကြွေး'};
 const payOf=s=>s.pay||'cash',amt=l=>l.foc?0:l.qty*l.price,stotal=s=>s.lines.reduce((a,l)=>a+amt(l),0);
 function stockOf(p){const c=stk.filter(e=>e.pid===p.id&&e.type==='count').sort((a,b)=>b.at-a.at)[0];if(!c)return null;let n=c.qty;stk.forEach(e=>{if(e.pid===p.id&&e.at>c.at&&(e.type==='buy'||e.type==='ret'))n+=e.qty});sales.forEach(x=>{if(!x.voided&&x.at>c.at)x.lines.forEach(l=>{if(l.pid===p.id)n-=l.qty})});return n}
-function printSale(s){
- const R=$('#rcpt'),d=new Date(s.at);
- const date=d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
- const items=s.lines.map(l=>h('div',{class:'item'},
-   h('div',{class:'item-name'},l.name),
-   h('div',{class:'item-detail'},
-     h('span',{},l.foc?'လက်ဆောင် (FOC)':(l.qty+' '+l.unit+' × '+money(l.price))),
-     h('b',{},l.foc?'FOC':money(amt(l)))
-   )
- ));
- const parts=[
-   h('div',{class:'c brand'},'AUNG GAS SOLUTIONS'),
-   rc.head?h('div',{class:'contact'},rc.head):'',
-   h('hr'),
-   h('div',{class:'meta'},'ရက်စွဲ: '+date),
-   h('div',{class:'meta'},'ဘောင်ချာအမှတ်: #'+s.id.slice(-6).toUpperCase())
- ];
- if(s.cust) parts.push(h('div',{class:'meta'},'ဖောက်သည်: '+s.cust));
- parts.push(h('hr'),...items,h('hr'),
-   h('div',{class:'r grand'},h('span',{},'စုစုပေါင်း'),h('span',{},money(stotal(s)))),
-   h('div',{class:'r'},h('span',{},'ငွေပေးချေမှု'),h('b',{},PAY[payOf(s)])),
-   h('hr'),
-   h('div',{class:'thanks'},rc.foot||'ဝယ်ယူအားပေးမှုအတွက် ကျေးဇူးတင်ပါသည်။')
- );
- R.replaceChildren(...parts);
- setTimeout(()=>window.print(),80)
-}
+function printSale(s){const R=$('#rcpt'),d=new Date(s.at);
+R.replaceChildren(h('div',{class:'c'},h('b',{},'AUNG Gas Solutions')),rc.head?h('div',{class:'c'},rc.head):'',h('hr'),
+h('div',{},'ရက်စွဲ: '+d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})),h('div',{},'ဘောင်ချာ #'+s.id.slice(-6).toUpperCase()),h('hr'),
+...s.lines.map(l=>h('div',{},h('div',{},l.name),h('div',{class:'r'},h('span',{},l.qty+' '+l.unit+(l.foc?'':' × '+money(l.price))),h('span',{},l.foc?'FOC':money(amt(l)))))),
+h('hr'),h('div',{class:'r'},h('b',{},'စုစုပေါင်း'),h('b',{},money(stotal(s)))),h('div',{},'ငွေပေးချေမှု: '+PAY[payOf(s)]+(s.cust?' ('+s.cust+')':'')),h('hr'),h('div',{class:'c'},rc.foot||'ကျေးဇူးတင်ပါတယ်'));
+setTimeout(()=>window.print(),80)}
 function viewSale(){
 const app=$('#app');app.replaceChildren();
 const dl=h('datalist',{id:'pl'},products.map(p=>h('option',{value:p.name})));
