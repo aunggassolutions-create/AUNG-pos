@@ -34,6 +34,7 @@ nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-t
 nav button{flex:1;background:#fff;color:var(--navy);border-radius:0;padding:14px 0;font-weight:700}
 nav button.on{background:var(--org);color:#fff}
 small{color:#5A6B82}
+button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:4px 10px;font-size:13px}
 #rcpt{display:none}
 @media print{@page{size:80mm auto;margin:3mm}body{background:#fff;padding:0}header,main,nav{display:none!important}#rcpt{display:block;width:72mm;color:#000;font-size:13px;line-height:1.5}#rcpt .c{text-align:center}#rcpt .r{display:flex;justify-content:space-between;gap:6px}#rcpt hr{border:0;border-top:1px dashed #000;margin:6px 0}}
 </style></head><body>
@@ -51,7 +52,7 @@ const UNITS=['ခု','ဘူး','kg','viss'];
 const SAMPLE=[['LPG ပြန်ဖြည့် (kg/viss)','LPG ဓာတ်ငွေ့','kg'],['EFF ဗူးသစ်','LPG ဘူး','ဘူး'],['KOREANA ဗူးသစ်','LPG ဘူး','ဘူး'],['5kg (Thailand)','LPG ဘူး','ဘူး'],['10kg (Thailand)','LPG ဘူး','ဘူး'],['15kg (Thailand)','LPG ဘူး','ဘူး'],['O2 (သေး)','အောက်ဆီဂျင်','ဘူး'],['O2 (ကြီး)','အောက်ဆီဂျင်','ဘူး'],['5L O2','အောက်ဆီဂျင်','ဘူး'],['10L O2','အောက်ဆီဂျင်','ဘူး'],['40L O2','အောက်ဆီဂျင်','ဘူး'],['Rinnai RI-522A','မီးဖို','ခု'],['Rinnai RV-151','မီးဖို','ခု'],['SAGA SG-GS652','မီးဖို','ခု'],['LuckyFlame (L-336S)','မီးဖို','ခု'],['Namilux (PS)','မီးဖို','ခု'],['YAMATO L.P.G Regulator','Regulator/Valve','ခု'],['YAMATO O2 Regulator','Regulator/Valve','ခု'],['Argon Regulator','Regulator/Valve','ခု'],['Twin Valve (L.P.G)','Regulator/Valve','ခု'],['4kg Valve','Regulator/Valve','ခု'],['KB-5 Valve','Regulator/Valve','ခု'],['Flowmeter (Male)','Regulator/Valve','ခု'],['Refill Gun','ဆက်စပ်ပစ္စည်း','ခု'],['Kovea Gun','ဆက်စပ်ပစ္စည်း','ခု'],['Cutting Torch','ဆက်စပ်ပစ္စည်း','ခု'],['Welding Nozzle (No.1)','ဆက်စပ်ပစ္စည်း','ခု'],['O2 Headnut','ဆက်စပ်ပစ္စည်း','ခု'],['L.P.G Headnut','ဆက်စပ်ပစ္စည်း','ခု'],['Portable Magnet','ဆက်စပ်ပစ္စည်း','ခု']];
 /* IndexedDB */
 let db;
-const open=()=>new Promise((ok,no)=>{const r=indexedDB.open('aung-gas-pos',2);r.onupgradeneeded=()=>{const d=r.result;['products','sales','meta','gasEv','pays'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='meta'?'k':'id'})})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const open=()=>new Promise((ok,no)=>{const r=indexedDB.open('aung-gas-pos',3);r.onupgradeneeded=()=>{const d=r.result;['products','sales','meta','gasEv','pays','stk'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='meta'?'k':'id'})})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const run=(st,mode,fn)=>new Promise((ok,no)=>{const t=db.transaction(st,mode);let out;t.oncomplete=()=>ok(out);t.onabort=()=>no(t.error);t.onerror=()=>{};out=fn(t)});
 const all=s=>new Promise((ok,no)=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)});
 const add=(s,o)=>run(s,'readwrite',t=>t.objectStore(s).add(o));
@@ -60,14 +61,15 @@ const del=(s,k)=>run(s,'readwrite',t=>t.objectStore(s).delete(k));
 async function seed(){const m=await new Promise(ok=>{const q=db.transaction('meta').objectStore('meta').get('seeded');q.onsuccess=()=>ok(q.result)});if(m)return;
 await run(['products','meta'],'readwrite',t=>{SAMPLE.forEach(([n,c,u])=>t.objectStore('products').add({id:uuid(),name:n,cat:c,unit:u,sample:true,at:Date.now()}));t.objectStore('meta').put({k:'seeded',v:Date.now()})})}
 /* state */
-let rc={head:'',foot:''},pays=[],gasEv=[],cfg={usable:28.5,cans:7,nominal:29.3},products=[],sales=[],lines=[],saleId=uuid(),saving=false,tab=1;
-const reload=async()=>{products=(await all('products')).sort((a,b)=>a.name.localeCompare(b.name));sales=(await all('sales')).sort((a,b)=>b.at-a.at);gasEv=(await all('gasEv')).sort((a,b)=>b.at-a.at);pays=(await all('pays')).sort((a,b)=>b.at-a.at);const mm=await all('meta'),m=mm.find(x=>x.k==='gascfg'),r=mm.find(x=>x.k==='rcpt');if(m)cfg=m.v;if(r)rc=r.v};
+let stk=[],rc={head:'',foot:''},pays=[],gasEv=[],cfg={usable:28.5,cans:7,nominal:29.3},products=[],sales=[],lines=[],saleId=uuid(),saving=false,tab=1;
+const reload=async()=>{products=(await all('products')).sort((a,b)=>a.name.localeCompare(b.name));sales=(await all('sales')).sort((a,b)=>b.at-a.at);gasEv=(await all('gasEv')).sort((a,b)=>b.at-a.at);pays=(await all('pays')).sort((a,b)=>b.at-a.at);stk=await all('stk');const mm=await all('meta'),m=mm.find(x=>x.k==='gascfg'),r=mm.find(x=>x.k==='rcpt');if(m)cfg=m.v;if(r)rc=r.v};
 async function ensureGas(){const m=(await all('meta')).find(x=>x.k==='gas2');if(m)return;await run(['products','meta'],'readwrite',t=>{[['Gas (ပိဿာ)','viss','viss'],['Gas ဗူးဖြည့်','ဘူး','can']].forEach(([n,u,g])=>t.objectStore('products').add({id:uuid(),name:n,cat:'LPG ဓာတ်ငွေ့',unit:u,gas:g,sample:false,at:Date.now()}));t.objectStore('meta').put({k:'gas2',v:Date.now()})})}
 const gv=(p,q,u)=>p&&p.gas?(p.gas==='viss'?(u==='viss'?q:null):(u==='ဘူး'?q/cfg.cans:null)):0;
 const note=(box,t,k)=>{box.replaceChildren(h('div',{class:'msg '+(k?'k':'e')},t))};
 /* sale view */
 const PAY={cash:'ငွေသား',kpay:'KPay',wave:'Wave Pay',aya:'AyA Pay',credit:'ကြွေး'};
 const payOf=s=>s.pay||'cash',amt=l=>l.foc?0:l.qty*l.price,stotal=s=>s.lines.reduce((a,l)=>a+amt(l),0);
+function stockOf(p){const c=stk.filter(e=>e.pid===p.id&&e.type==='count').sort((a,b)=>b.at-a.at)[0];if(!c)return null;let n=c.qty;stk.forEach(e=>{if(e.pid===p.id&&e.at>c.at&&(e.type==='buy'||e.type==='ret'))n+=e.qty});sales.forEach(x=>{if(!x.voided&&x.at>c.at)x.lines.forEach(l=>{if(l.pid===p.id)n-=l.qty})});return n}
 function printSale(s){const R=$('#rcpt'),d=new Date(s.at);
 R.replaceChildren(h('div',{class:'c'},h('b',{},'AUNG Gas Solutions')),rc.head?h('div',{class:'c'},rc.head):'',h('hr'),
 h('div',{},'ရက်စွဲ: '+d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})),h('div',{},'ဘောင်ချာ #'+s.id.slice(-6).toUpperCase()),h('hr'),
@@ -96,7 +98,7 @@ const addLine=()=>{const p=products.find(x=>x.name===pn.value.trim()),q=parseFlo
 if(!p)return note(msg,'ပစ္စည်းစာရင်းထဲက ပစ္စည်းကို ရွေးပါ။ မရှိရင် "ပစ္စည်းများ" မှာ အရင်ထည့်ပါ။');
 if(!(q>0))return note(msg,'ပမာဏကို 0 ထက်ကြီးအောင် ထည့်ပါ။');
 if(!f&&(isNaN(pc)||pc<=0))return note(msg,'ဈေးနှုန်းကို ကိုယ်တိုင် ထည့်ပါ (0 ထက်ကြီးရမယ်)။ လှူ/လက်ဆောင်ဆိုရင် FOC ကို အမှန်ခြစ်ပါ။');
-const g=gv(p,q,un.value);if(g===null)return note(msg,'Gas ကို "Gas (ပိဿာ)" မှာ ပိဿာနဲ့၊ "Gas ဗူးဖြည့်" မှာ ဘူးနဲ့ပဲ ထည့်ပါ။');lines.push({pid:p.id,name:p.name,qty:q,unit:un.value,price:isNaN(pc)?0:pc,foc:f,gasViss:g,gasRole:p.gas||null});msg.replaceChildren();pn.value=qty.value=pr.value='';foc.checked=false;draw()};
+const g=gv(p,q,un.value);if(g===null)return note(msg,'Gas ကို "Gas (ပိဿာ)" မှာ ပိဿာနဲ့၊ "Gas ဗူးဖြည့်" မှာ ဘူးနဲ့ပဲ ထည့်ပါ။');if(!p.gas){const st=stockOf(p);if(st!==null){const inCart=lines.filter(l=>l.pid===p.id).reduce((a,l)=>a+l.qty,0);if(q+inCart>st&&!confirm('"'+p.name+'" လက်ကျန် '+Math.round(st*100)/100+' '+p.unit+' ပဲ ရှိတယ်။ ဆက်ထည့်မလား?'))return}}lines.push({pid:p.id,name:p.name,qty:q,unit:un.value,price:isNaN(pc)?0:pc,foc:f,gasViss:g,gasRole:p.gas||null});msg.replaceChildren();pn.value=qty.value=pr.value='';foc.checked=false;draw()};
 save.onclick=async()=>{if(saving||!lines.length)return;const total=lines.reduce((s,l)=>s+amt(l),0),pm=pay.value,c=cust.value.trim();
 if(pm==='credit'){if(!c)return note(msg,'ကြွေးအတွက် ဖောက်သည်နာမည် ထည့်ပါ။');if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ကြွေးမရွေးပါနဲ့။')}
 saving=true;save.disabled=true;let pa=null;
@@ -137,12 +139,24 @@ function viewProducts(){
 const app=$('#app');app.replaceChildren();
 const q=h('input',{placeholder:'ရှာရန်'}),box=h('div',{class:'card'}),msg=h('div');
 const fix=(!products.length||!products.some(p=>p.gas))?h('button',{class:'o',onclick:async()=>{try{const have=new Set(products.map(p=>p.name.toLowerCase()));const G=[{name:'Gas (ပိဿာ)',cat:'LPG ဓာတ်ငွေ့',unit:'viss',gas:'viss',sample:false},{name:'Gas ဗူးဖြည့်',cat:'LPG ဓာတ်ငွေ့',unit:'ဘူး',gas:'can',sample:false}];const L=(products.length?[]:SAMPLE.map(([n,c,u])=>({name:n,cat:c,unit:u,sample:true}))).concat(G).filter(x=>!have.has(x.name.toLowerCase()));await run('products','readwrite',t=>{L.forEach(x=>t.objectStore('products').add({id:uuid(),at:Date.now(),...x}))});await reload();viewProducts()}catch(e){note(msg,'မထည့်နိုင်ပါ: '+(e&&e.message||e))}}},products.length?'Gas ပစ္စည်း ၂ ခု ပြန်ထည့်မည်':'နမူနာပစ္စည်းများ ပြန်ထည့်မည်'):'';
-const draw=()=>{const t=q.value.toLowerCase();const ps=products.filter(p=>p.name.toLowerCase().includes(t));box.replaceChildren(...(ps.length?ps.map(p=>h('div',{class:'li'},h('span',{},p.name,p.sample?h('span',{class:'tag'},'နမူနာ'):'',h('br'),h('small',{},p.cat+' · '+p.unit)),h('button',{class:'g',onclick:async()=>{if(!confirm('"'+p.name+'" ကို ဖျက်မလား? ယခင်ရောင်းချမှုတွေ မပျက်ပါဘူး။'))return;try{await del('products',p.id);await reload();draw()}catch(e){note(msg,'မဖျက်နိုင်ပါ: '+e.message)}}},'ဖျက်'))):[h('small',{},'မတွေ့ပါ။')]))};
+const r2=x=>Math.round(x*100)/100,sumEl=h('div',{class:'msg',style:'background:#E8EEF7;color:var(--navy)'});
+const row=p=>{const st=p.gas?null:stockOf(p);
+const go=async(ev)=>{try{await add('stk',{id:uuid(),at:Date.now(),pid:p.id,name:p.name,...ev});await reload();draw()}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
+const need=()=>note(msg,'"'+p.name+'" ကို အရင် "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။');
+const buy=h('button',{class:'n',onclick:()=>{if(st===null)return need();const q_=parseFloat(prompt('ဝယ်ယူတဲ့ အရေအတွက် ('+p.unit+')'));if(!(q_>0))return;const c=parseFloat(prompt('တစ် '+p.unit+' ချင်း ဝယ်ဈေး (မသိရင် ဗလာထား)'));if(!confirm(p.name+' '+q_+' '+p.unit+' ဝယ်ယူတာ မှတ်မလား?'))return;go({type:'buy',qty:q_,cost:isNaN(c)?null:c})}},'ဝယ်');
+const cnt=h('button',{class:'n',onclick:()=>{const v=parseFloat(prompt('ကိုယ်တိုင်ရေထားတဲ့ လက်ကျန်အစစ် ('+p.unit+')'+(st===null?'':' · စာရင်းအရ '+r2(st))));if(isNaN(v)||v<0)return;let why='';if(st!==null&&Math.abs(v-st)>1e-9){why=(prompt('စာရင်းနဲ့ မကိုက်ပါ။ အကြောင်းရင်း')||'').trim();if(!why)return note(msg,'အကြောင်းရင်း ထည့်ပါ။')}if(!confirm(p.name+' လက်ကျန်ကို '+v+' '+p.unit+' အဖြစ် မှတ်မလား?'))return;go({type:'count',qty:v,expected:st,note:why})}},'ရေတွက်');
+const ret=h('button',{class:'n',onclick:()=>{if(st===null)return need();const q_=parseFloat(prompt('ဖောက်သည်က ပြန်ပေးတဲ့ အရေအတွက် ('+p.unit+')'));if(!(q_>0))return;if(!confirm(p.name+' '+q_+' '+p.unit+' ပြန်လက်ခံတာ မှတ်မလား? (လက်ကျန်ပဲ တိုးမယ်၊ ပိုက်ဆံပြန်အမ်းတာ မမှတ်ပါ)'))return;go({type:'ret',qty:q_})}},'ပြန်လက်ခံ');
+const dl_=h('button',{class:'g',onclick:async()=>{if(!confirm('"'+p.name+'" ကို ဖျက်မလား? ယခင်ရောင်းချမှုတွေ မပျက်ပါဘူး။'))return;try{await del('products',p.id);await reload();draw()}catch(e){note(msg,'မဖျက်နိုင်ပါ: '+e.message)}}},'ဖျက်');
+const badge=p.gas?h('small',{},'(48kg Gas tab မှာ ကြည့်ပါ)'):st===null?h('small',{style:'color:#9A4308'},'လက်ကျန် မရေတွက်ရသေး'):h('b',{style:'color:'+(st<=0?'var(--red)':'var(--ok)')},'လက်ကျန် '+r2(st)+' '+p.unit);
+return h('div',{class:'li',style:'flex-wrap:wrap'},h('span',{style:'flex:1 1 55%'},p.name,p.sample?h('span',{class:'tag'},'နမူနာ'):'',h('br'),h('small',{},p.cat+' · '+p.unit),h('br'),badge),h('span',{style:'display:flex;gap:6px;flex-wrap:wrap'},...(p.gas?[]:[buy,cnt,ret]),dl_))};
+const draw=()=>{const t=q.value.toLowerCase(),ps=products.filter(p=>p.name.toLowerCase().includes(t)),sm=products.filter(p=>!p.gas).map(stockOf);
+sumEl.textContent='လက်ကျန် ရေတွက်ပြီး '+sm.filter(x=>x!==null).length+' ခု · မရေတွက်ရသေး '+sm.filter(x=>x===null).length+' ခု · ကုန်/အနုတ် '+sm.filter(x=>x!==null&&x<=0).length+' ခု';
+box.replaceChildren(...(ps.length?ps.map(row):[h('small',{},'မတွေ့ပါ။')]))};
 q.oninput=draw;
 const nn=h('input',{placeholder:'ပစ္စည်းနာမည်'}),nc=h('select',{},CATS.map(c=>h('option',{},c))),nu=h('select',{},UNITS.map(u=>h('option',{},u)));
 const addBtn=h('button',{class:'o',onclick:async()=>{const n=nn.value.trim();if(!n)return note(msg,'ပစ္စည်းနာမည် ထည့်ပါ။');if(products.some(p=>p.name.toLowerCase()===n.toLowerCase()))return note(msg,'ဒီနာမည်နဲ့ ပစ္စည်း ရှိပြီးသားပါ။');
 try{await add('products',{id:uuid(),name:n,cat:nc.value,unit:nu.value,sample:false,at:Date.now()});nn.value='';await reload();draw();note(msg,'ထည့်ပြီးပါပြီ။',1)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+e.message)}}},'ပစ္စည်းအသစ် ထည့်မည်');
-app.append(h('div',{class:'msg e',style:'background:#FFF3E8;color:#9A4308'},'"နမူနာ" ပစ္စည်းတွေက စမ်းသပ်ရန်သာ။ အမည်ကို PDF ထဲကယူထားပြီး ဈေး/လက်ကျန် မပါပါ။ မလိုတာ ဖျက်၊ လိုတာ ထည့်ပါ။'),h('div',{class:'card'},h('b',{},'ပစ္စည်းအသစ်'),nn,h('div',{class:'row'},nc,nu),addBtn),msg,fix,h('h2',{},'ပစ္စည်းစာရင်း ('+products.length+')'),q,box);draw()}
+app.append(h('div',{class:'msg e',style:'background:#FFF3E8;color:#9A4308'},'"နမူနာ" ပစ္စည်းတွေက စမ်းသပ်ရန်သာ။ အမည်ကို PDF ထဲကယူထားပြီး ဈေး/လက်ကျန် မပါပါ။ မလိုတာ ဖျက်၊ လိုတာ ထည့်ပါ။ လက်ကျန်အတွက် ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး ကိုယ်တိုင်ရေထားတဲ့ အရေအတွက် ထည့်ပါ။'),h('div',{class:'card'},h('b',{},'ပစ္စည်းအသစ်'),nn,h('div',{class:'row'},nc,nu),addBtn),msg,fix,h('h2',{},'ပစ္စည်းစာရင်း ('+products.length+')'),sumEl,q,box);draw()}
 
 function viewGas(){
 const app=$('#app');app.replaceChildren();
