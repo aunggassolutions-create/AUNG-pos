@@ -35,65 +35,13 @@ nav button{flex:1;background:#fff;color:var(--navy);border-radius:0;padding:14px
 nav button.on{background:var(--org);color:#fff}
 small{color:#5A6B82}
 button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:4px 10px;font-size:13px}
-
 #rcpt{display:none}
-
-@media print {
-  @page {
-    size: 80mm auto;
-    margin: 3mm;
-  }
-
-  body {
-    background: #fff !important;
-    padding: 0 !important;
-  }
-
-  header, main, nav {
-    display: none !important;
-  }
-
-  #rcpt {
-    display: block !important;
-    width: 15px;
-    color: #000;
-    font-family: "Noto Sans Myanmar", "Myanmar Text", sans-serif;
-    font-size: 40px;
-    line-height: 1.8;
-    font-weight: 500;
-  }
-
-  #rcpt .c {
-    text-align: center;
-    margin-bottom: 5px;
-  }
-
-  #rcpt .c b {
-    font-size: 30px;
-    font-weight: 900;
-  }
-
-  #rcpt .r {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    font-size: 15px;
-    line-height: 1.8;
-  }
-
-  #rcpt .r b {
-    font-size: 18px;
-    font-weight: 900;
-  }
-
-  #rcpt hr {
-    border: 0;
-    border-top: 1px dashed #000;
-    margin: 8px 0;
-  }
-}
-
+@media print{@page{size:80mm auto;margin:3mm}body{background:#fff;padding:0}header,main,nav{display:none!important}#rcpt{display:block;width:72mm;color:#000;line-height:1.5}#rcpt .c{text-align:center}#rcpt .r{display:flex;justify-content:space-between;gap:8px}#rcpt .r.b{font-weight:700}#rcpt .r span:last-child{white-space:nowrap}#rcpt .big{font-size:1.5em;font-weight:700}#rcpt .dd{border-top:2px dashed #000;margin:8px 0}#rcpt .ss{border-top:3px solid #000;margin:8px 0 4px}#rcpt .it{margin:6px 0}#rcpt .nm{font-weight:700}#rcpt .tt{font-size:1.4em;font-weight:700}#rcpt .ft{margin-top:4px}}
+</style></head><body>
+<header><b>AUNG Gas Solutions</b><span id="net"></span></header>
+<main id="app"></main>
+<nav><button id="t1">ရောင်းချမှု</button><button id="t2">ပစ္စည်းများ</button><button id="t3">48kg Gas</button><button id="t4">ကြွေး</button><button id="t5">ဒေတာ</button></nav>
+<div id="rcpt"></div>
 <script>
 const $=s=>document.querySelector(s);
 const h=(t,a={},...c)=>{const e=document.createElement(t);for(const k in a){if(k==='class')e.className=a[k];else if(k.startsWith('on'))e[k]=a[k];else e.setAttribute(k,a[k])}c.flat().forEach(x=>e.append(x));return e};
@@ -121,13 +69,16 @@ const note=(box,t,k)=>{box.replaceChildren(h('div',{class:'msg '+(k?'k':'e')},t)
 /* sale view */
 const PAY={cash:'ငွေသား',kpay:'KPay',wave:'Wave Pay',aya:'AyA Pay',credit:'ကြွေး'};
 const payOf=s=>s.pay||'cash',amt=l=>l.foc?0:l.qty*l.price,stotal=s=>s.lines.reduce((a,l)=>a+amt(l),0);
+const partsOf=s=>s.parts||[{m:payOf(s),a:stotal(s)}],payLabel=s=>{const P=partsOf(s);return P.map(x=>PAY[x.m]+(P.length>1?' '+money(x.a):'')).join(' + ')},creditOf=s=>partsOf(s).filter(x=>x.m==='credit').reduce((a,x)=>a+x.a,0);
 function bkBanner(){if(!sales.length)return '';const d=bk?(Date.now()-bk)/864e5:null;if(d!==null&&d<1)return '';const b=h('div',{class:'msg e',style:'cursor:pointer',onclick:()=>show(5)},d===null?'Backup တစ်ခါမှ မလုပ်ရသေးပါ။ ဖုန်းပျောက်/ပျက်ရင် ဒေတာပျောက်မယ်။ "ဒေတာ" tab မှာ လုပ်ပါ။':'နောက်ဆုံး backup လုပ်တာ '+Math.floor(d)+' ရက်ကျော်ပြီ။ "ဒေတာ" tab မှာ လုပ်ပါ။');return b}
 function stockOf(p){const c=stk.filter(e=>e.pid===p.id&&e.type==='count').sort((a,b)=>b.at-a.at)[0];if(!c)return null;let n=c.qty;stk.forEach(e=>{if(e.pid===p.id&&e.at>c.at&&(e.type==='buy'||e.type==='ret'))n+=e.qty});sales.forEach(x=>{if(!x.voided&&x.at>c.at)x.lines.forEach(l=>{if(l.pid===p.id)n-=l.qty})});return n}
-function printSale(s){const R=$('#rcpt'),d=new Date(s.at);
-R.replaceChildren(h('div',{class:'c'},h('b',{},'AUNG Gas Solutions')),rc.head?h('div',{class:'c'},rc.head):'',h('hr'),
-h('div',{},'ရက်စွဲ: '+d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})),h('div',{},'ဘောင်ချာ #'+s.id.slice(-6).toUpperCase()),h('hr'),
-...s.lines.map(l=>h('div',{},h('div',{},l.name),h('div',{class:'r'},h('span',{},l.qty+' '+l.unit+(l.foc?'':' × '+money(l.price))),h('span',{},l.foc?'FOC':money(amt(l)))))),
-h('hr'),h('div',{class:'r'},h('b',{},'စုစုပေါင်း'),h('b',{},money(stotal(s)))),h('div',{},'ငွေပေးချေမှု: '+PAY[payOf(s)]+(s.cust?' ('+s.cust+')':'')),h('hr'),h('div',{class:'c'},rc.foot||'ကျေးဇူးတင်ပါတယ်'));
+function printSale(s){const R=$('#rcpt'),d=new Date(s.at);R.style.fontSize=[16,20,26,32][(rc.size||3)-1]+'px';
+const line=(a,b,c)=>h('div',{class:'r'+(c?' '+c:'')},h('span',{},a),h('span',{},b));
+R.replaceChildren(h('div',{class:'c big'},'AUNG Gas Solutions'),rc.head?h('div',{class:'c'},rc.head):'',h('div',{class:'dd'}),
+line('ရက်စွဲ',d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})),line('ဘောင်ချာ','#'+s.id.slice(-6).toUpperCase()),s.cust?line('ဖောက်သည်',s.cust):'',h('div',{class:'dd'}),
+...s.lines.map(l=>h('div',{class:'it'},h('div',{class:'nm'},l.name),line(l.qty+' '+l.unit+(l.foc?'':' × '+Math.round(l.price).toLocaleString('en-US')),l.foc?'FOC':Math.round(amt(l)).toLocaleString('en-US'),'b'))),
+h('div',{class:'ss'}),line('စုစုပေါင်း',money(stotal(s)),'tt'),h('div',{class:'dd'}),
+...partsOf(s).map(x=>line(PAY[x.m]+(x.m==='credit'?' (ကြွေးကျန်)':''),Math.round(x.a).toLocaleString('en-US'))),h('div',{class:'dd'}),h('div',{class:'c ft'},rc.foot||'ကျေးဇူးတင်ပါတယ်'));
 setTimeout(()=>window.print(),80)}
 function viewSale(){
 const app=$('#app');app.replaceChildren();
@@ -139,39 +90,44 @@ const un=h('select',{},UNITS.map(u=>h('option',{value:u},u)));
 const pr=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ဈေး (တစ်ယူနစ်)'});
 const foc=h('input',{type:'checkbox',style:'width:auto;margin-right:8px'});
 pn.onchange=()=>{const p=products.find(x=>x.name===pn.value);if(p)un.value=p.unit};
-const pay=h('select',{},Object.entries(PAY).map(([k,v])=>h('option',{value:k},v)));
+const pay=h('select',{},Object.entries(PAY).map(([k,v])=>h('option',{value:k},v)).concat([h('option',{value:'split'},'ခွဲရှင်း (၂ မျိုး)')]));
 const cust=h('input',{list:'cl',placeholder:'ဖောက်သည်နာမည် (ကြွေးအတွက် လိုအပ်)',autocomplete:'off',style:'display:none;margin-top:8px'});
-pay.onchange=()=>{cust.style.display=pay.value==='credit'?'block':'none'};
+const mk=()=>h('select',{},['cash','kpay','wave','aya','credit'].map(k=>h('option',{value:k},PAY[k])));
+const sA=mk(),sB=mk();sA.value='kpay';sB.value='cash';
+const aA=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ပထမနည်းလမ်း ပေးတဲ့ပမာဏ'}),bInfo=h('div',{style:'margin:6px 0;font-weight:700'});
+const split=h('div',{style:'display:none'},h('label',{},'ပထမနည်းလမ်း + ပမာဏ'),h('div',{class:'row'},sA,aA),h('label',{},'ကျန်ငွေ ပေးမယ့်နည်းလမ်း'),sB,bInfo);
+const sync=()=>{const sp=pay.value==='split',tt=lines.reduce((x,l)=>x+amt(l),0),a=parseFloat(aA.value)||0;split.style.display=sp?'block':'none';bInfo.textContent='ကျန်ငွေ: '+money(Math.max(tt-a,0))+(a>tt?' (ပမာဏ များနေပါတယ်)':'');cust.style.display=(pay.value==='credit'||(sp&&(sA.value==='credit'||sB.value==='credit')))?'block':'none'};
+pay.onchange=sync;sA.onchange=sync;sB.onchange=sync;aA.oninput=sync;
 const prt=h('input',{type:'checkbox',style:'width:auto;margin-right:8px'});try{prt.checked=localStorage.getItem('prt')==='1'}catch(e){}
 prt.onchange=()=>{try{localStorage.setItem('prt',prt.checked?'1':'0')}catch(e){}};
-const rcb=h('button',{style:'margin-top:10px;background:#fff;color:var(--navy);border:1px solid var(--navy)',onclick:async()=>{const hd=prompt('ဘောင်ချာ ခေါင်းစာ (ဖုန်း/လိပ်စာ)',rc.head);if(hd===null)return;const ft=prompt('ဘောင်ချာ အောက်စာ',rc.foot||'ကျေးဇူးတင်ပါတယ်');if(ft===null)return;try{await put('meta',{k:'rcpt',v:{head:hd.trim(),foot:ft.trim()}});await reload();note(msg,'ဘောင်ချာစာသား သိမ်းပြီးပါပြီ။',1)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ဘောင်ချာ ခေါင်းစာ/အောက်စာ ပြင်ရန်');
 const msg=h('div'),list=h('div'),tot=h('div',{class:'tot'}),save=h('button',{class:'o'},'ရောင်းချမှု သိမ်းမည်'),today=h('div');
-const draw=()=>{list.replaceChildren(...lines.map((l,i)=>h('div',{class:'li'},h('span',{},l.name+' × '+l.qty+' '+l.unit+(l.foc?'':' @ '+money(l.price)),l.foc?h('span',{class:'tag'},'FOC'):'',l.gasViss?' (48kg ထဲက '+(Math.round(l.gasViss*100)/100)+' ပိဿာ)':''),h('span',{},(l.foc?'0 ကျပ်':money(amt(l)))+' ',h('button',{class:'g',onclick:()=>{lines.splice(i,1);draw()}},'ဖယ်'))))); tot.textContent='စုစုပေါင်း '+money(lines.reduce((s,l)=>s+amt(l),0));save.disabled=!lines.length};
+const draw=()=>{list.replaceChildren(...lines.map((l,i)=>h('div',{class:'li'},h('span',{},l.name+' × '+l.qty+' '+l.unit+(l.foc?'':' @ '+money(l.price)),l.foc?h('span',{class:'tag'},'FOC'):'',l.gasViss?' (48kg ထဲက '+(Math.round(l.gasViss*100)/100)+' ပိဿာ)':''),h('span',{},(l.foc?'0 ကျပ်':money(amt(l)))+' ',h('button',{class:'g',onclick:()=>{lines.splice(i,1);draw()}},'ဖယ်'))))); tot.textContent='စုစုပေါင်း '+money(lines.reduce((s,l)=>s+amt(l),0));save.disabled=!lines.length;sync()};
 const addLine=()=>{const p=products.find(x=>x.name===pn.value.trim()),q=parseFloat(qty.value),pc=parseFloat(pr.value),f=foc.checked;
 if(!p)return note(msg,'ပစ္စည်းစာရင်းထဲက ပစ္စည်းကို ရွေးပါ။ မရှိရင် "ပစ္စည်းများ" မှာ အရင်ထည့်ပါ။');
 if(!(q>0))return note(msg,'ပမာဏကို 0 ထက်ကြီးအောင် ထည့်ပါ။');
 if(!f&&(isNaN(pc)||pc<=0))return note(msg,'ဈေးနှုန်းကို ကိုယ်တိုင် ထည့်ပါ (0 ထက်ကြီးရမယ်)။ လှူ/လက်ဆောင်ဆိုရင် FOC ကို အမှန်ခြစ်ပါ။');
 const g=gv(p,q,un.value);if(g===null)return note(msg,'Gas ကို "Gas (ပိဿာ)" မှာ ပိဿာနဲ့၊ "Gas ဗူးဖြည့်" မှာ ဘူးနဲ့ပဲ ထည့်ပါ။');if(!p.gas){const st=stockOf(p);if(st!==null){const inCart=lines.filter(l=>l.pid===p.id).reduce((a,l)=>a+l.qty,0);if(q+inCart>st&&!confirm('"'+p.name+'" လက်ကျန် '+Math.round(st*100)/100+' '+p.unit+' ပဲ ရှိတယ်။ ဆက်ထည့်မလား?'))return}}lines.push({pid:p.id,name:p.name,qty:q,unit:un.value,price:isNaN(pc)?0:pc,foc:f,gasViss:g,gasRole:p.gas||null});msg.replaceChildren();pn.value=qty.value=pr.value='';foc.checked=false;draw()};
 save.onclick=async()=>{if(saving||!lines.length)return;const total=lines.reduce((s,l)=>s+amt(l),0),pm=pay.value,c=cust.value.trim();
-if(pm==='credit'){if(!c)return note(msg,'ကြွေးအတွက် ဖောက်သည်နာမည် ထည့်ပါ။');if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ကြွေးမရွေးပါနဲ့။')}
+let parts;if(pm==='split'){const a=parseFloat(aA.value);if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ခွဲရှင်းမရွေးပါနဲ့။');if(!(a>0&&a<total))return note(msg,'ပထမနည်းလမ်း ပမာဏက 0 ထက်ကြီးပြီး စုစုပေါင်းထက် ငယ်ရမယ်။');if(sA.value===sB.value)return note(msg,'နည်းလမ်း နှစ်ခု မတူရပါ။');parts=[{m:sA.value,a:a},{m:sB.value,a:total-a}]}else parts=[{m:pm,a:total}];
+const hasCr=parts.some(x=>x.m==='credit');if(hasCr){if(!c)return note(msg,'ကြွေးအတွက် ဖောက်သည်နာမည် ထည့်ပါ။');if(!(total>0))return note(msg,'FOC သက်သက်ဆိုရင် ကြွေးမရွေးပါနဲ့။')}
 saving=true;save.disabled=true;let pa=null;
-try{const asg=lines.map(l=>({...l,cylId:l.gasViss?((gasEv.filter(e=>e.type==='cyl'&&!e.closed&&e.role===l.gasRole).sort((a,b)=>a.at-b.at)[0]||{}).id||null):null}));const sale={id:saleId,at:Date.now(),pay:pm,cust:pm==='credit'?c:null,lines:asg,total};await add('sales',sale);if(prt.checked)pa=sale;const nm=asg.some(l=>l.gasViss&&!l.cylId);lines=[];saleId=uuid();pay.value='cash';cust.value='';cust.style.display='none';await reload();note(msg,'သိမ်းပြီးပါပြီ။ ဖုန်းထဲမှာ သိမ်းထားပါတယ်။'+(nm?' (သတိ: ဒီ Gas အတွက် 48kg အိုး မဖွင့်ရသေးလို့ "48kg Gas" tab မှာ အိုးဖွင့်ပါ)':''),1)}
+try{const asg=lines.map(l=>({...l,cylId:l.gasViss?((gasEv.filter(e=>e.type==='cyl'&&!e.closed&&e.role===l.gasRole).sort((a,b)=>a.at-b.at)[0]||{}).id||null):null}));const sale={id:saleId,at:Date.now(),pay:parts.length>1?'split':parts[0].m,parts,cust:hasCr?c:null,lines:asg,total};await add('sales',sale);if(prt.checked)pa=sale;const nm=asg.some(l=>l.gasViss&&!l.cylId);lines=[];saleId=uuid();pay.value='cash';cust.value='';aA.value='';sync();await reload();note(msg,'သိမ်းပြီးပါပြီ။ ဖုန်းထဲမှာ သိမ်းထားပါတယ်။'+(nm?' (သတိ: ဒီ Gas အတွက် 48kg အိုး မဖွင့်ရသေးလို့ "48kg Gas" tab မှာ အိုးဖွင့်ပါ)':''),1)}
 catch(e){if(e&&e.name==='ConstraintError'){lines=[];saleId=uuid();note(msg,'ဒီရောင်းချမှုကို သိမ်းပြီးသားပါ၊ ထပ်မသိမ်းပါဘူး။',1)}else note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e)+'။ ထပ်ကြိုးစားပါ။')}
 saving=false;draw();drawToday();if(pa)printSale(pa)};
 const drawToday=()=>{const s0=new Date();s0.setHours(0,0,0,0);const t0=s0.getTime(),ts=sales.filter(s=>s.at>=t0),ok=ts.filter(s=>!s.voided);
 const by={cash:0,kpay:0,wave:0,aya:0,credit:0},col={cash:0,kpay:0,wave:0,aya:0};
-ok.forEach(s=>{by[payOf(s)]+=stotal(s)});pays.filter(x=>x.at>=t0).forEach(x=>{col[x.method]+=x.amount});
+ok.forEach(s=>{partsOf(s).forEach(x=>{by[x.m]+=x.a})});pays.filter(x=>x.at>=t0).forEach(x=>{col[x.method]+=x.amount});
 const focN=ok.reduce((a,s)=>a+s.lines.filter(l=>l.foc).length,0),all_=Object.values(by).reduce((a,b)=>a+b,0);
 const row=(k)=>h('div',{class:'li'},h('span',{},PAY[k]),h('b',{},money(by[k])+(col[k]?' + ကြွေးကောက် '+money(col[k]):'')));
 today.replaceChildren(h('h2',{},'ယနေ့ ရောင်းချမှု: '+money(all_)),
 h('div',{class:'card'},row('cash'),row('kpay'),row('wave'),row('aya'),h('div',{class:'li'},h('span',{},'ကြွေး (မရသေး)'),h('b',{},money(by.credit))),h('div',{class:'li'},h('span',{},'FOC (လှူ/လက်ဆောင်)'),h('b',{},focN+' ခု')),h('div',{class:'li'},h('span',{},'ဆိုင်ထဲ ငွေသားဝင်'),h('b',{},money(by.cash+col.cash)))),
-h('div',{class:'card'},ts.length?ts.map(s=>h('div',{class:'li'},h('span',{class:s.voided?'void':''},new Date(s.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' · '+s.lines.map(l=>l.name+'×'+l.qty+(l.foc?' (FOC)':'')).join(', ')+' · '+PAY[payOf(s)]+(s.cust?' ('+s.cust+')':'')+(s.voided?' (ပယ်ဖျက်ပြီး)':'')),h('span',{},h('b',{class:s.voided?'void':''},money(stotal(s))),' ',s.voided?'':h('button',{class:'g',style:'color:var(--navy);border-color:var(--navy)',onclick:()=>printSale(s)},'Print'),' ',s.voided?'':h('button',{class:'g',onclick:async()=>{if(!confirm('ဒီရောင်းချမှုကို ပယ်ဖျက်မလား? စာရင်းထဲ ကျန်ရစ်ပြီး ပေါင်းချုပ်ထဲ မပါတော့ပါ။'))return;s.voided=true;s.voidedAt=Date.now();try{await put('sales',s);await reload();drawToday()}catch(e){alert('မပယ်ဖျက်နိုင်ပါ: '+e.message)}}},'ပယ်ဖျက်')))):h('small',{},'ယနေ့ မရောင်းရသေးပါ။')))};
-app.append(dl,cl,bkBanner(),h('div',{class:'card'},h('label',{},'ပစ္စည်း'),pn,h('div',{class:'row'},h('div',{},h('label',{},'ပမာဏ'),qty),h('div',{},h('label',{},'ယူနစ်'),un)),h('label',{},'ဈေး (ကိုယ်တိုင်ထည့်)'),pr,h('label',{style:'display:flex;align-items:center'},foc,'FOC (လှူ/လက်ဆောင် · ငွေမယူ)'),h('button',{class:'o',onclick:addLine,style:'background:var(--navy)'},'စာရင်းထဲ ထည့်မည်')),msg,h('div',{class:'card'},list,tot,h('label',{},'ငွေပေးချေမှု'),pay,cust,h('label',{style:'display:flex;align-items:center'},prt,'ဘောင်ချာ print ထုတ်မည်'),save),today,rcb);
+h('div',{class:'card'},ts.length?ts.map(s=>h('div',{class:'li'},h('span',{class:s.voided?'void':''},new Date(s.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' · '+s.lines.map(l=>l.name+'×'+l.qty+(l.foc?' (FOC)':'')).join(', ')+' · '+payLabel(s)+(s.cust?' ('+s.cust+')':'')+(s.voided?' (ပယ်ဖျက်ပြီး)':'')),h('span',{},h('b',{class:s.voided?'void':''},money(stotal(s))),' ',s.voided?'':h('button',{class:'g',style:'color:var(--navy);border-color:var(--navy)',onclick:()=>printSale(s)},'Print'),' ',s.voided?'':h('button',{class:'g',onclick:async()=>{if(!confirm('ဒီရောင်းချမှုကို ပယ်ဖျက်မလား? စာရင်းထဲ ကျန်ရစ်ပြီး ပေါင်းချုပ်ထဲ မပါတော့ပါ။'))return;s.voided=true;s.voidedAt=Date.now();try{await put('sales',s);await reload();drawToday()}catch(e){alert('မပယ်ဖျက်နိုင်ပါ: '+e.message)}}},'ပယ်ဖျက်')))):h('small',{},'ယနေ့ မရောင်းရသေးပါ။')))};
+app.append(dl,cl,bkBanner(),h('div',{class:'card'},h('label',{},'ပစ္စည်း'),pn,h('div',{class:'row'},h('div',{},h('label',{},'ပမာဏ'),qty),h('div',{},h('label',{},'ယူနစ်'),un)),h('label',{},'ဈေး (ကိုယ်တိုင်ထည့်)'),pr,h('label',{style:'display:flex;align-items:center'},foc,'FOC (လှူ/လက်ဆောင် · ငွေမယူ)'),h('button',{class:'o',onclick:addLine,style:'background:var(--navy)'},'စာရင်းထဲ ထည့်မည်')),msg,h('div',{class:'card'},list,tot,h('label',{},'ငွေပေးချေမှု'),pay,split,cust,h('label',{style:'display:flex;align-items:center'},prt,'ဘောင်ချာ print ထုတ်မည်'),save),today);
 draw();drawToday()}
 function viewDebt(){
 const app=$('#app');app.replaceChildren();
 const msg=h('div'),m={};
-sales.filter(x=>!x.voided&&payOf(x)==='credit'&&x.cust).forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{name:x.cust,cr:0,pd:0}).cr+=stotal(x)});
+sales.filter(x=>!x.voided&&creditOf(x)>0&&x.cust).forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{name:x.cust,cr:0,pd:0}).cr+=creditOf(x)});
 pays.forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{name:x.cust,cr:0,pd:0}).pd+=x.amount});
 const rows=Object.values(m).map(c=>({...c,bal:c.cr-c.pd})).filter(c=>Math.abs(c.bal)>0.5).sort((a,b)=>b.bal-a.bal);
 const owe=rows.filter(c=>c.bal>0),sum=owe.reduce((a,c)=>a+c.bal,0);
@@ -277,15 +233,24 @@ const c=n=>(d.data[n]||[]).length,fresh=!sales.length&&!stk.length&&!pays.length
 const q='Backup ('+(d.exportedAt?st(d.exportedAt):'')+'): ရောင်းချမှု '+c('sales')+'၊ ပစ္စည်း '+c('products')+'၊ လက်ကျန်မှတ်တမ်း '+c('stk')+'၊ ကြွေးပြန်ပေး '+c('pays')+'၊ Gas မှတ်တမ်း '+c('gasEv')+'။\n\n'+(fresh?'ဒီဖုန်းမှာ ရောင်းချမှု မရှိသေးလို့ လက်ရှိ (နမူနာ) ပစ္စည်းစာရင်းကို backup ထဲကဟာနဲ့ အစားထိုးပါမယ်။\n':'ဒီဖုန်းထဲ ဒေတာ ရှိပြီးသားမို့ မရှိတာတွေပဲ ထပ်ထည့်ပါမယ်၊ ရှိပြီးသားကို မထိပါဘူး။\n')+'ဆက်လုပ်မလား?';
 if(!confirm(q)){fi.value='';return}
 try{const r=await importAll(d,fresh);await reload();fi.value='';viewData();note($('#bmsg'),'Restore ပြီးပါပြီ။ ထပ်ထည့်တာ '+r.added+'၊ ရှိပြီးသားမို့ ကျော်တာ '+r.same+'၊ မတူလို့ လက်ရှိကို ထားခဲ့တာ '+r.diff+'။',1)}catch(e){fi.value='';note(msg,'Restore မအောင်မြင်ပါ: '+(e&&e.message||e)+'။ ဘာမှ မပြောင်းလဲပါဘူး။')}};
-const shareB=(()=>{try{const f=new File(['{}'],'x.json',{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]}))return h('button',{class:'o',style:'background:var(--navy)',onclick:async()=>{try{const d=await dumpAll(),nm='aung-pos-backup-'+fstamp()+'.json';await navigator.share({files:[new File([JSON.stringify(d)],nm,{type:'application/json'})],title:nm});await put('meta',{k:'lastBackup',v:Date.now()});await reload();viewData()}catch(e){if(e&&e.name!=='AbortError')note(msg,'မမျှဝေနိုင်ပါ: '+(e.message||e))}}},'Backup ကို Telegram/Drive သို့ ပို့မည်')}catch(e){}return ''})();
+let shF=null,shI=0,shJ='',shN='';const shT=['application/json','text/plain'];
+const canSh=(()=>{try{return !!(navigator.canShare&&shT.some(t=>navigator.canShare({files:[new File(['{}'],'x.json',{type:t})]})))}catch(e){return false}})();
+const shB=canSh?h('button',{class:'o',style:'background:var(--navy)',disabled:'',onclick:()=>{if(!shF)return;navigator.share({files:[shF],title:shN}).then(async()=>{await put('meta',{k:'lastBackup',v:Date.now()});await reload();viewData()}).catch(e=>{if(e&&e.name==='AbortError')return;if(shI<shT.length-1){shI++;shF=new File([shJ],shN,{type:shT[shI]});note(msg,'မျှဝေလို့ မရသေးပါ ('+(e.message||e)+')။ နောက်တစ်နည်းနဲ့ ထပ်နှိပ်ကြည့်ပါ။')}else note(msg,'မျှဝေလို့ မရပါ ('+(e.message||e)+')။ "Backup ဖိုင် ထုတ်မည်" နှိပ်ပြီး Files app ထဲက ဖိုင်ကို Telegram/Drive ကနေ ပို့ပါ။')})}},'Backup ကို Telegram/Drive သို့ ပို့မည်'):'';
+if(canSh)dumpAll().then(d=>{shJ=JSON.stringify(d);shN='aung-pos-backup-'+fstamp()+'.json';shF=new File([shJ],shN,{type:shT[0]});shB.disabled=false}).catch(()=>{});
+const shareB=shB;
 const dlCsv=(name,rows)=>saveBlob(name+'-'+fstamp()+'.csv',new Blob([toCsv(rows)],{type:'text/csv;charset=utf-8'}));
-const csvSales=()=>{const R=[['ရက်စွဲ','အချိန်','ဘောင်ချာ','ငွေပေးချေမှု','ဖောက်သည်','ပစ္စည်း','ပမာဏ','ယူနစ်','ဈေး','FOC','ငွေ','ပယ်ဖျက်ပြီး']];[...sales].sort((a,b)=>a.at-b.at).forEach(x=>{const d=new Date(x.at);x.lines.forEach(l=>R.push([d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),pad(d.getHours())+':'+pad(d.getMinutes()),x.id.slice(-6).toUpperCase(),PAY[payOf(x)],x.cust||'',l.name,l.qty,l.unit,l.price,l.foc?'FOC':'',amt(l),x.voided?'ပယ်ဖျက်ပြီး':'']))});dlCsv('sales',R)};
+const csvSales=()=>{const R=[['ရက်စွဲ','အချိန်','ဘောင်ချာ','ငွေပေးချေမှု','ဖောက်သည်','ပစ္စည်း','ပမာဏ','ယူနစ်','ဈေး','FOC','ငွေ','ပယ်ဖျက်ပြီး']];[...sales].sort((a,b)=>a.at-b.at).forEach(x=>{const d=new Date(x.at);x.lines.forEach(l=>R.push([d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),pad(d.getHours())+':'+pad(d.getMinutes()),x.id.slice(-6).toUpperCase(),payLabel(x),x.cust||'',l.name,l.qty,l.unit,l.price,l.foc?'FOC':'',amt(l),x.voided?'ပယ်ဖျက်ပြီး':'']))});dlCsv('sales',R)};
 const csvProducts=()=>{const R=[['ပစ္စည်း','အမျိုးအစား','ယူနစ်','လက်ကျန် (ရေတွက်ထားမှ)','နမူနာ']];products.forEach(p=>{const s_=p.gas?null:stockOf(p);R.push([p.name,p.cat,p.unit,s_===null?'':Math.round(s_*100)/100,p.sample?'နမူနာ':''])});dlCsv('products-stock',R)};
-const csvDebts=()=>{const m={};sales.filter(x=>!x.voided&&payOf(x)==='credit'&&x.cust).forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{n:x.cust,c:0,p:0}).c+=stotal(x)});pays.forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{n:x.cust,c:0,p:0}).p+=x.amount});dlCsv('debts',[['ဖောက်သည်','ကြွေးယူ','ပြန်ပေး','ကျန်']].concat(Object.values(m).map(c=>[c.n,c.c,c.p,c.c-c.p])))};
+const csvDebts=()=>{const m={};sales.filter(x=>!x.voided&&creditOf(x)>0&&x.cust).forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{n:x.cust,c:0,p:0}).c+=creditOf(x)});pays.forEach(x=>{const k=x.cust.toLowerCase();(m[k]=m[k]||{n:x.cust,c:0,p:0}).p+=x.amount});dlCsv('debts',[['ဖောက်သည်','ကြွေးယူ','ပြန်ပေး','ကျန်']].concat(Object.values(m).map(c=>[c.n,c.c,c.p,c.c-c.p])))};
+const rh=h('textarea',{rows:'2',style:'width:100%;padding:10px;font:inherit;border:1px solid var(--ln);border-radius:6px'}),rf=h('textarea',{rows:'3',style:'width:100%;padding:10px;font:inherit;border:1px solid var(--ln);border-radius:6px'}),rz=h('select',{},['သေး','ပုံမှန်','ကြီး','အကြီးဆုံး'].map((t,i)=>h('option',{value:String(i+1)},t)));
+rh.value=rc.head||'';rf.value=rc.foot||'ကျေးဇူးတင်ပါတယ်';rz.value=String(rc.size||3);
+const rsb=h('button',{onclick:async()=>{try{await put('meta',{k:'rcpt',v:{head:rh.value.trim(),foot:rf.value.trim(),size:parseInt(rz.value)}});await reload();note(msg,'ဘောင်ချာ ဆက်တင် သိမ်းပြီးပါပြီ။',1)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'သိမ်းမည်');
+const rtb=h('button',{class:'n',onclick:()=>{const v={head:rh.value.trim(),foot:rf.value.trim(),size:parseInt(rz.value)};const o=rc;rc=v;printSale({id:'zzTEST001',at:Date.now(),cust:null,lines:[{name:'စမ်းသပ်ပစ္စည်း A',qty:2,unit:'ခု',price:1000},{name:'စမ်းသပ်ပစ္စည်း B',qty:1,unit:'ခု',price:0,foc:true}],parts:[{m:'kpay',a:1000},{m:'cash',a:1000}]});setTimeout(()=>{rc=o},600)}},'စမ်းထုတ်ကြည့်ရန်');
 const cb=(t,f)=>h('button',{style:'margin:4px 6px 4px 0',onclick:()=>{try{f()}catch(e){note(msg,'CSV မထုတ်နိုင်ပါ: '+(e&&e.message||e))}}},t);
 app.append(h('div',{class:'card'},h('b',{},'Backup (ဒေတာ လုံခြုံရေး)'),h('div',{class:'tot',style:'text-align:left;font-size:16px;color:'+(days===null||days>=1?'var(--red)':'var(--ok)')},bk?'နောက်ဆုံး backup ဖိုင်ထုတ်ချိန်: '+st(bk):'Backup တစ်ခါမှ မလုပ်ရသေးပါ'),h('small',{},'ဖိုင်ကို ထုတ်ပေးတာကိုပဲ မှတ်ထားတာ၊ ဖိုင်ကို တကယ် သိမ်းမသိမ်း ကိုယ်တိုင်စစ်ပါ။'),bkb,shareB),
 h('div',{id:'bmsg'}),msg,
 h('div',{class:'card'},h('b',{},'Restore (backup ဖိုင်ကနေ ပြန်ထည့်)'),h('br'),h('small',{},'ရှိပြီးသားကို ဘယ်တော့မှ မထပ်ရေးပါဘူး။ ရောင်းချမှု ထပ်နေတာ မဖြစ်ပါဘူး။'),fi),
+h('div',{class:'card'},h('b',{},'ဘောင်ချာ ဆက်တင်'),h('label',{},'ခေါင်းစာ (ဖုန်း/လိပ်စာ)'),rh,h('label',{},'အောက်စာ'),rf,h('label',{},'စာလုံးအရွယ်'),rz,h('div',{class:'row',style:'margin-top:8px'},rsb,rtb)),
 h('div',{class:'card'},h('b',{},'CSV ထုတ်ရန် (Google Sheets/Excel အတွက်)'),h('br'),cb('ရောင်းချမှု',csvSales),cb('ပစ္စည်း/လက်ကျန်',csvProducts),cb('ကြွေးစာရင်း',csvDebts)))}
 /* shell */
 const show=n=>{tab=n;$('#t1').className=n==1?'on':'';$('#t2').className=n==2?'on':'';$('#t3').className=n==3?'on':'';$('#t4').className=n==4?'on':'';$('#t5').className=n==5?'on':'';n==1?viewSale():n==2?viewProducts():n==3?viewGas():n==4?viewDebt():viewData()};
