@@ -37,6 +37,10 @@ nav button{flex:0 0 auto;min-width:24vw;background:#fff;color:var(--navy);border
 nav button.on{background:var(--org);color:#fff}
 small{color:#5A6B82}
 .tr{display:grid;grid-template-columns:1fr 62px 66px 84px;gap:4px;padding:6px 0;border-bottom:1px solid var(--ln);font-size:14px;align-items:start}.tr.h{font-weight:700;background:#F4F6F9}.tr span:nth-child(n+2){text-align:right}
+.st-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.st-tbl th,.st-tbl td{border:1px solid var(--ln);padding:4px 5px;text-align:right}
+.st-tbl th:first-child,.st-tbl td:first-child,.st-tbl th:nth-child(4),.st-tbl td:nth-child(4){text-align:left}
+.st-tbl th{background:#F4F6F9;color:var(--navy)}
 button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:4px 10px;font-size:13px}
 .modal-bg{position:fixed;inset:0;background:rgba(11,31,58,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:60}
 .modal-box{background:#fff;border-radius:10px;padding:16px;width:100%;max-width:440px;box-shadow:0 12px 30px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto}
@@ -65,8 +69,9 @@ const money=n=>Math.round(n).toLocaleString('en-US')+' ကျပ်';
 const uuid=()=>crypto.randomUUID?crypto.randomUUID():'s'+Date.now()+Math.random().toString(36).slice(2);
 const CATS=['LPG ဓာတ်ငွေ့','LPG အိုး/ဗူး','အောက်ဆီဂျင်','မီးဖို','Regulator/Valve','ဆက်စပ်ပစ္စည်း'];
 const UNITS=['ခု','ဗူး','အိုး','kg','viss'];
-const SAMPLE=[['LPG ပြန်ဖြည့် (kg/viss)','LPG ဓာတ်ငွေ့','kg'],['EFF ဗူးသစ်','LPG အိုး/ဗူး','ဗူး'],['KOREANA ဗူးသစ်','LPG အိုး/ဗူး','ဗူး'],['5kg (Thailand)','LPG အိုး/ဗူး','အိုး'],['10kg (Thailand)','LPG အိုး/ဗူး','အိုး'],['15kg (Thailand)','LPG အိုး/ဗူး','အိုး'],['O2 (သေး)','အောက်ဆီဂျင်','အိုး'],['O2 (ကြီး)','အောက်ဆီဂျင်','အိုး'],['5L O2','အောက်ဆီဂျင်','အိုး'],['10L O2','အောက်ဆီဂျင်','အိုး'],['40L O2','အောက်ဆီဂျင်','အိုး'],['Rinnai RI-522A','မီးဖို','ခု'],['Rinnai RV-151','မီးဖို','ခု'],['SAGA SG-GS652','မီးဖို','ခု'],['LuckyFlame (L-336S)','မီးဖို','ခု'],['Namilux (PS)','မီးဖို','ခု'],['YAMATO L.P.G Regulator','Regulator/Valve','ခု'],['YAMATO O2 Regulator','Regulator/Valve','ခု'],['Argon Regulator','Regulator/Valve','ခု'],['Twin Valve (L.P.G)','Regulator/Valve','ခု'],['4kg Valve','Regulator/Valve','ခု'],['KB-5 Valve','Regulator/Valve','ခု'],['Flowmeter (Male)','Regulator/Valve','ခု'],['Refill Gun','ဆက်စပ်ပစ္စည်း','ခု'],['Kovea Gun','ဆက်စပ်ပစ္စည်း','ခု'],['Cutting Torch','ဆက်စပ်ပစ္စည်း','ခု'],['Welding Nozzle (No.1)','ဆက်စပ်ပစ္စည်း','ခု'],['O2 Headnut','ဆက်စပ်ပစ္စည်း','ခု'],['L.P.G Headnut','ဆက်စပ်ပစ္စည်း','ခု'],['Portable Magnet','ဆက်စပ်ပစ္စည်း','ခု']];
+const SAMPLE=[['LPG ပြန်ဖြည့် (kg/viss)','LPG ဓာတ်ငွေ့','kg'],['EFF ဗူးသစ်','LPG အိုး/ဗူး','ဗူး'],['KOREANA ဗူးသစ်','LPG အိုး/ဗူး','ဗူး'],['5kg (Thailand)','LPG အိုး/ဗူး','အိုး'],['10kg (Thailand)','LPG အိုး/ဗူး','အိုး'],['15kg (Thailand)','LPG အိုး/ဗူး','အိုး'],['40L O2 (စက်ရုံအိုး)','အောက်ဆီဂျင်','အိုး'],['47L O2 (စက်ရုံအိုး)','အောက်ဆီဂျင်','အိုး'],['Over 40L / 40L အပိုင် O2','အောက်ဆီဂျင်','အိုး'],['O2 (သေး)','အောက်ဆီဂျင်','အိုး'],['O2 (ကြီး)','အောက်ဆီဂျင်','အိုး'],['Rinnai RI-522A','မီးဖို','ခု'],['Rinnai RV-151','မီးဖို','ခု'],['SAGA SG-GS652','မီးဖို','ခု'],['LuckyFlame (L-336S)','မီးဖို','ခု'],['Namilux (PS)','မီးဖို','ခု'],['YAMATO L.P.G Regulator','Regulator/Valve','ခု'],['YAMATO O2 Regulator','Regulator/Valve','ခု'],['Argon Regulator','Regulator/Valve','ခု'],['Twin Valve (L.P.G)','Regulator/Valve','ခု'],['4kg Valve','Regulator/Valve','ခု'],['KB-5 Valve','Regulator/Valve','ခု'],['Flowmeter (Male)','Regulator/Valve','ခု'],['Refill Gun','ဆက်စပ်ပစ္စည်း','ခု'],['Kovea Gun','ဆက်စပ်ပစ္စည်း','ခု'],['Cutting Torch','ဆက်စပ်ပစ္စည်း','ခု'],['Welding Nozzle (No.1)','ဆက်စပ်ပစ္စည်း','ခု'],['O2 Headnut','ဆက်စပ်ပစ္စည်း','ခု'],['L.P.G Headnut','ဆက်စပ်ပစ္စည်း','ခု'],['Portable Magnet','ဆက်စပ်ပစ္စည်း','ခု']];
 const AGENTS={'TT Gas':{kg:48,viss:28.5},'NGN':{kg:48,viss:28.5},'Easy Gas':{kg:50,viss:30}};
+const O2_TYPES={'40L':{label:'40L (စက်ရုံအိုး)',rate:19500},'47L':{label:'47L (စက်ရုံအိုး)',rate:23500},'over40':{label:'Over 40L / 40L အပိုင်',rate:25000}};
 
 // IndexedDB setup (schema version 4)
 let db;
@@ -79,13 +84,13 @@ const del=(s,k)=>run(s,'readwrite',t=>t.objectStore(s).delete(k));
 async function seed(){const m=await new Promise(ok=>{const q=db.transaction('meta').objectStore('meta').get('seeded');q.onsuccess=()=>ok(q.result)});if(m)return;
 await run(['products','meta'],'readwrite',t=>{SAMPLE.forEach(([n,c,u])=>t.objectStore('products').add({id:uuid(),name:n,cat:c,unit:u,sample:true,at:Date.now()}));t.objectStore('meta').put({k:'seeded',v:Date.now()})})}
 
-let cf=[],bk=null,stk=[],rc={head:'',foot:''},pays=[],gasEv=[],cfg={usable:28.5,cans:7,nominal:29.3,low:2,lowO2:20,canMin:197,canMax:203},products=[],sales=[],lines=[],saleId=uuid(),saving=false,tab=1;
-const reload=async()=>{products=(await all('products')).sort((a,b)=>a.name.localeCompare(b.name));sales=(await all('sales')).sort((a,b)=>b.at-a.at);gasEv=(await all('gasEv')).sort((a,b)=>b.at-a.at);pays=(await all('pays')).sort((a,b)=>b.at-a.at);stk=await all('stk');cf=await all('cf');const mm=await all('meta'),m=mm.find(x=>x.k==='gascfg'),r=mm.find(x=>x.k==='rcpt');if(m)cfg={...cfg,...m.v};if(r)rc=r.v;bk=(mm.find(x=>x.k==='lastBackup')||{}).v||null};
+let cf=[],bk=null,stk=[],rc={head:'',foot:''},pays=[],gasEv=[],cfg={usable:28.5,cans:7,nominal:29.3,low:2,lowO2:20,canMin:197,canMax:203,o2Rates:{'40L':19500,'47L':23500,'over40':25000}},products=[],sales=[],lines=[],saleId=uuid(),saving=false,tab=1;
+const reload=async()=>{products=(await all('products')).sort((a,b)=>a.name.localeCompare(b.name));sales=(await all('sales')).sort((a,b)=>b.at-a.at);gasEv=(await all('gasEv')).sort((a,b)=>b.at-a.at);pays=(await all('pays')).sort((a,b)=>b.at-a.at);stk=await all('stk');cf=await all('cf');const mm=await all('meta'),m=mm.find(x=>x.k==='gascfg'),r=mm.find(x=>x.k==='rcpt');if(m)cfg={...cfg,...m.v,o2Rates:{...cfg.o2Rates,...(m.v.o2Rates||{})}};if(r)rc=r.v;bk=(mm.find(x=>x.k==='lastBackup')||{}).v||null};
 async function ensureGas(){const m=(await all('meta')).find(x=>x.k==='gas2');if(m)return;await run(['products','meta'],'readwrite',t=>{[['Gas (ပိဿာ)','viss','viss'],['Gas ဗူးဖြည့်','ဗူး','can']].forEach(([n,u,g])=>t.objectStore('products').add({id:uuid(),name:n,cat:'LPG ဓာတ်ငွေ့',unit:u,gas:g,sample:false,at:Date.now()}));t.objectStore('meta').put({k:'gas2',v:Date.now()})})}
 const gv=(p,q,u)=>p&&p.gas?(p.gas==='viss'?(u==='viss'?q:null):((u==='ဗူး'||u==='ဘူး')?q/cfg.cans:null)):0;
 const note=(box,t,k)=>{box.replaceChildren(h('div',{class:'msg '+(k?'k':'e')},t))};
 
-// Custom Non-blocking Dialogs (No native alert() or confirm())
+// Custom Non-blocking Dialogs
 function uiConfirm(msg,okTxt='အတည်ပြုမည်',cancelTxt='မလုပ်ပါ'){
   return new Promise(res=>{
     const bg=h('div',{class:'modal-bg'});
@@ -123,10 +128,11 @@ const payOf=s=>s.pay||'cash',amt=l=>l.foc?0:l.qty*l.price,stotal=s=>s.lines.redu
 const stampAt=v=>{if(!v)return Date.now();const[y,m,d]=v.split('-').map(Number),n=new Date();return Math.min(new Date(y,m-1,d,n.getHours(),n.getMinutes(),n.getSeconds()).getTime(),Date.now())};
 const isPast=v=>!!v&&v<dkey(Date.now()),GL={can:'ဗူးဖြည့်အိုး',viss:'ပိဿာဖြည့်အိုး'};
 
+// Remaining gas calculation including any residual gas returned & refunded (`gas_ret`)
 const gasRemOf=c=>c.cap+(c.adj||0)-sales.reduce((a,s)=>s.voided?a:a+s.lines.reduce((b,l)=>b+(l.alloc?l.alloc.reduce((x,al)=>x+(al.cyl===c.id?al.viss:0),0):(l.cylId===c.id?l.gasViss||0:0)),0),0);
 const o2RemOf=c=>c.cap+(c.adj||0)-sales.reduce((a,s)=>s.voided?a:a+s.lines.reduce((b,l)=>b+(l.o2alloc?l.o2alloc.reduce((x,al)=>x+(al.cyl===c.id?al.viss:0),0):(l.o2cyl===c.id?l.o2use||0:0)),0),0);
 
-// Agent Cylinder Inventory Stats: Full, Partial (opened/unclosed), Empty
+// Agent Cylinder Inventory Stats
 const agentStats=()=>{
   const st={};
   Object.keys(AGENTS).forEach(k=>st[k]={full:0,partial:0,empty:0,viss:AGENTS[k].viss,kg:AGENTS[k].kg});
@@ -156,7 +162,61 @@ const mainVissStock=()=>{
 };
 const groundO2=()=>stk.filter(e=>e.type==='orecv').reduce((a,e)=>a+e.qty,0)-stk.filter(e=>e.type==='ocyl').length;
 
-// Agent Picker Modal for Swapping / Split-Deducting Gas Cylinders
+// Oxygen Factory & Shop Stock Stats (40L, 47L, over40)
+function o2FactoryStats(){
+  const res={};
+  Object.keys(O2_TYPES).forEach(k=>{
+    const rate=(cfg.o2Rates&&cfg.o2Rates[k])||O2_TYPES[k].rate;
+    res[k]={label:O2_TYPES[k].label,rate,emptySent:0,fullRecv:0,soldOut:0,stock:0,costTotal:0};
+  });
+  stk.forEach(e=>{
+    if(e.type==='o2_fac' && res[e.o2type]){
+      const r=res[e.o2type];
+      r.emptySent+=(e.emptyQty||0);
+      r.fullRecv+=(e.fullQty||0);
+      r.stock+=(e.fullQty||0);
+      r.costTotal+=(e.fullQty||0)*(e.rate||r.rate);
+    }else if(e.type==='o2_stock_set' && res[e.o2type]){
+      res[e.o2type].stock=e.qty;
+    }
+  });
+  // Deduct sales of matching O2 products if mapped
+  sales.forEach(s=>{
+    if(s.voided)return;
+    s.lines.forEach(l=>{
+      const nm=String(l.name||'').toLowerCase();
+      if(nm.includes('47l'))res['47L'].soldOut+=l.qty;
+      else if(nm.includes('over 40')||nm.includes('အပိုင်'))res['over40'].soldOut+=l.qty;
+      else if(nm.includes('40l'))res['40L'].soldOut+=l.qty;
+    });
+  });
+  // Also count customer O2 deliveries from cf (`o2cust`)
+  cf.filter(e=>e.type==='o2cust').forEach(e=>{
+    if(res[e.o2type] && e.qty>0)res[e.o2type].soldOut+=e.qty;
+  });
+  Object.keys(res).forEach(k=>{
+    const setEv=stk.filter(e=>e.type==='o2_stock_set'&&e.o2type===k).sort((a,b)=>b.at-a.at)[0];
+    if(setEv){
+      let st=setEv.qty;
+      stk.forEach(e=>{if(e.type==='o2_fac'&&e.o2type===k&&e.at>setEv.at)st+=(e.fullQty||0)});
+      sales.forEach(s=>{if(!s.voided&&s.at>setEv.at)s.lines.forEach(l=>{
+        const nm=String(l.name||'').toLowerCase();
+        if(k==='47L'&&nm.includes('47l'))st-=l.qty;
+        else if(k==='over40'&&(nm.includes('over 40')||nm.includes('အပိုင်')))st-=l.qty;
+        else if(k==='40L'&&nm.includes('40l')&&!nm.includes('over 40')&&!nm.includes('အပိုင်'))st-=l.qty;
+      })});
+      cf.filter(e=>e.type==='o2cust'&&e.o2type===k&&e.at>setEv.at&&e.qty>0).forEach(e=>{st-=e.qty});
+      res[k].stock=st;
+    }else{
+      res[k].stock=res[k].fullRecv-res[k].soldOut;
+    }
+  });
+  const totalFactoryBill=Object.values(res).reduce((a,x)=>a+x.costTotal,0);
+  const totalFactoryPaid=exps().filter(e=>e.cat==='factory'&&(e.isO2Factory||/o2|oxygen|အောက်ဆီဂျင်/i.test(e.desc))).reduce((a,e)=>a+e.amt,0);
+  return{types:res,totalFactoryBill,totalFactoryPaid,factoryPayable:totalFactoryBill-totalFactoryPaid};
+}
+
+// Agent Picker Modal
 function pickAgentModal(title,subtitle,allowNeg=false){
   return new Promise(res=>{
     const bg=h('div',{class:'modal-bg'});
@@ -179,9 +239,7 @@ function pickAgentModal(title,subtitle,allowNeg=false){
   });
 }
 
-// Multi-cylinder Split Allocation:
-// Exhausts exact remaining gas (e.g., 1.5 viss) from active cylinder and marks it closed (Empty),
-// then opens selected agent's new cylinder and deducts remaining needed gas (e.g., 25.5 viss).
+// Multi-cylinder Split Allocation
 async function allocLine(kind,l,pend,ov){
   const gas=kind==='gas',R=x=>Math.round(x*100)/100,F=gas?R:(x=>Math.round(x*1000)/10),un=gas?' ပိဿာ':' %';
   const live=()=>(gas?gasEv.filter(e=>e.type==='cyl'&&!e.closed&&e.role===l.gasRole):stk.filter(e=>e.type==='ocyl'&&!e.closed))
@@ -245,7 +303,6 @@ async function allocLine(kind,l,pend,ov){
   if(need>1e-9)al.push({cyl:null,viss:need});return al
 }
 
-// Manual Swap from Gas Tab or Low Banner
 async function askSwap(c,kind,onDone){
   const gas=kind==='gas',rem=gas?gasRemOf(c):o2RemOf(c),R=x=>Math.round(x*100)/100,lab=gas?GL[c.role]:'Oxygen အိုးကြီး';
   const cansUsed=gas?Math.round((c.cap+(c.adj||0)-rem)*cfg.cans):0;
@@ -315,7 +372,6 @@ h('div',{class:'ss'}),line('စုစုပေါင်း',money(stotal(s)),'tt
 ...partsOf(s).map(x=>line((PAY[x.m]||x.m)+(x.m==='credit'?' (ကြွေးကျန်)':''),Math.round(x.a).toLocaleString('en-US'))),h('div',{class:'dd'}),h('div',{class:'c ft'},rc.foot||'ကျေးဇူးတင်ပါတယ်'));
 setTimeout(()=>window.print(),80)}
 
-// Temporary Loans / Borrowed Cash Due Date Reminder Banner
 function loanBanner(){
   const loans=cf.filter(e=>e.type==='loan'&&!e.voided&&!e.repaid);
   if(!loans.length)return[];
@@ -329,7 +385,6 @@ function loanBanner(){
   });
 }
 
-// Dedicated Drop-off & COD Banner (Separate from Today's Sales & Cash Flow)
 function pendBanner(){
   const drops=sales.filter(isDropoffUnpaid).sort((a,b)=>a.at-b.at);
   const cods=sales.filter(isPendingUnpaid).sort((a,b)=>a.at-b.at);
@@ -361,7 +416,6 @@ function pendBanner(){
   return cards;
 }
 
-// Settle Dropoff / COD: Enters Today's Sales & Cash Flow without re-deducting Gas cylinders
 function viewSettle(id){const s=sales.find(x=>x.id===id);if(!s||s.voided||!partsOf(s).some(x=>x.m==='pending'||x.m==='dropoff'))return viewSale();
 const app=$('#app');app.replaceChildren();const msg=h('div'),total=stotal(s),cl=h('datalist',{id:'cl'},customers().map(c=>h('option',{value:c.name})));
 const pay=h('select',{},['cash','kpay','wave','aya','credit','split'].map(k=>h('option',{value:k},k==='split'?'ခွဲရှင်း (၂ မျိုး)':PAY[k])));
@@ -436,7 +490,6 @@ saving=false;draw();drawToday();if(pa)printSale(pa);if(done&&!hist)await lowChec
 
 const drawToday=()=>{
   const s0=new Date();s0.setHours(0,0,0,0);const t0=s0.getTime();
-  // Exclude unpaid dropoffs from Today's Sales and Cash Totals
   const ts=sales.filter(s=>saleEffAt(s)>=t0 && !isDropoffUnpaid(s)).sort((a,b)=>saleEffAt(b)-saleEffAt(a));
   const ok=ts.filter(s=>!s.voided);
   const by={cash:0,kpay:0,wave:0,aya:0,credit:0,pending:0},col={cash:0,kpay:0,wave:0,aya:0},pin={cash:0,kpay:0,wave:0,aya:0};
@@ -451,6 +504,7 @@ const drawToday=()=>{
   pays.filter(x=>x.at>=t0).forEach(x=>{col[x.method]+=x.amount});
   const focN=ok.reduce((a,s)=>a+s.lines.filter(l=>l.foc).length,0);
   const actualTodaySales=by.cash+by.kpay+by.wave+by.aya+by.credit+by.pending;
+  const gasRefundToday=cf.filter(e=>e.type==='gas_ret'&&!e.voided&&e.at>=t0&&e.m==='cash').reduce((a,e)=>a+e.amt,0);
 
   const row=(k)=>h('div',{class:'li'},
     h('span',{},PAY[k]),
@@ -464,7 +518,7 @@ const drawToday=()=>{
       h('div',{class:'li'},h('span',{},'ကြွေး (မရသေး)'),h('b',{},money(by.credit))),
       by.pending>0?h('div',{class:'li'},h('span',{},'COD (ငွေမရသေး)'),h('b',{style:'color:var(--red)'},money(by.pending))):'',
       h('div',{class:'li'},h('span',{},'FOC (လှူ/လက်ဆောင်)'),h('b',{},focN+' ခု')),
-      h('div',{class:'li'},h('span',{},'ဆိုင်ထဲ ငွေသားဝင်'),h('b',{},money(pin.cash+col.cash)))
+      h('div',{class:'li'},h('span',{},'ဆိုင်ထဲ ငွေသားဝင် (အသားတင်)'),h('b',{},money(pin.cash+col.cash-gasRefundToday)))
     ),
     h('div',{class:'card'},ts.length?ts.map(s=>{
       const effT=saleEffAt(s);
@@ -487,13 +541,30 @@ cf.filter(e=>e.type==='cust').sort((a,b)=>a.at-b.at).forEach(e=>{const c=get(e.n
 cf.filter(e=>e.type==='ob').forEach(e=>{get(e.cust).cr+=e.amt});pays.forEach(x=>{get(x.cust).pd+=x.amount});return Object.values(m).map(c=>({...c,bal:c.cr-c.pd}))}
 const sd_=t=>new Date(t).toLocaleDateString('en-GB')+' '+new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
+// Per-customer Oxygen cylinder holding balance (40L factory, 40L own, 47L)
+function custO2Balance(key){
+  const b={'40L':0,'over40':0,'47L':0};
+  cf.filter(e=>e.type==='o2cust'&&ck(e.cust)===key).forEach(e=>{
+    if(e.o2type in b)b[e.o2type]+=(e.qty||0);
+  });
+  return b;
+}
+
 function viewCust(){
 const app=$('#app');app.replaceChildren();const msg=h('div'),all=customers(),sum=all.filter(c=>c.bal>0.5).reduce((a,c)=>a+c.bal,0);
-const q=h('input',{placeholder:'ဖောက်သည် ရှာရန်'}),box=h('div',{class:'card'}),ni=h('input',{placeholder:'Customer Name (ဥပမာ ကောင်းကွေ့တယို ဆိုင်)'}),pi=h('input',{placeholder:'ဖုန်းနံပါတ် (မထည့်လည်းရ)',inputmode:'tel'}),oi=h('input',{type:'number',inputmode:'numeric',placeholder:'ကြွေးအဟောင်း (ရှိရင်ထည့်ပါ)'});
+const q=h('input',{placeholder:'ဖောက်သည် ရှာရန်'}),box=h('div',{class:'card'}),ni=h('input',{placeholder:'Customer Name (ဥပမာ ဆားမင်း၊ ဝင်းရတီကျော်)'}),pi=h('input',{placeholder:'ဖုန်းနံပါတ် (မထည့်လည်းရ)',inputmode:'tel'}),oi=h('input',{type:'number',inputmode:'numeric',placeholder:'ကြွေးအဟောင်း (ရှိရင်ထည့်ပါ)'});
 const draw=()=>{const t=ck(q.value),L=all.filter(c=>ck(c.name).includes(t)||c.phone.includes(t)).sort((a,b)=>b.bal-a.bal||a.name.localeCompare(b.name));
 box.replaceChildren(...(L.length?L.map(c=>{
   const shn=cf.filter(e=>e.type==='shell'&&ck(e.cust)===c.key).reduce((a,e)=>a+e.qty,0);
-  return h('div',{class:'li',style:'cursor:pointer',onclick:()=>viewCustDetail(c.key)},h('span',{},c.name,c.phone?h('br'):'',c.phone?h('small',{},c.phone):'',shn>0?h('span',{class:'tag'},'ဆိုင်အပိုင်အိုး '+shn+' လုံး'):''),h('b',{style:'color:'+(c.bal<-0.5?'var(--red)':c.bal>0.5?'var(--navy)':'#8A97AB')},money(c.bal)))
+  const o2b=custO2Balance(c.key);
+  const o2Tot=o2b['40L']+o2b['over40']+o2b['47L'];
+  return h('div',{class:'li',style:'cursor:pointer',onclick:()=>viewCustDetail(c.key)},
+    h('span',{},c.name,c.phone?h('br'):'',c.phone?h('small',{},c.phone):'',
+      shn>0?h('span',{class:'tag'},'Gasအိုး '+shn+' လုံး'):'',
+      o2Tot!==0?h('span',{class:'tag',style:'background:#E8EEF7;color:var(--navy)'},'O2အိုး '+o2Tot+' လုံး'):''
+    ),
+    h('b',{style:'color:'+(c.bal<-0.5?'var(--red)':c.bal>0.5?'var(--navy)':'#8A97AB')},money(c.bal))
+  );
 }):[h('small',{},'ဖောက်သည် မရှိသေးပါ။')]))};
 q.oninput=draw;
 
@@ -503,7 +574,7 @@ const ownCard=h('div',{class:'card'},
   h('div',{},h('small',{},'ဆိုင်ပိုင်အိုး စုစုပေါင်းအရေအတွက်နဲ့ size တွေကို မှတ်ထားနိုင်ပါတယ်။ ဖောက်သည်ဆိုင်တွေဆီ ချပေးထားတာကို ဖောက်သည်တစ်ဦးချင်းစီထဲမှာ မှတ်ပါ။')),
   ...ownRegs.map(o=>h('div',{class:'li'},h('span',{},o.size+' (စုစုပေါင်း '+o.qty+' လုံး)'+(o.note?' · '+o.note:'')),h('button',{class:'g',onclick:async()=>{if(!(await uiConfirm('ဖျက်မလား?')))return;await del('cf',o.id);await reload();viewCust()}},'ဖျက်'))),
   h('button',{class:'n',style:'margin-top:8px',onclick:async()=>{
-    const sz=((await uiPrompt('အိုး Size (ဥပမာ 15kg, 48kg, 10L O2)'))||'').trim();if(!sz)return;
+    const sz=((await uiPrompt('အိုး Size (ဥပမာ 15kg, 48kg, 40L O2)'))||'').trim();if(!sz)return;
     const qt=parseInt(await uiPrompt('စုစုပေါင်း အရေအတွက် (လုံး)','','number'));if(!(qt>0))return;
     const nt=((await uiPrompt('မှတ်ချက် (မထည့်လည်းရ)'))||'').trim();
     await add('cf',{id:uuid(),at:Date.now(),type:'owncyl',size:sz,qty:qt,note:nt});await reload();viewCust();
@@ -513,6 +584,7 @@ const ownCard=h('div',{class:'card'},
 const nb=h('button',{class:'o',onclick:async()=>{const n=ni.value.trim();if(!n)return note(msg,'နာမည် ထည့်ပါ။');if(all.some(c=>c.key===ck(n)))return note(msg,'ဒီနာမည်နဲ့ ဖောက်သည် ရှိပြီးသားပါ။');nb.disabled=true;try{await add('cf',{id:uuid(),at:Date.now(),type:'cust',name:n,phone:pi.value.trim()});const ob=parseFloat(oi.value);if(ob>0)await add('cf',{id:uuid(),at:Date.now(),type:'ob',cust:n,amt:ob,note:'ကြွေးအဟောင်း (စတင်)'});await reload();viewCust()}catch(e){nb.disabled=false;note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ဖောက်သည် ထည့်မည်');
 app.append(h('div',{class:'card'},h('b',{},'ကြွေးကျန် စုစုပေါင်း'),h('div',{class:'tot',style:'text-align:left'},money(sum))),ownCard,msg,h('div',{class:'card'},h('b',{},'ဖောက်သည်အသစ်'),ni,pi,oi,nb),h('h2',{},'ဖောက်သည်များ ('+all.length+')'),q,box);draw()}
 
+// Customer Detail + O2 Cylinder Holding + PDF-style Customer Statement Table
 function viewCustDetail(key){
 const c=customers().find(x=>x.key===key);if(!c)return viewCust();
 const app=$('#app');app.replaceChildren();const msg=h('div');
@@ -521,16 +593,88 @@ const pay=h('button',{class:'o',onclick:async()=>{const a=parseFloat(am.value);i
 const allB=h('button',{class:'n',style:'margin-top:6px',onclick:()=>{am.value=Math.round(c.bal)}},'ကျန်သမျှ အကုန်ရှင်း');
 const obB=h('button',{class:'n',onclick:async()=>{const v=parseFloat(await uiPrompt('ကြွေးအဟောင်း ပမာဏ (စတင်မှတ်တာ)','','number'));if(!(v>0))return;const nt=((await uiPrompt('မှတ်ချက် (ဥပမာ ဘယ်လ/ဘာအတွက်၊ မထည့်လည်းရ)'))||'').trim();if(!(await uiConfirm(c.name+' ကြွေးအဟောင်း '+money(v)+' ထည့်မလား?')))return;try{await add('cf',{id:uuid(),at:Date.now(),type:'ob',cust:c.name,amt:v,note:nt||'ကြွေးအဟောင်း (စတင်)'});await reload();viewCustDetail(key)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ကြွေးအဟောင်း ထည့်');
 const ph=h('button',{class:'n',onclick:async()=>{const v=await uiPrompt('ဖုန်းနံပါတ်',c.phone,'tel');if(v===null)return;try{await add('cf',{id:uuid(),at:Date.now(),type:'cust',name:c.name,phone:v.trim()});await reload();viewCustDetail(key)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'ဖုန်း ပြင်');
+
 const obs=cf.filter(e=>e.type==='ob'&&ck(e.cust)===key).sort((a,b)=>b.at-a.at),cs=sales.filter(x=>x.cust&&ck(x.cust)===key),ps=pays.filter(x=>ck(x.cust)===key);
 const sh=cf.filter(e=>e.type==='shell'&&ck(e.cust)===key).sort((a,b)=>b.at-a.at),shn=sh.reduce((a,e)=>a+e.qty,0);
-const shGo=async sign=>{const q=parseFloat(await uiPrompt(sign>0?'ဖောက်သည်ဆီ ချပေး/ကျန်ခဲ့တဲ့ ဆိုင်အပိုင်အိုး အရေအတွက်':'ပြန်ယူပြီးတဲ့ ဆိုင်အပိုင်အိုး အရေအတွက်','','number'));if(!(q>0))return;if(sign<0&&q>shn)return note(msg,'ဖောက်သည်လက်ဝယ်ရှိတာ '+shn+' လုံးပဲ ရှိပါတယ်။');const nt=((await uiPrompt('အိုး Size / မှတ်ချက် (ဥပမာ 15kg, 48kg)'))||'').trim();if(!(await uiConfirm(c.name+' · ဆိုင်အပိုင်အိုး '+(sign>0?'+':'−')+q+' မှတ်မလား?')))return;try{await add('cf',{id:uuid(),at:Date.now(),type:'shell',cust:c.name,qty:sign*q,note:nt});await reload();viewCustDetail(key)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
+const shGo=async sign=>{const q=parseFloat(await uiPrompt(sign>0?'ဖောက်သည်ဆီ ချပေး/ကျန်ခဲ့တဲ့ ဆိုင်အပိုင် Gas အိုး အရေအတွက်':'ပြန်ယူပြီးတဲ့ ဆိုင်အပိုင် Gas အိုး အရေအတွက်','','number'));if(!(q>0))return;if(sign<0&&q>shn)return note(msg,'ဖောက်သည်လက်ဝယ်ရှိတာ '+shn+' လုံးပဲ ရှိပါတယ်။');const nt=((await uiPrompt('အိုး Size / မှတ်ချက် (ဥပမာ 15kg, 48kg)'))||'').trim();if(!(await uiConfirm(c.name+' · ဆိုင်အပိုင် Gas အိုး '+(sign>0?'+':'−')+q+' မှတ်မလား?')))return;try{await add('cf',{id:uuid(),at:Date.now(),type:'shell',cust:c.name,qty:sign*q,note:nt});await reload();viewCustDetail(key)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
+
+// Oxygen Cylinder Holding Management (40L စက်ရုံအိုး, 40L အပိုင်, 47L)
+const o2b=custO2Balance(key);
+const o2Move=async(sign)=>{
+  const tp=await uiPrompt('O2 အိုး အမျိုးအစား ရွေးပါ (နံပါတ်ရိုက်ပါ)\n1 = 40L (စက်ရုံအိုး)\n2 = 40L (အပိုင်အိုး)\n3 = 47L (စက်ရုံအိုး)','1','number');
+  const map={'1':'40L','2':'over40','3':'47L'};
+  const o2t=map[String(tp||'').trim()];if(!o2t)return;
+  const q=parseInt(await uiPrompt((sign>0?'ဖောက်သည်ဆီ ပို့/အပ်လိုက်တဲ့ ':'ဖောက်သည်ဆီက ပြန်ရ/အခွံသိမ်းတဲ့ ')+O2_TYPES[o2t].label+' အရေအတွက် (လုံး)','','number'));
+  if(!(q>0))return;
+  if(!(await uiConfirm(c.name+' · '+O2_TYPES[o2t].label+' '+(sign>0?'+':'−')+q+' လုံး မှတ်မလား?')))return;
+  await add('cf',{id:uuid(),at:Date.now(),type:'o2cust',cust:c.name,o2type:o2t,qty:sign*q});
+  await reload();viewCustDetail(key);
+};
+
+// Build PDF-style Customer Statement Ledger (Page 19-21 format: ရက်စွဲ | O2 (လုံး) | Gas (ပိဿာ) | အပိုပစ္စည်း | သင့်ငွေ | ရှင်းငွေ | ကျန်ငွေ)
+const ledger=[];
+obs.forEach(e=>ledger.push({at:e.at,o2:0,gas:0,acc:e.note||'ကြွေးအဟောင်း',bill:e.amt,paid:0}));
+cs.filter(x=>!x.voided).forEach(x=>{
+  let o2q=0,gasq=0,accs=[];
+  x.lines.forEach(l=>{
+    const nm=String(l.name||'');
+    if(l.gasViss>0)gasq+=l.gasViss;
+    else if(/o2|oxygen|အောက်ဆီဂျင်/i.test(nm))o2q+=l.qty;
+    else accs.push(nm+(l.qty>1?'×'+l.qty:''));
+  });
+  const tot=stotal(x);
+  const cr=creditOf(x);
+  const immediatePaid=tot-cr;
+  ledger.push({at:saleEffAt(x),o2:o2q,gas:Math.round(gasq*100)/100,acc:accs.join(', '),bill:tot,paid:immediatePaid});
+});
+ps.forEach(p=>ledger.push({at:p.at,o2:0,gas:0,acc:'ငွေရှင်း ('+PAY[p.method]+')',bill:0,paid:p.amount}));
+ledger.sort((a,b)=>a.at-b.at);
+let runBal=0,totO2=0,totGas=0;
+ledger.forEach(r=>{runBal+=r.bill-r.paid;r.bal=runBal;totO2+=r.o2;totGas+=r.gas});
+
+const stmtCard=h('div',{class:'card'},
+  h('div',{style:'display:flex;justify-content:space-between;align-items:center'},
+    h('b',{},'ဖောက်သည် ရှင်းတမ်းဇယား (Statement)'),
+    h('small',{},'O2: '+totO2+' လုံး · Gas: '+Math.round(totGas*100)/100+' viss')
+  ),
+  h('div',{style:'overflow-x:auto'},
+    h('table',{class:'st-tbl'},
+      h('thead',{},h('tr',{},
+        h('th',{},'ရက်စွဲ'),h('th',{},'O2'),h('th',{},'Gas'),h('th',{},'အပိုပစ္စည်း'),h('th',{},'သင့်ငွေ'),h('th',{},'ရှင်းငွေ'),h('th',{},'ကျန်ငွေ')
+      )),
+      h('tbody',{},...(ledger.length?ledger.map(r=>h('tr',{},
+        h('td',{},dkey(r.at).slice(5)),
+        h('td',{},r.o2||'-'),
+        h('td',{},r.gas||'-'),
+        h('td',{},r.acc||'-'),
+        h('td',{},r.bill?Math.round(r.bill).toLocaleString():'-'),
+        h('td',{},r.paid?Math.round(r.paid).toLocaleString():'-'),
+        h('td',{style:'font-weight:700'},Math.round(r.bal).toLocaleString())
+      )):[h('tr',{},h('td',{colspan:'7',style:'text-align:center'},'မှတ်တမ်း မရှိသေးပါ'))]))
+    )
+  )
+);
+
 app.append(h('button',{class:'n',onclick:()=>viewCust()},'← ဖောက်သည်စာရင်း'),h('div',{class:'card',style:'margin-top:8px'},h('b',{style:'font-size:18px'},c.name),h('div',{},c.phone||'ဖုန်းမရှိ'),h('div',{class:'tot',style:'text-align:left;color:'+(c.bal<-0.5?'var(--red)':'var(--navy)')},'ကြွေးကျန် '+money(c.bal)),h('small',{},'ကြွေးယူ '+money(c.cr)+' · ပြန်ပေး '+money(c.pd)),h('div',{class:'row',style:'margin-top:6px'},ph,obB)),msg,
 c.bal>0.5?h('div',{class:'card'},h('b',{},'ငွေရှင်းရန်'),am,me,h('details',{style:'margin:8px 0'},h('summary',{style:'color:#5A6B82'},'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'),pd_),pay,allB):'',
-h('div',{class:'card'},h('b',{},'ဆိုင်အပိုင်အိုး လက်ဝယ်ရှိစာရင်း (ဥပမာ ကောင်းကွေ့တယို)'),h('div',{class:'tot',style:'text-align:left'},shn+' လုံး'),h('small',{},'ဖောက်သည်ဆီ ချပေးထားတဲ့ ဆိုင်အပိုင်အိုး အရေအတွက်ကို မှတ်ပါ။'),h('div',{class:'row',style:'margin-top:6px'},h('button',{class:'n',onclick:()=>shGo(1)},'အိုးချပေး / ကျန် (+)'),h('button',{class:'n',onclick:()=>shGo(-1)},'အိုးပြန်ယူပြီး (−)')),...sh.slice(0,5).map(e=>h('div',{class:'li'},h('small',{},sd_(e.at)+(e.note?' · '+e.note:'')),h('b',{},(e.qty>0?'+':'')+e.qty)))),
+h('div',{class:'card'},
+  h('b',{},'ဖောက်သည်လက်ဝယ်ရှိ Oxygen (O2) အိုးလက်ကျန်'),
+  h('div',{class:'row',style:'margin:6px 0;text-align:center'},
+    h('div',{style:'background:#F4F6F9;padding:6px;border-radius:6px'},h('small',{},'40L (စက်ရုံ)'),h('div',{},h('b',{},o2b['40L']+' လုံး'))),
+    h('div',{style:'background:#F4F6F9;padding:6px;border-radius:6px'},h('small',{},'40L (အပိုင်)'),h('div',{},h('b',{},o2b['over40']+' လုံး'))),
+    h('div',{style:'background:#F4F6F9;padding:6px;border-radius:6px'},h('small',{},'47L (စက်ရုံ)'),h('div',{},h('b',{},o2b['47L']+' လုံး')))
+  ),
+  h('div',{class:'row',style:'margin-top:6px'},
+    h('button',{class:'n',onclick:()=>o2Move(1)},'O2 အိုးပို့ (+)'),
+    h('button',{class:'n',onclick:()=>o2Move(-1)},'O2 အခွံပြန်ယူ (−)')
+  )
+),
+h('div',{class:'card'},h('b',{},'ဆိုင်အပိုင် Gas အိုး လက်ဝယ်ရှိစာရင်း (ဥပမာ ကောင်းကွေ့တယို)'),h('div',{class:'tot',style:'text-align:left'},shn+' လုံး'),h('small',{},'ဖောက်သည်ဆီ ချပေးထားတဲ့ ဆိုင်အပိုင် Gas အိုး အရေအတွက်ကို မှတ်ပါ။'),h('div',{class:'row',style:'margin-top:6px'},h('button',{class:'n',onclick:()=>shGo(1)},'အိုးချပေး / ကျန် (+)'),h('button',{class:'n',onclick:()=>shGo(-1)},'အိုးပြန်ယူပြီး (−)')),...sh.slice(0,5).map(e=>h('div',{class:'li'},h('small',{},sd_(e.at)+(e.note?' · '+e.note:'')),h('b',{},(e.qty>0?'+':'')+e.qty)))),
+stmtCard,
 obs.length?h('div',{class:'card'},h('b',{},'ကြွေးအဟောင်း (စတင်)'),...obs.map(e=>h('div',{class:'li'},h('small',{},sd_(e.at)+(e.note?' · '+e.note:'')),h('b',{},money(e.amt))))):'',h('h2',{},'ဝယ်ယူခဲ့တာများ'),h('div',{class:'card'},cs.length?cs.map(x=>h('div',{class:'li',style:'align-items:flex-start'},h('span',{class:x.voided?'void':''},sd_(x.at)+(x.voided?' (ပယ်ဖျက်ပြီး)':''),...x.lines.map(l=>h('div',{},h('small',{},l.name+' × '+l.qty+' '+l.unit+(l.foc?' (FOC)':' @ '+Math.round(l.price).toLocaleString('en-US')))))),h('span',{style:'text-align:right'},h('b',{class:x.voided?'void':''},money(stotal(x))),creditOf(x)>0?h('div',{},h('small',{style:'color:var(--red)'},'ကြွေး '+money(creditOf(x)))):''))):h('small',{},'မရှိသေးပါ။')),
 h('h2',{},'ပြန်ပေးခဲ့တာများ'),h('div',{class:'card'},ps.length?ps.map(x=>h('div',{class:'li'},h('span',{},sd_(x.at)+' · '+PAY[x.method]),h('b',{},money(x.amount)))):h('small',{},'မရှိသေးပါ။')))}
 
-// Products View with Buy + Sell Price + Auto Cash Outflow
+// Products View
 function viewProducts(){
 const app=$('#app');app.replaceChildren();
 const q=h('input',{placeholder:'ရှာရန်'}),box=h('div',{class:'card'}),msg=h('div');
@@ -588,7 +732,7 @@ const addBtn=h('button',{class:'o',onclick:async()=>{const n=nn.value.trim();if(
 try{await add('products',{id:uuid(),name:n,cat:nc.value,unit:nu.value,sample:false,at:Date.now()});nn.value='';await reload();draw();note(msg,'ထည့်ပြီးပါပြီ။',1)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+e.message)}}},'ပစ္စည်းအသစ် ထည့်မည်');
 app.append(h('div',{class:'msg e',style:'background:#FFF3E8;color:#9A4308'},'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်းပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),h('div',{class:'card'},h('b',{},'ပစ္စည်းအသစ်'),nn,h('div',{class:'row'},nc,nu),addBtn),msg,fix,h('h2',{},'ပစ္စည်းစာရင်း ('+products.length+')'),sumEl,q,box);draw()}
 
-// Gas Reconciliation Calculation Helper (Book Stock vs Ground Stock)
+// Gas Reconciliation Calculation Helper (Book Stock vs Ground Stock including + Gas Return)
 function gasBookRecon(dateKey){
   const [a,b]=dbounds(dateKey);
   const obEv=gasEv.filter(e=>e.type==='gas_ob'&&e.date===dateKey).sort((x,y)=>y.at-x.at)[0];
@@ -605,6 +749,7 @@ function gasBookRecon(dateKey){
         const v=AGENTS[e.agent]?AGENTS[e.agent].viss:cfg.usable;
         if((e.type==='recv'||e.type==='eswap')&&!e.ground)delta+=e.qty*v;
         if(e.type==='cyl'&&e.role==='can'&&!e.fromMain)delta-=e.cap;
+        if(e.type==='gas_ret_viss')delta+=(e.viss||0);
       }
     });
     sales.forEach(s=>{
@@ -620,6 +765,7 @@ function gasBookRecon(dateKey){
         const av=AGENTS[e.agent]?AGENTS[e.agent].viss:cfg.usable;
         if(e.type==='recv'||e.type==='eswap')v+=e.qty*av;
         if(e.type==='cyl'&&e.role==='can'&&!e.fromMain)v-=e.cap;
+        if(e.type==='gas_ret_viss')v+=(e.viss||0);
       }
     });
     sales.forEach(s=>{
@@ -640,6 +786,13 @@ function gasBookRecon(dateKey){
     }
   });
 
+  let retViss=0;
+  gasEv.forEach(e=>{
+    if(e.at>=a && e.at<=b && e.type==='gas_ret_viss'){
+      retViss+=(e.viss||0);
+    }
+  });
+
   let salesViss=0;
   sales.forEach(s=>{
     if(!s.voided && !s.hist && s.at>=a && s.at<=b){
@@ -655,13 +808,13 @@ function gasBookRecon(dateKey){
     }
   });
 
-  const bookViss=openViss+inViss-salesViss-canSwapViss;
-  return{openViss,inViss,inDetails,salesViss,canSwapViss,canSwapDetails,bookViss,hasExplicitOb:!!obEv};
+  const bookViss=openViss+inViss+retViss-salesViss-canSwapViss;
+  return{openViss,inViss,inDetails,retViss,salesViss,canSwapViss,canSwapDetails,bookViss,hasExplicitOb:!!obEv};
 }
 
 let gasReconDate=null;
 
-// Gas View
+// Gas View + Gas Residual Return & Refund
 function viewGas(){
 const app=$('#app');app.replaceChildren();
 gasReconDate=gasReconDate||dkey(Date.now());
@@ -675,6 +828,51 @@ const agSt=agentStats();
 const fullLeft=groundGas(),partialCnt=partialGasTotal(),emptyWait=emptyGasTotal(),mViss=mainVissStock();
 const totalGain=cyls.reduce((a,c)=>a+(c.gain||0),0);
 const stamp=t=>new Date(t).toLocaleDateString('en-GB')+' '+new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+// Gas Residual Return & Refund Modal Trigger
+const gasReturnBtn=h('button',{class:'n',style:'width:100%;margin-bottom:10px;padding:11px;font-weight:700;border-color:var(--org);color:#9A4308',onclick:()=>{
+  const bg=h('div',{class:'modal-bg'});
+  const agS=h('select',{},Object.keys(AGENTS).map(k=>h('option',{value:k},k)));
+  const vIn=h('input',{type:'number',inputmode:'decimal',step:'any',placeholder:'ပါလာတဲ့ Gas ပိဿာ (ဥပမာ 5)'});
+  const aIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ပြန်အမ်းငွေ (ဥပမာ 21000)'});
+  const mS=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));
+  const cl=h('datalist',{id:'gret-cl'},customers().map(c=>h('option',{value:c.name})));
+  const cIn=h('input',{list:'gret-cl',placeholder:'ဖောက်သည်နာမည် (ဆိုင်အပိုင်အိုး ပြန်အပ်တာဆိုရင် ထည့်ပါ)'});
+  const shCb=h('input',{type:'checkbox',style:'width:auto;margin-right:8px'});
+  const okB=h('button',{class:'o',onclick:async()=>{
+    const vs=parseFloat(vIn.value),am=parseFloat(aIn.value)||0,ag=agS.value,cnm=cIn.value.trim();
+    if(!(vs>0))return alert('ပါလာတဲ့ Gas ပိဿာ ထည့်ပါ။');
+    const now=Date.now();
+    await run(['gasEv','cf'],'readwrite',t=>{
+      // Add returned residual gas cylinder into partial (လ/က) stock
+      t.objectStore('gasEv').add({id:uuid(),at:now,type:'cyl',role:'viss',agent:ag,cap:vs,fromMain:true,cost:null,closed:false,adj:0,gain:0,log:[{at:now,t:'Gas return '+vs+' viss'}]});
+      t.objectStore('gasEv').add({id:uuid(),at:now+1,type:'gas_ret_viss',agent:ag,viss:vs});
+      if(am>0){
+        t.objectStore('cf').add({id:uuid(),at:now,type:'gas_ret',agent:ag,viss:vs,amt:am,m:mS.value,cust:cnm||null});
+      }
+      if(cnm && shCb.checked){
+        t.objectStore('cf').add({id:uuid(),at:now,type:'shell',cust:cnm,qty:-1,note:'Gas လက်ကျန်ပြန်အပ် ('+vs+' viss)'});
+      }
+    });
+    bg.remove();await reload();viewGas();
+    note(msg,'Gas လက်ကျန် '+vs+' viss ပြန်သွင်းပြီး'+(am>0?' အမ်းငွေ '+money(am)+' ('+PAY[mS.value]+') မှတ်ပြီးပါပြီ':'')+'။',1);
+  }},'သိမ်းမည်');
+  bg.append(cl,h('div',{class:'modal-box'},
+    h('b',{style:'font-size:17px'},'Gas လက်ကျန်ပြန်ဝယ် / အမ်းငွေ (Gas Return)'),
+    h('small',{},'အိုးပြန်အပ်ချိန် Gas လက်ကျန်ပါလာပါက ပိဿာလက်ကျန်ထဲ ပြန်ပေါင်းပေးပြီး အမ်းငွေကို ငွေစာရင်းမှ နှုတ်ပေးပါမယ်။'),
+    h('label',{},'ကိုယ်စားလှယ်အိုး'),agS,
+    h('label',{},'ပါလာတဲ့ Gas ပိဿာ (viss)'),vIn,
+    h('label',{},'ပြန်အမ်းငွေ (ကျပ်)'),aIn,
+    h('label',{},'ဘာနဲ့ ပြန်အမ်းလဲ'),mS,
+    h('label',{},'ဖောက်သည်နာမည် (မထည့်လည်းရ)'),cIn,
+    h('label',{style:'display:flex;align-items:center;margin-top:8px'},shCb,'ဖောက်သည်ဆီမှ ဆိုင်အပိုင်အိုး ၁ လုံး ပြန်သိမ်းပြီး (−1)'),
+    h('div',{class:'row',style:'margin-top:12px'},
+      h('button',{class:'n',onclick:()=>bg.remove()},'မလုပ်ပါ'),
+      okB
+    )
+  ));
+  document.body.append(bg);
+}},'↩ Gas လက်ကျန်ပြန်ဝယ် / အမ်းငွေ မှတ်မည်');
 
 // Daily Book vs Ground Stock Reconciliation Card
 const recon=gasBookRecon(gasReconDate);
@@ -715,6 +913,7 @@ const reconCard=h('div',{class:'card',style:'border:2px solid var(--navy)'},
   h('div',{style:'background:#F4F6F9;padding:8px;border-radius:6px;margin-bottom:8px'},
     h('div',{class:'li',style:'padding:3px 0'},h('span',{},'Opening Balance'),h('b',{},r2(recon.openViss)+' viss')),
     h('div',{class:'li',style:'padding:3px 0'},h('span',{},'+ အဝင် (In)'+(recon.inDetails.length?' ('+recon.inDetails.join(', ')+')':'')),h('b',{style:'color:var(--ok)'},'+'+r2(recon.inViss)+' viss')),
+    recon.retViss>0?h('div',{class:'li',style:'padding:3px 0'},h('span',{},'+ Gas လက်ကျန်ပြန်ဝင်'),h('b',{style:'color:var(--ok)'},'+'+r2(recon.retViss)+' viss')):'',
     h('div',{class:'li',style:'padding:3px 0'},h('span',{},'− ယနေ့ ပိဿာအရောင်း'),h('b',{},'−'+r2(recon.salesViss)+' viss')),
     h('div',{class:'li',style:'padding:3px 0'},h('span',{},'− ဗူးအိုးလဲ'+(recon.canSwapDetails.length?' ('+recon.canSwapDetails.join(', ')+')':'')),h('b',{},'−'+r2(recon.canSwapViss)+' viss')),
     h('div',{class:'li',style:'padding:5px 0;border-top:1px solid var(--ln)'},h('b',{},'= စာရင်းလက်ကျန် (Book Stock)'),h('b',{style:'font-size:16px;color:var(--navy)'},r2(recon.bookViss)+' viss'))
@@ -831,9 +1030,9 @@ const copyOrderBtn=h('button',{class:'n',style:'width:100%;margin-top:8px',oncli
 }},'ကိုယ်စားလှယ် အမှာစာ Copy ထုတ်မည်');
 
 const cu=num('',cfg.usable),cc=num('',cfg.cans),cn=num('',cfg.nominal),cl_=num('',cfg.low),co_=num('',cfg.lowO2),cmin=num('',cfg.canMin),cmax=num('',cfg.canMax);
-const sb=h('button',{onclick:()=>{const u=parseFloat(cu.value),c=parseFloat(cc.value),n=parseFloat(cn.value),lw=parseFloat(cl_.value),lo=parseFloat(co_.value),mn=parseInt(cmin.value),mx=parseInt(cmax.value);if(!(u>0&&c>0&&n>=u))return note(msg,'တန်ဖိုးတွေ မှန်အောင် ထည့်ပါ။');act(sb,()=>put('meta',{k:'gascfg',v:{usable:u,cans:c,nominal:n,low:lw,lowO2:lo,canMin:mn||197,canMax:mx||203}}))}},'သိမ်းမည်');
+const sb=h('button',{onclick:()=>{const u=parseFloat(cu.value),c=parseFloat(cc.value),n=parseFloat(cn.value),lw=parseFloat(cl_.value),lo=parseFloat(co_.value),mn=parseInt(cmin.value),mx=parseInt(cmax.value);if(!(u>0&&c>0&&n>=u))return note(msg,'တန်ဖိုးတွေ မှန်အောင် ထည့်ပါ။');act(sb,()=>put('meta',{k:'gascfg',v:{...cfg,usable:u,cans:c,nominal:n,low:lw,lowO2:lo,canMin:mn||197,canMax:mx||203}}))}},'သိမ်းမည်');
 
-const hist=gasEv.filter(e=>e.type!=='gas_ob'&&e.type!=='gas_close').slice().sort((a,b)=>b.at-a.at).slice(0,15).map(e=>h('div',{class:'li'},h('span',{},stamp(e.at)+' · '+(e.type==='recv'?(e.ground?'Ground Stock ညှိ ':'အပြည့်ရရှိ ')+e.qty+' ('+e.agent+')':e.type==='ret'?'အခွံပြန်ပေး '+e.qty+' ('+e.agent+')':e.type==='eswap'?'အိုးလဲ '+e.qty+' ('+e.agent+')':e.type==='ecount'?'အခွံရေတွက် '+(e.qty>0?'+':'')+e.qty+' ('+e.agent+')':e.type==='cyl'?'ဖွင့်: '+RL[e.role]+' ('+(e.agent||'')+') '+e.cap+' viss'+(e.closed?' · ပိတ်ပြီး'+(e.gain>0?' (Gain +'+e.gain+')':''):''):'ယခင်စနစ်')),h('b',{},e.viss?(e.viss>0?'+':'')+r2(e.viss):'')));
+const hist=gasEv.filter(e=>e.type!=='gas_ob'&&e.type!=='gas_close').slice().sort((a,b)=>b.at-a.at).slice(0,15).map(e=>h('div',{class:'li'},h('span',{},stamp(e.at)+' · '+(e.type==='recv'?(e.ground?'Ground Stock ညှိ ':'အပြည့်ရရှိ ')+e.qty+' ('+e.agent+')':e.type==='ret'?'အခွံပြန်ပေး '+e.qty+' ('+e.agent+')':e.type==='eswap'?'အိုးလဲ '+e.qty+' ('+e.agent+')':e.type==='ecount'?'အခွံရေတွက် '+(e.qty>0?'+':'')+e.qty+' ('+e.agent+')':e.type==='gas_ret_viss'?'Gas ပြန်ဝယ်/အပ် +'+e.viss+' viss ('+e.agent+')':e.type==='cyl'?'ဖွင့်: '+RL[e.role]+' ('+(e.agent||'')+') '+e.cap+' viss'+(e.closed?' · ပိတ်ပြီး'+(e.gain>0?' (Gain +'+e.gain+')':''):''):'ယခင်စနစ်')),h('b',{},e.viss?(e.viss>0?'+':'')+r2(e.viss):'')));
 const dt=(t,...k)=>h('details',{class:'card'},h('summary',{style:'font-weight:700;padding:4px 0;cursor:pointer'},t),...k);
 
 app.append(
@@ -852,6 +1051,7 @@ app.append(
       ))
     )
   ),
+  gasReturnBtn,
   slot('viss'),
   slot('can'),
   reconCard,
@@ -874,7 +1074,7 @@ app.append(
   )
 )}
 
-const APP_VER='v22 (2026-11-22)';
+const APP_VER='v23 (2026-11-23)';
 const STORES=['products','sales','gasEv','pays','stk','cf','meta'];
 const saveBlob=(name,blob)=>{const u=URL.createObjectURL(blob),a=h('a',{href:u,download:name});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)};
 const pad=n=>String(n).padStart(2,'0'),fstamp=()=>{const d=new Date();return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())};
@@ -886,7 +1086,7 @@ for(const n of STORES){const a=d.data[n];if(a===undefined)continue;if(!Array.isA
 for(const r of a){if(!r||typeof r!=='object'||typeof(n==='meta'?r.k:r.id)!=='string')return n+' ထဲမှာ ပျက်တဲ့ မှတ်တမ်း ပါနေပါတယ်။';
 if(n==='sales'&&(typeof r.at!=='number'||!Array.isArray(r.lines)||!r.lines.every(l=>l&&Number.isFinite(l.qty)&&Number.isFinite(l.price))))return 'ရောင်းချမှု မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
 if(n==='pays'&&!Number.isFinite(r.amount))return 'ကြွေးပြန်ပေး မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
-if(n==='stk'&&r.type!=='ocyl'&&!Number.isFinite(r.qty))return 'လက်ကျန် မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။'}}return null};
+if(n==='stk'&&r.type!=='ocyl'&&r.type!=='o2_fac'&&!Number.isFinite(r.qty))return 'လက်ကျန် မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။'}}return null};
 const importAll=(d,fresh)=>new Promise((ok,no)=>{const t=db.transaction(STORES,'readwrite'),st={added:0,same:0,diff:0};if(fresh)t.objectStore('products').clear();
 STORES.forEach(n=>{const os=t.objectStore(n);(d.data[n]||[]).forEach(r=>{if(n==='meta'&&(r.k==='lastBackup'||r.k==='seeded'||r.k==='gas2'))return;const g=os.get(n==='meta'?r.k:r.id);g.onsuccess=()=>{if(g.result===undefined){os.add(r);st.added++}else if(JSON.stringify(g.result)===JSON.stringify(r))st.same++;else st.diff++}})});
 t.oncomplete=()=>ok(st);t.onabort=()=>no(t.error)});
@@ -931,9 +1131,9 @@ const dkey=t=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1
 const dbounds=k=>{const[y,m,d]=k.split('-').map(Number);return[new Date(y,m-1,d).getTime(),new Date(y,m-1,d+1).getTime()-1]};
 const exps=()=>cf.filter(e=>e.type==='exp'&&!e.voided),tm=t=>new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
-// Cash Flow Calculation including Sales, Debt Collections, Borrowed Cash (Loan In), Expenses, and Loan Repayments (Loan Out)
+// Cash Flow Calculation: Sales + Debt Collections + Loan In + Account Transfer In - Expenses - Loan Out - Gas Refund - Account Transfer Out
 function flows(m,a,b){
-  let i=0,o=0,lin=0,lout=0;
+  let i=0,o=0,lin=0,lout=0,trin=0,trout=0,gref=0;
   sales.forEach(s=>{if(s.voided||isDropoffUnpaid(s))return;const t=partTime(s);if(t>=a&&t<=b)partsOf(s).forEach(x=>{if(x.m===m)i+=x.a})});
   pays.forEach(x=>{if(x.method===m&&x.at>=a&&x.at<=b)i+=x.amount});
   exps().forEach(e=>{if(e.m===m&&e.at>=a&&e.at<=b)o+=e.amt});
@@ -941,19 +1141,27 @@ function flows(m,a,b){
     if(e.m===m&&e.at>=a&&e.at<=b){i+=e.amt;lin+=e.amt;}
     if(e.repaid&&e.repaidMethod===m&&e.repaidAt>=a&&e.repaidAt<=b){o+=e.amt;lout+=e.amt;}
   });
-  return{i,o,lin,lout};
+  cf.filter(e=>e.type==='gas_ret'&&!e.voided).forEach(e=>{
+    if(e.m===m&&e.at>=a&&e.at<=b){o+=e.amt;gref+=e.amt;}
+  });
+  cf.filter(e=>e.type==='xfer'&&!e.voided).forEach(e=>{
+    if(e.to===m&&e.at>=a&&e.at<=b){i+=e.amt;trin+=e.amt;}
+    if(e.from===m&&e.at>=a&&e.at<=b){o+=e.amt;trout+=e.amt;}
+  });
+  return{i,o,lin,lout,trin,trout,gref};
 }
 function opening(m,k){const R=cf.filter(e=>e.type==='bal'&&e.method===m),op=R.filter(r=>r.kind==='open'&&r.date===k).sort((a,b)=>b.at-a.at)[0];if(op)return op.amt;const cl=R.filter(r=>r.kind==='close'&&r.date<k).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:b.at-a.at)[0];if(!cl)return null;const f=flows(m,dbounds(cl.date)[1]+1,dbounds(k)[0]-1);return cl.amt+f.i-f.o}
 function debtTotal(){const m={};sales.filter(x=>!x.voided&&creditOf(x)>0&&x.cust).forEach(x=>{const k=x.cust.toLowerCase();m[k]=(m[k]||0)+creditOf(x)});pays.forEach(x=>{const k=x.cust.toLowerCase();m[k]=(m[k]||0)-x.amount});cf.filter(e=>e.type==='ob').forEach(e=>{const k=e.cust.toLowerCase();m[k]=(m[k]||0)+e.amt});return Object.values(m).filter(v=>v>0.5).reduce((a,b)=>a+b,0)}
 
-// Expense & Borrowed Cash (Temporary Loan In / Repay) View
+// Expense, Borrowed Cash (Loan), and Account Transfer (KPay <-> Cash) View
 let expSubTab=1;
 function viewExp(dv,sub){
 if(sub)expSubTab=sub;
 const app=$('#app');app.replaceChildren();const msg=h('div');
 const tabs=h('div',{class:'row',style:'margin-bottom:10px'},
-  h('button',{class:expSubTab===1?'':'n',onclick:()=>viewExp(dv,1)},'အသုံးစရိတ် (ငွေထွက်)'),
-  h('button',{class:expSubTab===2?'':'n',onclick:()=>viewExp(dv,2)},'ယာယီချေးငွေ / အခြားငွေဝင်')
+  h('button',{class:expSubTab===1?'':'n',style:'padding:10px 4px;font-size:12px',onclick:()=>viewExp(dv,1)},'စရိတ် (ငွေထွက်)'),
+  h('button',{class:expSubTab===2?'':'n',style:'padding:10px 4px;font-size:12px',onclick:()=>viewExp(dv,2)},'ယာယီချေးငွေ'),
+  h('button',{class:expSubTab===3?'':'n',style:'padding:10px 4px;font-size:12px',onclick:()=>viewExp(dv,3)},'ငွေလွှဲ (KPay↔ငွေသား)')
 );
 
 if(expSubTab===1){
@@ -966,7 +1174,7 @@ if(expSubTab===1){
   app.append(tabs,h('div',{class:'card'},h('b',{},'စရိတ်အသစ်'),h('label',{},'အမျိုးအစား'),cs,h('label',{},'အကြောင်းအရာ'),ds,h('label',{},'ငွေပမာဏ'),am,h('label',{},'ဘာနဲ့ပေးလဲ'),ms,h('details',{style:'margin:8px 0'},h('summary',{style:'color:#5A6B82'},'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'),dI,dW),bt),msg,
   h('h2',{},'ယနေ့ စရိတ်: '+money(td.reduce((a,e)=>a+e.amt,0))),h('div',{class:'card'},Object.keys(ECAT).filter(k=>bc[k]).length?Object.keys(ECAT).filter(k=>bc[k]).map(k=>h('div',{class:'li'},h('span',{},ECAT[k]),h('b',{},money(bc[k])))):h('small',{},'ယနေ့ စရိတ် မရှိသေးပါ။')),
   h('h2',{},'စရိတ်မှတ်တမ်း (နောက်ဆုံး ၂၅)'),h('div',{class:'card'},all_.length?all_.map(e=>h('div',{class:'li'},h('span',{class:e.voided?'void':''},dkey(e.at)+' '+tm(e.at)+' · '+e.desc,h('br'),h('small',{},(ECAT[e.cat]||e.cat)+' · '+PAY[e.m]+(e.voided?' · ပယ်ဖျက်ပြီး':''))),h('span',{},h('b',{class:e.voided?'void':''},money(e.amt)),' ',e.voided?'':h('button',{class:'g',onclick:async()=>{if(!(await uiConfirm('ဒီစရိတ်ကို ပယ်ဖျက်မလား?')))return;try{await put('cf',{...e,voided:true,voidedAt:Date.now()});await reload();viewExp(dv,1)}catch(x){note(msg,'မပယ်ဖျက်နိုင်ပါ: '+(x&&x.message||x))}}},'ပယ်ဖျက်')))):h('small',{},'မရှိသေးပါ။')));
-}else{
+}else if(expSubTab===2){
   const lenderIn=h('input',{placeholder:'ဘယ်သူ့ဆီက ယူလဲ (ဥပမာ ကိုအောင်၊ အိမ်ကစိုက်ငွေ)'});
   const amtIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ငွေပမာဏ (ကျပ်)'});
   const mIn=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));
@@ -1030,6 +1238,57 @@ if(expSubTab===1){
       )
     )):h('small',{},'မှတ်တမ်း မရှိသေးပါ။'))
   );
+}else{
+  // Internal Account Transfer (e.g., KPay -> Cash)
+  const kNow=dkey(Date.now()),[a0,b0]=dbounds(kNow);
+  const curBalOf=m=>{const op=opening(m,kNow)||0,f=flows(m,a0,b0);return op+f.i-f.o};
+  const fromSel=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));fromSel.value='kpay';
+  const toSel=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));toSel.value='cash';
+  const amtIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'လွှဲပြောင်းမည့် ငွေပမာဏ'});
+  const noteIn=h('input',{placeholder:'မှတ်ချက် (ဥပမာ KPay ထုတ်ပြီး ငွေသားထဲထည့်)'});
+  const balInfo=h('small',{style:'display:block;margin-top:4px;color:var(--navy);font-weight:700'},'');
+  const syncBal=()=>{balInfo.textContent=PAY[fromSel.value]+' လက်ရှိစာရင်းလက်ကျန်: '+money(curBalOf(fromSel.value))};
+  fromSel.onchange=syncBal;syncBal();
+
+  const allOutBtn=h('button',{class:'n',style:'margin-top:6px',onclick:()=>{
+    const b=Math.max(Math.round(curBalOf(fromSel.value)),0);
+    amtIn.value=b;
+  }},'လက်ကျန်အကုန် ပြောင်းမည်');
+
+  const xferBtn=h('button',{class:'o',onclick:async()=>{
+    const f=fromSel.value,t=toSel.value,a=parseFloat(amtIn.value);
+    if(f===t)return note(msg,'ထုတ်မယ့်အကောင့်နဲ့ ထည့်မယ့်အကောင့် မတူရပါ။');
+    if(!(a>0))return note(msg,'ငွေပမာဏ ထည့်ပါ။');
+    if(!(await uiConfirm(PAY[f]+' ထဲက '+money(a)+' ကို ထုတ်ပြီး '+PAY[t]+' ထဲ ပြောင်းထည့်မလား?\n(အရောင်းနှင့် စရိတ်စာရင်းထဲ မရောပါ)')))return;
+    xferBtn.disabled=true;
+    try{
+      await add('cf',{id:uuid(),at:Date.now(),type:'xfer',from:f,to:t,amt:a,note:noteIn.value.trim()});
+      await reload();viewExp(dv,3);
+      note(msg,PAY[f]+' မှ '+PAY[t]+' သို့ '+money(a)+' ပြောင်းထည့်ပြီးပါပြီ။',1);
+    }catch(e){xferBtn.disabled=false;note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}
+  }},'ငွေလွှဲပြောင်းမှု မှတ်မည်');
+
+  const xfers=cf.filter(e=>e.type==='xfer'&&!e.voided).sort((a,b)=>b.at-a.at).slice(0,20);
+  app.append(tabs,
+    h('div',{class:'card'},
+      h('b',{},'အကောင့်အချင်းချင်း ငွေလွှဲပြောင်းခြင်း (KPay ↔ ငွေသား)'),
+      h('small',{},'KPay ထဲက ငွေထုတ်ပြီး ငွေသားထဲ ပြောင်းထည့်တဲ့အခါမျိုးမှာ သုံးပါ။ အရောင်းစာရင်းရော စရိတ်စာရင်းပါ မထိခိုက်ဘဲ လက်ကျန်ချင်းပဲ ပြောင်းပေးပါမယ်။'),
+      h('label',{},'ဘယ်ကနေ ထုတ်မလဲ (From)'),fromSel,balInfo,
+      h('label',{},'ဘယ်ထဲ ထည့်မလဲ (To)'),toSel,
+      h('label',{},'ငွေပမာဏ'),amtIn,allOutBtn,
+      h('label',{},'မှတ်ချက်'),noteIn,
+      xferBtn
+    ),msg,
+    h('h2',{},'ငွေလွှဲမှတ်တမ်း'),
+    h('div',{class:'card'},xfers.length?xfers.map(x=>h('div',{class:'li'},
+      h('span',{},dkey(x.at)+' '+tm(x.at)+' · '+PAY[x.from]+' → '+PAY[x.to]+(x.note?' ('+x.note+')':'')),
+      h('span',{},h('b',{},money(x.amt)),' ',h('button',{class:'g',onclick:async()=>{
+        if(!(await uiConfirm('ဒီငွေလွှဲမှတ်တမ်းကို ပယ်ဖျက်မလား?')))return;
+        await put('cf',{...x,voided:true,voidedAt:Date.now()});
+        await reload();viewExp(dv,3);
+      }},'ဖျက်'))
+    )):h('small',{},'မှတ်တမ်း မရှိသေးပါ။'))
+  );
 }}
 
 let repTab=1;
@@ -1049,6 +1308,17 @@ cf.filter(e=>e.type==='loan'&&!e.voided).forEach(e=>{
   if(e.at>=a&&e.at<=b&&(e.m in loanInByM))loanInByM[e.m]+=e.amt;
   if(e.repaid&&e.repaidAt>=a&&e.repaidAt<=b&&(e.repaidMethod in loanOutByM))loanOutByM[e.repaidMethod]+=e.amt;
 });
+const gasRefByM={cash:0,kpay:0,wave:0,aya:0};
+cf.filter(e=>e.type==='gas_ret'&&!e.voided).forEach(e=>{
+  if(e.at>=a&&e.at<=b&&(e.m in gasRefByM))gasRefByM[e.m]+=e.amt;
+});
+const xferInByM={cash:0,kpay:0,wave:0,aya:0},xferOutByM={cash:0,kpay:0,wave:0,aya:0};
+cf.filter(e=>e.type==='xfer'&&!e.voided).forEach(e=>{
+  if(e.at>=a&&e.at<=b){
+    if(e.to in xferInByM)xferInByM[e.to]+=e.amt;
+    if(e.from in xferOutByM)xferOutByM[e.from]+=e.amt;
+  }
+});
 
 const row=(l,v,c)=>h('div',{class:'li'},h('span',{},l),h('b',{style:c?'color:'+c:''},v));
 const tr=(c1,c2,c3,c4,cls)=>h('div',{class:'tr'+(cls?' '+cls:'')},h('span',{},...(Array.isArray(c1)?c1:[c1])),h('span',{},c2),h('span',{},c3),h('span',{},c4));
@@ -1064,11 +1334,11 @@ body=[
 else if(repTab===2){
   const ops=MTH.map(m=>opening(m,k)),sumOp=ops.reduce((x,o)=>x+(o||0),0),unset=ops.filter(o=>o===null).length;
   const sIn=MTH.reduce((x,m)=>x+pin[m],0),cIn=MTH.reduce((x,m)=>x+col[m],0),lIn=MTH.reduce((x,m)=>x+loanInByM[m],0);
-  const oOut=MTH.reduce((x,m)=>x+om[m],0),lOut=MTH.reduce((x,m)=>x+loanOutByM[m],0);
-  const clo=sumOp+sIn+cIn+lIn-oOut-lOut;
+  const oOut=MTH.reduce((x,m)=>x+om[m],0),lOut=MTH.reduce((x,m)=>x+loanOutByM[m],0),gOut=MTH.reduce((x,m)=>x+gasRefByM[m],0);
+  const clo=sumOp+sIn+cIn+lIn-oOut-lOut-gOut;
 
   const card=(m,i)=>{
-    const op=ops[i],ex=op===null?null:op+pin[m]+col[m]+loanInByM[m]-om[m]-loanOutByM[m];
+    const op=ops[i],ex=op===null?null:op+pin[m]+col[m]+loanInByM[m]+xferInByM[m]-om[m]-loanOutByM[m]-gasRefByM[m]-xferOutByM[m];
     const cl=cf.filter(e=>e.type==='bal'&&e.kind==='close'&&e.method===m&&e.date===k).sort((x,y)=>y.at-x.at)[0];
     const ia=h('input',{type:'number',inputmode:'numeric',placeholder:op===null?'စတင်လက်ကျန် (ကိုယ်တိုင်ရေထား)':'ရေတွက်ထားတဲ့ ငွေ'});
     const go=async(rec,q)=>{if(!(await uiConfirm(q)))return;try{await add('cf',{id:uuid(),at:Date.now(),type:'bal',date:k,method:m,...rec});await reload();viewReport(k)}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
@@ -1079,22 +1349,28 @@ else if(repTab===2){
       row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)',money(pin[m])),
       row('+ ကြွေးကောက်ရငွေ',money(col[m])),
       loanInByM[m]>0?row('+ ယာယီချေးငွေ (အဝင်)',money(loanInByM[m]),'var(--navy)'):'',
+      xferInByM[m]>0?row('+ ငွေလွှဲလက်ခံ (အဝင်)',money(xferInByM[m]),'var(--ok)'):'',
       row('− အသုံးစရိတ်',money(om[m])),
+      gasRefByM[m]>0?row('− Gas ပြန်အမ်းငွေ',money(gasRefByM[m]),'var(--red)'):'',
       loanOutByM[m]>0?row('− ချေးငွေပြန်ဆပ် (အထွက်)',money(loanOutByM[m]),'var(--red)'):'',
+      xferOutByM[m]>0?row('− ငွေလွှဲထုတ် (အထွက်)',money(xferOutByM[m]),'var(--red)'):'',
       row('= လက်ကျန်ငွေ (စာရင်းအရ)',money(ex),'var(--navy)'),
       cl?row('ရေတွက်ထားတာ · ကွာ',money(cl.amt)+' · '+(cl.amt-ex>=0?'+':'')+r2(cl.amt-ex),Math.abs(cl.amt-ex)<0.5?'var(--ok)':'var(--red)'):''
     ),ia,h('div',{class:'row',style:'margin-top:6px'},...(op===null?[setOpen]:[setClose,setOpen])));
   };
-  body=[h('div',{class:'card'},h('b',{},'ငွေစာရင်း (စုစုပေါင်း)'),
-    row('အဖွင့်ငွေ',money(sumOp)),
-    row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)',money(sIn)),
-    row('+ ကြွေးကောက်ရငွေ',money(cIn)),
-    lIn>0?row('+ ယာယီချေးငွေ (အဝင်)',money(lIn),'var(--navy)'):'',
-    row('− အသုံးစရိတ်',money(oOut)),
-    lOut>0?row('− ချေးငွေပြန်ဆပ် (အထွက်)',money(lOut),'var(--red)'):'',
-    h('div',{class:'li'},h('b',{},'= လက်ကျန်ငွေ'),h('b',{style:'font-size:18px;color:'+(clo<0?'var(--red)':'var(--ok)')},money(clo))),
-    unset?h('div',{class:'msg e'},'အဖွင့်ငွေ မသတ်မှတ်ရသေးတာ '+unset+' ခု ရှိလို့ ဒီစုစုပေါင်း မပြည့်စုံသေးပါ။'):''
-  ),...MTH.map(card)];
+  body=[
+    h('button',{class:'n',style:'width:100%;margin-bottom:8px;padding:10px;font-weight:700',onclick:()=>viewExp(k,3)},'⇄ KPay ↔ ငွေသား ငွေလွှဲပြောင်းမည်'),
+    h('div',{class:'card'},h('b',{},'ငွေစာရင်း (စုစုပေါင်း)'),
+      row('အဖွင့်ငွေ',money(sumOp)),
+      row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)',money(sIn)),
+      row('+ ကြွေးကောက်ရငွေ',money(cIn)),
+      lIn>0?row('+ ယာယီချေးငွေ (အဝင်)',money(lIn),'var(--navy)'):'',
+      row('− အသုံးစရိတ်',money(oOut)),
+      gOut>0?row('− Gas ပြန်အမ်းငွေ',money(gOut),'var(--red)'):'',
+      lOut>0?row('− ချေးငွေပြန်ဆပ် (အထွက်)',money(lOut),'var(--red)'):'',
+      h('div',{class:'li'},h('b',{},'= လက်ကျန်ငွေ'),h('b',{style:'font-size:18px;color:'+(clo<0?'var(--red)':'var(--ok)')},money(clo))),
+      unset?h('div',{class:'msg e'},'အဖွင့်ငွေ မသတ်မှတ်ရသေးတာ '+unset+' ခု ရှိလို့ ဒီစုစုပေါင်း မပြည့်စုံသေးပါ။'):''
+    ),...MTH.map(card)];
 }
 else if(repTab===3){body=[h('div',{class:'card'},h('b',{},'ဒီနေ့ စရိတ်'),...(ed.length?ed.map(e=>h('div',{class:'li'},h('span',{},tm(e.at)+' · '+e.desc,h('br'),h('small',{},(ECAT[e.cat]||e.cat)+' · '+PAY[e.m])),h('b',{},money(e.amt)))):[h('small',{},'စရိတ် မရှိပါ။')]),h('div',{class:'li'},h('b',{},'စုစုပေါင်း'),h('b',{},money(ed.reduce((x,e)=>x+e.amt,0))))),Object.keys(ec).length?h('div',{class:'card'},h('b',{},'အမျိုးအစားအလိုက်'),...Object.keys(ECAT).filter(c=>ec[c]).map(c=>row(ECAT[c],money(ec[c])))):'']}
 else if(repTab===4){const cs=sd.filter(s=>creditOf(s)>0),top=customers().filter(c=>c.bal>0.5).sort((x,y)=>y.bal-x.bal).slice(0,10);
@@ -1103,7 +1379,7 @@ h('div',{class:'card'},h('b',{},'ဒီနေ့ ကြွေးပြန်ရ�
 h('div',{class:'card'},h('b',{},'ကြွေးကျန် (ယခု) '+money(debtTotal())),...(top.length?top.map(c=>row(c.name,money(c.bal))):[h('small',{},'ကြွေးကျန်တဲ့ ဖောက်သည် မရှိပါ။')]))]}
 else{
   const ops=MTH.map(m=>opening(m,k));
-  const expCash=MTH.map((m,i)=>ops[i]===null?0:ops[i]+pin[m]+col[m]+loanInByM[m]-om[m]-loanOutByM[m]);
+  const expCash=MTH.map((m,i)=>ops[i]===null?0:ops[i]+pin[m]+col[m]+loanInByM[m]+xferInByM[m]-om[m]-loanOutByM[m]-gasRefByM[m]-xferOutByM[m]);
   const totCashBook=expCash.reduce((x,y)=>x+y,0);
   const cashInputs=MTH.map((m,i)=>h('input',{type:'number',inputmode:'numeric',placeholder:PAY[m]+' မြေပြင်လက်ကျန်',value:Math.round(expCash[i])}));
 
@@ -1172,8 +1448,96 @@ else{
 }
 app.append(h('div',{class:'card'},h('b',{},'နေ့စဉ် စာရင်းချုပ် & စာရင်းပိတ်'),di),tabs,msg,...body)}
 
+// Oxygen (O2) Tab with Factory Empty/Full/Stock & Factory Payable (40L, 47L, Over 40L)
 function viewOxy(){
 const app=$('#app');app.replaceChildren();const msg=h('div');
+const fStats=o2FactoryStats();
+
+// 1. Factory Empty / Full / Stock & Payable Card (PDF Page 1-6 format)
+const typeSel=h('select',{},Object.entries(O2_TYPES).map(([k,v])=>h('option',{value:k},v.label+' ('+money(fStats.types[k].rate)+')')));
+const emptyIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'စက်ရုံပို့ အခွံ (Empty)'});
+const fullIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'စက်ရုံမှဝင် အပြည့် (Full)'});
+const rateIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'တစ်လုံးဈေး (ကျပ်)'});
+const syncRate=()=>{rateIn.value=fStats.types[typeSel.value].rate};
+typeSel.onchange=syncRate;syncRate();
+
+const logFacBtn=h('button',{class:'o',onclick:async()=>{
+  const k=typeSel.value,em=parseInt(emptyIn.value)||0,fl=parseInt(fullIn.value)||0,rt=parseFloat(rateIn.value)||fStats.types[k].rate;
+  if(em<=0&&fl<=0)return note(msg,'အခွံ (Empty) သို့မဟုတ် အပြည့် (Full) အရေအတွက် ထည့်ပါ။');
+  const bill=fl*rt;
+  if(!(await uiConfirm(O2_TYPES[k].label+'\n• စက်ရုံပို့ အခွံ: '+em+' လုံး\n• စက်ရုံမှဝင် အပြည့်: '+fl+' လုံး'+(bill>0?'\n• စက်ရုံကျသင့်ငွေ: '+money(bill):'')+'\nမှတ်မလား?')))return;
+  logFacBtn.disabled=true;
+  try{
+    await add('stk',{id:uuid(),at:Date.now(),type:'o2_fac',o2type:k,emptyQty:em,fullQty:fl,rate:rt});
+    if(rt!==fStats.types[k].rate){
+      await put('meta',{k:'gascfg',v:{...cfg,o2Rates:{...cfg.o2Rates,[k]:rt}}});
+    }
+    await reload();viewOxy();
+    note(msg,'Oxygen စက်ရုံအဝင်/အထွက် မှတ်ပြီးပါပြီ။',1);
+  }catch(e){logFacBtn.disabled=false;note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}
+}},'O2 စက်ရုံ အဝင်/အထွက် မှတ်မည်');
+
+const payFacBtn=h('button',{class:'n',style:'width:100%;margin-top:8px;padding:10px;font-weight:700',onclick:async()=>{
+  const a=parseFloat(await uiPrompt('Oxygen စက်ရုံသို့ ပေးချေမည့် ငွေပမာဏ (ကျပ်)',Math.max(Math.round(fStats.factoryPayable),0),'number'));
+  if(!(a>0))return;
+  const ch=await uiPrompt('ဘာနဲ့ပေးလိုက်လဲ (နံပါတ်ရိုက်ပါ)\n1 = ငွေသား\n2 = KPay\n3 = Wave Pay\n4 = AyA Pay','1','number');
+  const mMap={'1':'cash','2':'kpay','3':'wave','4':'aya'};
+  const pm=mMap[String(ch||'').trim()];if(!pm)return;
+  if(!(await uiConfirm('O2 စက်ရုံငွေချေ '+money(a)+' ('+PAY[pm]+') မှတ်မလား?')))return;
+  await add('cf',{id:uuid(),at:Date.now(),type:'exp',desc:'O2 စက်ရုံငွေချေ',cat:'factory',amt:a,m:pm,isO2Factory:true});
+  await reload();viewOxy();
+  note(msg,'O2 စက်ရုံငွေချေ '+money(a)+' မှတ်ပြီးပါပြီ။',1);
+}},'O2 စက်ရုံငွေချေ မှတ်မည်');
+
+const facHist=stk.filter(e=>e.type==='o2_fac').sort((a,b)=>b.at-a.at).slice(0,12);
+
+const facSummaryCard=h('div',{class:'card',style:'border:2px solid var(--navy)'},
+  h('b',{style:'font-size:16px'},'Oxygen (O2) စက်ရုံစာရင်း & လက်ကျန် (40L / 47L / Over 40L)'),
+  h('div',{style:'margin-top:8px'},
+    ...Object.entries(fStats.types).map(([k,t])=>h('div',{class:'li',style:'flex-wrap:wrap'},
+      h('span',{},h('b',{},t.label),' (',money(t.rate),')',h('br'),h('small',{},'အခွံပို့: '+t.emptySent+' · အပြည့်ဝင်: '+t.fullRecv)),
+      h('span',{style:'text-align:right'},
+        h('b',{style:'font-size:16px;color:'+(t.stock<=2?'var(--red)':'var(--ok)')},'Stock '+t.stock+' လုံး'),
+        ' ',
+        h('button',{class:'n',style:'padding:2px 8px;font-size:12px',onclick:async()=>{
+          const v=parseInt(await uiPrompt(t.label+' ဆိုင်လက်ကျန် အစစ် (လုံး)',t.stock,'number'));
+          if(isNaN(v)||v<0)return;
+          await add('stk',{id:uuid(),at:Date.now(),type:'o2_stock_set',o2type:k,qty:v});
+          await reload();viewOxy();
+        }},'ညှိ')
+      )
+    ))
+  ),
+  h('div',{style:'margin-top:8px;padding:8px;background:#FFF3E8;border-radius:6px'},
+    h('div',{class:'li',style:'padding:2px 0'},h('span',{},'စက်ရုံ စုစုပေါင်းကျသင့်ငွေ'),h('b',{},money(fStats.totalFactoryBill))),
+    h('div',{class:'li',style:'padding:2px 0'},h('span',{},'စက်ရုံ ပေးချေပြီးငွေ'),h('b',{style:'color:var(--ok)'},money(fStats.totalFactoryPaid))),
+    h('div',{class:'li',style:'padding:4px 0;border-top:1px solid #E5C8B0'},
+      h('b',{},'စက်ရုံသို့ ပေးရန်ကျန်ငွေ'),
+      h('b',{style:'font-size:17px;color:'+(fStats.factoryPayable>0?'var(--red)':'var(--ok)')},money(fStats.factoryPayable))
+    ),
+    payFacBtn
+  )
+);
+
+const facEntryCard=h('div',{class:'card'},
+  h('b',{},'O2 စက်ရုံ အခွံပို့ / အပြည့်ဝင် မှတ်ရန်'),
+  h('label',{},'အိုးအမျိုးအစား'),typeSel,
+  h('div',{class:'row'},
+    h('div',{},h('label',{},'အခွံပို့ (Empty)'),emptyIn),
+    h('div',{},h('label',{},'အပြည့်ဝင် (Full)'),fullIn)
+  ),
+  h('label',{},'တစ်လုံးဈေး (ကျပ်)'),rateIn,
+  logFacBtn,
+  facHist.length?h('details',{style:'margin-top:10px'},
+    h('summary',{style:'color:#5A6B82;cursor:pointer'},'စက်ရုံ အဝင်/အထွက် မှတ်တမ်း ('+facHist.length+')'),
+    ...facHist.map(e=>h('div',{class:'li'},
+      h('small',{},dkey(e.at)+' · '+O2_TYPES[e.o2type].label+' · အခွံ '+(e.emptyQty||0)+' / အပြည့် '+(e.fullQty||0)),
+      h('b',{},money((e.fullQty||0)*(e.rate||0)))
+    ))
+  ):''
+);
+
+// Existing Refill / Swap Product Cards
 const o2=products.filter(p=>p.cat==='အောက်ဆီဂျင်'),now=new Date(),t0=dbounds(dkey(Date.now()))[0],m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
 const cnt=(p,t)=>{let q=0,v=0;sales.forEach(s=>{if(!s.voided&&s.at>=t)s.lines.forEach(l=>{if(l.pid===p.id){q+=l.qty;v+=amt(l)}})});return{q,v}};
 const empt=p=>{const c=stk.filter(e=>e.pid===p.id&&e.type==='ecount').sort((x,y)=>y.at-x.at)[0];if(!c)return null;let n=c.qty;stk.forEach(e=>{if(e.pid===p.id&&e.at>c.at&&e.type==='eret')n-=e.qty});sales.forEach(s=>{if(!s.voided&&s.at>c.at)s.lines.forEach(l=>{if(l.pid===p.id)n+=l.qty})});return n};
@@ -1182,6 +1546,7 @@ const rowF=p=>{const td=cnt(p,t0),mo=cnt(p,m0),mode=h('select',{},[['','ရွ�
 mode.onchange=async()=>{try{await put('products',{...p,o2:mode.value||undefined});await reload();viewOxy()}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}};
 const ex=[];if(p.o2==='swap'){const st=stockOf(p),em=empt(p);ex.push(h('div',{},h('small',{},'အပြည့်: '+(st===null?'မရေတွက်ရသေး (ပစ္စည်းများ tab မှာ "ရေတွက်")':Math.round(st*100)/100+' လုံး')+' · အလွတ် (ဆိုင်မှာ): '+(em===null?'မရေတွက်ရသေး':em+' လုံး'))),h('div',{class:'row',style:'margin-top:6px'},h('button',{class:'n',onclick:async()=>{const v=parseFloat(await uiPrompt('ဆိုင်မှာ ရှိတဲ့ အလွတ်အိုး ရေတွက်ထားတာ','','number'));if(isNaN(v)||v<0)return;if(!(await uiConfirm(p.name+' အလွတ် '+v+' လုံး အဖြစ် မှတ်မလား?')))return;go(p,{type:'ecount',qty:v})}},'အလွတ် ရေတွက်'),h('button',{class:'n',onclick:async()=>{if(em===null)return note(msg,'အရင် "အလွတ် ရေတွက်" လုပ်ပါ။');const v=parseFloat(await uiPrompt('ပေးသူ/စက်ရုံကို ပြန်ပေးတဲ့ အလွတ်အိုး အရေအတွက်','','number'));if(!(v>0))return;if(!(await uiConfirm(p.name+' အလွတ် '+v+' လုံး ပြန်ပေးတာ မှတ်မလား?')))return;go(p,{type:'eret',qty:v})}},'အလွတ် ပြန်ပေး')))}else if(p.o2==='refill')ex.push(h('small',{},'ဖောက်သည်ရဲ့ အိုးကို ဖြည့်ပေးတာ၊ ဆိုင် stock မနှုတ်ပါ။ '+(p.per?'အိုးကြီး ၁ လုံး ≈ '+p.per+' ကြိမ်':'အိုးကြီးနဲ့ အချိုး မသတ်မှတ်ရသေးလို့ အိုးကြီးထဲက မနှုတ်ပါ။')),h('div',{style:'margin-top:6px'},h('button',{class:'n',onclick:async()=>{const n=parseFloat(await uiPrompt('အိုးကြီး ၁ လုံးက '+p.name+' ကို ဘယ်နှကြိမ် ဖြည့်လို့ရလဲ (သိတဲ့အတိုင်းထည့်ပါ)','','number'));if(!(n>0))return;if(!(await uiConfirm(p.name+': အိုးကြီး ၁ လုံး = '+n+' ကြိမ်။ နောက်ရောင်းမယ့်ဟာတွေကိုပဲ သက်ရောက်မယ်။ မှတ်မလား?')))return;try{await put('products',{...p,per:n,use:1/n});await reload();viewOxy()}catch(e){note(msg,'မသိမ်းနိုင်ပါ: '+(e&&e.message||e))}}},'အချိုး သတ်မှတ်')));
 return h('div',{class:'card'},h('b',{},p.name),h('div',{class:'li'},h('span',{},'ယနေ့'),h('span',{},td.q+' အိုး · '+money(td.v))),h('div',{class:'li'},h('span',{},'ဒီလ'),h('span',{},mo.q+' အိုး · '+money(mo.v))),h('label',{},'ဆိုင်မှာ ဘယ်လိုလုပ်လဲ'),mode,...ex)};
+
 const stp=t=>new Date(t).toLocaleDateString('en-GB')+' '+tm(t),pc=x=>Math.round(x*1000)/10;
 const oc=stk.filter(e=>e.type==='ocyl'),liveO=oc.filter(c=>!c.closed).sort((x,y)=>x.at-y.at);
 const orc=stk.filter(e=>e.type==='orecv').reduce((a,e)=>a+e.qty,0),ort=stk.filter(e=>e.type==='oret').reduce((a,e)=>a+e.qty,0);
@@ -1195,8 +1560,17 @@ h('button',{class:'g',onclick:async()=>{if(!(await uiConfirm('ဒီအိုး
 const pcIn=h('input',{type:'number',inputmode:'decimal',placeholder:'စတင်ကျန် % (မထည့်ရင် 100)'}),xq=h('input',{type:'number',inputmode:'numeric',placeholder:'အိုးအရေအတွက်'}),xc=h('input',{type:'number',inputmode:'numeric',placeholder:'တစ်လုံးဈေး (မထည့်လည်းရ)'});
 const openB=h('button',{class:'o',onclick:()=>{const v=parseFloat(pcIn.value),cap=isNaN(v)?1:v/100;if(!(cap>0&&cap<=1))return note(msg,'% က 0 ထက်ကြီးပြီး 100 ထက် မကြီးရပါ။');goS({type:'ocyl',qty:0,cap,closed:false,adj:0,log:[]},'အိုးကြီးတစ်လုံး ('+pc(cap)+' %) ဖွင့်သုံးမလား?'+(fullO<=0?'\n(သတိ: စာရင်းအရ အပြည့်အိုးမကျန်တော့ပါ)':'')+(liveO.length?'\n(အိုးကြီး သုံးနေတာ ရှိပြီးသား၊ အရင်အိုး ကုန်မှ ဒီအိုးကို သုံးမယ်)':''))}},'အိုးကြီး ဖွင့်သုံးမည်');
 const rcB=h('button',{onclick:()=>{const q=parseInt(xq.value),c=parseFloat(xc.value);if(!(q>0))return note(msg,'အရေအတွက် ထည့်ပါ။');goS({type:'orecv',qty:q,cost:isNaN(c)?null:c},'စက်ရုံက အပြည့်အိုးကြီး '+q+' လုံး ရတာ မှတ်မလား?')}},'အပြည့် ရရှိ'),rtB=h('button',{onclick:()=>{const q=parseInt(xq.value);if(!(q>0))return note(msg,'အရေအတွက် ထည့်ပါ။');goS({type:'oret',qty:q},(q>emptyO?'စာရင်းအရ မပို့ရသေးတဲ့ အလွတ် '+emptyO+' လုံးပဲ ရှိတယ်။ ':'')+'အလွတ်အိုးကြီး '+q+' လုံး စက်ရုံသို့ ပို့တာ မှတ်မလား?')}},'အလွတ် စက်ရုံပို့');
-const srcCards=[h('div',{class:'card'},h('b',{},'အိုးကြီး (စက်ရုံမှာ ဖြည့်လာတာ)'),h('div',{},'ဆိုင်မှာ အပြည့် '+fullO+' လုံး · သုံးနေတာ '+liveO.length+' လုံး · အလွတ် (စက်ရုံ မပို့ရသေး) '+emptyO+' လုံး'),looseO?h('div',{class:'msg e'},'အိုးကြီးမဖွင့်ဘဲ ရောင်းထားတာ '+pc(looseO)+' % စာ ရှိတယ်။'):'',xq,xc,h('div',{class:'row',style:'margin-top:8px'},rcB,rtB)),...liveO.map(cardO),h('div',{class:'card'},h('b',{},'အိုးကြီးအသစ် ဖွင့်သုံးရန်'),pcIn,openB)];
-app.append(msg,...srcCards,...(o2.length?o2.map(rowF):[h('div',{class:'msg e'},'Oxygen ပစ္စည်း မရှိသေးပါ။ "ပစ္စည်းများ" tab မှာ အမျိုးအစား "အောက်ဆီဂျင်" ရွေးပြီး ထည့်ပါ။')]))}
+
+const motherCards=h('details',{class:'card'},
+  h('summary',{style:'font-weight:700;padding:4px 0;cursor:pointer'},'အိုးကြီး (ဆိုင်မှာ ဖြည့်ပေးတဲ့အိုး စာရင်း)'),
+  h('div',{style:'margin-top:6px'},'ဆိုင်မှာ အပြည့် '+fullO+' လုံး · သုံးနေတာ '+liveO.length+' လုံး · အလွတ် (စက်ရုံ မပို့ရသေး) '+emptyO+' လုံး'),
+  looseO?h('div',{class:'msg e'},'အိုးကြီးမဖွင့်ဘဲ ရောင်းထားတာ '+pc(looseO)+' % စာ ရှိတယ်။'):'',
+  xq,xc,h('div',{class:'row',style:'margin-top:8px'},rcB,rtB),
+  ...liveO.map(cardO),
+  h('div',{style:'margin-top:10px;border-top:1px solid var(--ln);padding-top:8px'},h('b',{},'အိုးကြီးအသစ် ဖွင့်သုံးရန်'),pcIn,openB)
+);
+
+app.append(msg,facSummaryCard,facEntryCard,motherCards,...(o2.length?o2.map(rowF):[h('div',{class:'msg e'},'Oxygen ပစ္စည်း မရှိသေးပါ။ "ပစ္စည်းများ" tab မှာ အမျိုးအစား "အောက်ဆီဂျင်" ရွေးပြီး ထည့်ပါ။')]))}
 
 const VIEWS={1:viewSale,2:viewProducts,3:viewGas,4:viewCust,5:viewData,6:viewOxy,7:viewExp,8:viewReport};
 const show=n=>{tab=n;for(let i=1;i<=8;i++)$('#t'+i).className=i==n?'on':'';try{$('#t'+n).scrollIntoView({inline:'center',block:'nearest'})}catch(e){}VIEWS[n]()};
