@@ -1,7 +1,7 @@
 // AUNG Gas Solutions POS v24 — Development Branch Service Worker
 // Branch: feature/aung-pos-v24 (Isolated from production main)
 
-const CACHE_NAME = 'aung-gas-pos-v24-s1';
+const CACHE_NAME = 'aung-gas-pos-v24-s2';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: Clean up outdated caches while keeping the active v24 cache
+// Activate: Clean up older caches and take control immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
@@ -30,37 +30,49 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Message: Support immediate activation from "နောက်ဆုံး version ကိုယူရန်"
+// Message: Support immediate activation when "နောက်ဆုံး version ကိုယူရန်" is triggered
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Fetch: Cache-first for offline reliability, falling back to './index.html' on navigation
+// Fetch: Network-first for navigation/HTML so updates load reliably,
+// cache-first with background refresh for static assets, and offline './index.html' fallback
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+
+  const acceptHeader = event.request.headers.get('accept') || '';
+  const isNavigation = event.request.mode === 'navigate' || acceptHeader.includes('text/html');
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.open(CACHE_NAME).then(cache =>
       cache.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request)
+        const fetchPromise = fetch(event.request)
           .then(networkResponse => {
             if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
               cache.put(event.request, networkResponse.clone());
             }
             return networkResponse;
           })
-          .catch(() => {
-            const acceptHeader = event.request.headers.get('accept') || '';
-            if (event.request.mode === 'navigate' || acceptHeader.includes('text/html')) {
-              return cache.match('./index.html');
-            }
-            return undefined;
-          });
+          .catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
       })
     )
   );

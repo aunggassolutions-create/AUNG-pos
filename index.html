@@ -10,9 +10,9 @@
   <style>
     :root {
       /* Grey & Orange Brand Palette */
-      --grey: #374151;
-      --grey-dark: #1F2937;
-      --grey-mid: #4B5563;
+      --grey: #334155;
+      --grey-dark: #1E293B;
+      --grey-mid: #475569;
       --org: #EA580C;
       --org-soft: #FFEDD5;
       --bg: #F3F4F6;
@@ -45,7 +45,7 @@
       align-items: center;
       justify-content: center;
       z-index: 999;
-      transition: opacity .4s ease, visibility .4s ease;
+      transition: opacity .35s ease, visibility .35s ease;
     }
     #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
     header {
@@ -161,6 +161,14 @@
       font-size: 13px;
       min-height: 36px;
     }
+    button.buyback-btn {
+      width: 100%;
+      background: #FFF7ED;
+      color: #9A3412;
+      border: 1.5px solid #FDBA74;
+      margin-top: 10px;
+      font-weight: 700;
+    }
     button:disabled { opacity: .5; cursor: not-allowed; }
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
     .sub-tabs button { flex: 1 1 95px; padding: 8px 6px; font-size: 12.5px; min-height: 38px; background: #E5E7EB; color: var(--grey-dark); border: 1px solid var(--ln); }
@@ -201,6 +209,22 @@
     .msg.k { background: var(--ok-bg); color: var(--ok); border: 1px solid #86EFAC; }
     .msg.w { background: var(--warn-bg); color: #9A3412; border: 1px solid #FDBA74; }
     .msg.i { background: var(--info-bg); color: var(--grey-dark); border: 1px solid #D1D5DB; }
+    .gas-big { font-size: 26px; font-weight: 800; color: var(--grey-dark); line-height: 1.25; margin: 4px 0; }
+    .gas-subbox {
+      background: #F8FAFC;
+      border: 1px solid var(--ln);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+    }
+    .gas-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 14px;
+    }
+    .gas-row.sep { border-top: 1px solid var(--ln); margin-top: 4px; padding-top: 8px; font-weight: 700; }
     nav {
       position: fixed;
       bottom: 0;
@@ -257,20 +281,28 @@
     #rcpt { display: none; }
     @media print {
       @page { size: 80mm auto; margin: 3mm; }
-      body { background: #FFFFFF; padding: 0; }
+      body { background: #FFFFFF; padding: 0; margin: 0; }
       header, main, nav, #splash, .modal-bg { display: none !important; }
-      #rcpt { display: block; width: 72mm; color: #000; line-height: 1.5; font-size: 12px; }
+      #rcpt {
+        display: block;
+        width: 72mm;
+        margin: 0 auto;
+        color: #000000;
+        font-family: "Noto Sans Myanmar", "Myanmar Text", monospace, sans-serif;
+        line-height: 1.48;
+        font-size: 12px;
+      }
       #rcpt .c { text-align: center; }
-      #rcpt .r { display: flex; justify-content: space-between; gap: 8px; }
+      #rcpt .r { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
       #rcpt .r.b { font-weight: 700; }
       #rcpt .r span:last-child { white-space: nowrap; }
-      #rcpt .big { font-size: 1.4em; font-weight: 700; }
-      #rcpt .dd { border-top: 2px dashed #000; margin: 8px 0; }
-      #rcpt .ss { border-top: 3px solid #000; margin: 8px 0 4px; }
-      #rcpt .it { margin: 6px 0; }
+      #rcpt .big { font-size: 1.42em; font-weight: 900; letter-spacing: 0.5px; }
+      #rcpt .dd { border-top: 1.5px dashed #000; margin: 7px 0; }
+      #rcpt .ss { border-top: 2.5px solid #000; margin: 7px 0 4px; }
+      #rcpt .it { margin: 5px 0; }
       #rcpt .nm { font-weight: 700; }
-      #rcpt .tt { font-size: 1.3em; font-weight: 700; }
-      #rcpt .ft { margin-top: 6px; }
+      #rcpt .tt { font-size: 1.32em; font-weight: 800; }
+      #rcpt .ft { margin-top: 8px; text-align: center; font-size: 11px; }
     }
   </style>
 </head>
@@ -279,10 +311,10 @@
   <!-- Branded Splash Screen (Grey & Orange) -->
   <div id="splash">
     <svg width="260" height="125" viewBox="0 0 320 155" xmlns="http://www.w3.org/2000/svg" aria-label="AUNG Gas Solutions">
-      <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#374151">AUNG</text>
+      <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#334155">AUNG</text>
       <text x="160" y="135" text-anchor="middle" font-family="'Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="-0.5" fill="#EA580C">Gas Solutions</text>
     </svg>
-    <small style="margin-top:6px;font-weight:700;color:#374151">POS v24 · feature/aung-pos-v24</small>
+    <small style="margin-top:6px;font-weight:700;color:#334155">POS v24 · feature/aung-pos-v24</small>
   </div>
 
   <!-- Top Navigation & Language Switcher -->
@@ -299,7 +331,7 @@
 
   <main id="app"></main>
 
-  <!-- 8-Tab Bottom Navigation Preserving v23 Flow + Temporary Loans + P&L -->
+  <!-- 8-Tab Bottom Navigation -->
   <nav>
     <button id="t1">ရောင်းချမှု</button>
     <button id="t2">ပစ္စည်းများ</button>
@@ -314,1194 +346,857 @@
   <div id="rcpt"></div>
 
   <script>
+    // Hide splash quickly & safely
     setTimeout(() => {
       const sp = document.getElementById('splash');
       if (sp) sp.classList.add('hide');
-    }, 850);
+    }, 650);
+
+    // Global runtime error catcher so UI never fails silently
+    window.addEventListener('error', ev => {
+      const app = document.getElementById('app');
+      if (app && !app.children.length) {
+        const d = document.createElement('div');
+        d.className = 'msg e';
+        d.textContent = 'Runtime Error: ' + (ev && ev.message || 'Unknown error');
+        app.appendChild(d);
+      }
+    });
 
     // =========================================================================
-    // 1. CONSTANTS, LANGUAGE DICTIONARY & DOMAIN CONFIGURATION
+    // 1. CONSTANTS, DICTIONARIES & BRAND CONFIGURATION
     // =========================================================================
     const APP_VER = 'POS v24 (feature/aung-pos-v24)';
-    const DEVICE_ID = (() => {
-      try {
-        let id = localStorage.getItem('aung_pos_dev_id');
-        if (!id) {
-          id = 'dev-' + (crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
-          localStorage.setItem('aung_pos_dev_id', id);
-        }
-        return id;
-      } catch (e) { return 'dev-local'; }
-    })();
+    const DB_SCHEMA_VER = 4;
+    const STORES = ['products', 'sales', 'pays', 'stk', 'cf', 'meta', 'gasCyl', 'gasEv'];
+    const UNITS = ['ပိဿာ', 'ဗူး', 'အိုး', 'ခု', 'မီတာ', 'ကတ်', 'လုံး', 'L'];
+    const CATS = ['ဓာတ်ငွေ့', 'အောက်ဆီဂျင်', 'မီးဖို', 'အပိုပစ္စည်း', 'အခြား'];
+    const ECAT = {
+      shop: 'ဆိုင်စရိတ်',
+      deliv: 'ပို့ဆောင်ခ',
+      rent: 'ဆိုင်ခန်းလခ (Cash Rent)',
+      factory: 'စက်ရုံပေးချေ',
+      saving: 'စုငွေ (Savings)',
+      other: 'အခြား'
+    };
+    const PAY = {
+      cash: 'ငွေသား',
+      kpay: 'KPay',
+      wave: 'Wave',
+      aya: 'AyA',
+      credit: 'အကြွေး/Site',
+      pending: 'ပို့ပြီးရှင်း (COD)',
+      dropoff: 'အိုးအပ် (Awaiting Pickup)'
+    };
+    const MTH = ['cash', 'kpay', 'wave', 'aya'];
 
-    let lang = 'my';
+    // Gas Agents & Capacities (Preserved from v23)
+    const AGENTS = {
+      'TT Gas': { cap: 28.5, kg: '48kg', label: 'TT Gas (48kg / 28.5viss)' },
+      'NGN': { cap: 28.5, kg: '48kg', label: 'NGN (48kg / 28.5viss)' },
+      'Easy Gas': { cap: 30.0, kg: '50kg', label: 'Easy Gas (50kg / 30viss)' }
+    };
+    const AG_LIST = ['TT Gas', 'NGN', 'Easy Gas'];
+
+    // Oxygen 4-Type Ownership & Fill Rates (Zero Regex)
+    const O2_TYPES = {
+      '40L_FACTORY': { id: '40L_FACTORY', labelMy: '40L စက်ရုံအိုး', labelEn: '40L Factory Cylinder', ownership: 'factory', defaultRate: 19500 },
+      '47L_FACTORY': { id: '47L_FACTORY', labelMy: '47L စက်ရုံအိုး', labelEn: '47L Factory Cylinder', ownership: 'factory', defaultRate: 23500 },
+      '40L_OWN': { id: '40L_OWN', labelMy: '40L အပိုင်', labelEn: '40L Shop-Owned', ownership: 'shop', defaultRate: 19500 },
+      'OVER_40L_OWN': { id: 'OVER_40L_OWN', labelMy: 'Over 40L အပိုင်', labelEn: 'Over 40L Shop-Owned', ownership: 'shop', defaultRate: 25000 }
+    };
+
+    const SITE_TERMS = {
+      immediate: { labelMy: 'လက်ငင်းရှင်း', labelEn: 'Immediate' },
+      next_return: { labelMy: 'ခေါက်ပြန်ရှင်း', labelEn: 'Pay on Next Return' },
+      biweekly_15: { labelMy: '၁၅ ရက်တစ်ခါရှင်း', labelEn: '15-Day Cycle' },
+      month_end: { labelMy: 'လကုန်ရှင်း', labelEn: 'Month-End' }
+    };
+
     const I18N = {
       my: {
         tabs: ['ရောင်းချမှု', 'ပစ္စည်းများ', 'Gas စာရင်း', 'Oxygen', 'ဖောက်သည်', 'စရိတ်/ချေးငွေ', 'စာရင်းချုပ်', 'ဒေတာ'],
         online: 'အွန်လိုင်း',
         offline: 'အော့ဖ်လိုင်း',
         lastBackup: 'နောက်ဆုံး Backup အချိန်',
-        neverBackup: 'မရှိသေးပါ (Backup ဖိုင်ထုတ်ရန် လိုအပ်ပါသည်)'
+        neverBackup: 'မပြုလုပ်ရသေးပါ'
       },
       en: {
-        tabs: ['Sales', 'Products', 'Gas Ledger', 'Oxygen', 'Customers', 'Exp / Loans', 'Summary & P&L', 'Data & Update'],
+        tabs: ['Sales', 'Products', 'Gas Stock', 'Oxygen', 'Customers', 'Exp/Loans', 'Reports', 'Data'],
         online: 'Online',
         offline: 'Offline',
         lastBackup: 'Last Backup Time',
-        neverBackup: 'None yet (Export recommended)'
+        neverBackup: 'Not yet backed up'
       }
     };
-    const tr = k => (I18N[lang] && I18N[lang][k]) || I18N.my[k] || k;
 
+    // =========================================================================
+    // 2. DOM HELPERS, MODAL DIALOGS & DATE UTILITIES
+    // =========================================================================
     const $ = s => document.querySelector(s);
-    const h = (t, a = {}, ...c) => {
-      const e = document.createElement(t);
-      for (const k in a) {
-        if (k === 'class') e.className = a[k];
-        else if (k.startsWith('on')) e[k] = a[k];
-        else if (a[k] !== null && a[k] !== undefined) e.setAttribute(k, a[k]);
+    function h(tag, attrs = {}, ...kids) {
+      const el = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs || {})) {
+        if (k === 'class') el.className = v;
+        else if (k === 'style') el.style.cssText = v;
+        else if (k.startsWith('on') && typeof v === 'function') el[k] = v;
+        else if (v !== false && v !== null && v !== undefined) el.setAttribute(k, v === true ? '' : v);
       }
-      c.flat().forEach(x => {
-        if (x !== null && x !== undefined && x !== '') e.append(x);
+      kids.flat().forEach(c => {
+        if (c !== null && c !== undefined && c !== false) {
+          el.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+        }
       });
-      return e;
+      return el;
+    }
+
+    function note(el, txt, ok = false) {
+      if (!el) return;
+      el.replaceChildren(h('div', { class: 'msg ' + (ok ? 'k' : 'e') }, txt));
+    }
+
+    function uiAlert(txt) {
+      return new Promise(res => {
+        const bg = h('div', { class: 'modal-bg' },
+          h('div', { class: 'modal-box' },
+            h('div', { style: 'white-space:pre-line;font-weight:600;margin-bottom:12px' }, txt),
+            h('button', { class: 'o', onclick: () => { bg.remove(); res(); } }, 'OK')
+          )
+        );
+        document.body.appendChild(bg);
+      });
+    }
+
+    function uiConfirm(txt, okLabel = 'OK', cancelLabel = 'Cancel') {
+      return new Promise(res => {
+        const bg = h('div', { class: 'modal-bg' },
+          h('div', { class: 'modal-box' },
+            h('div', { style: 'white-space:pre-line;font-weight:600;margin-bottom:12px' }, txt),
+            h('div', { class: 'row' },
+              h('button', { class: 'n', onclick: () => { bg.remove(); res(false); } }, cancelLabel),
+              h('button', { class: 'o', style: 'margin-top:0', onclick: () => { bg.remove(); res(true); } }, okLabel)
+            )
+          )
+        );
+        document.body.appendChild(bg);
+      });
+    }
+
+    function uiPrompt(txt, defVal = '', type = 'text') {
+      return new Promise(res => {
+        const inp = h('input', { type, value: defVal === null || defVal === undefined ? '' : String(defVal) });
+        const bg = h('div', { class: 'modal-bg' },
+          h('div', { class: 'modal-box' },
+            h('div', { style: 'white-space:pre-line;font-weight:600;margin-bottom:8px' }, txt),
+            inp,
+            h('div', { class: 'row', style: 'margin-top:10px' },
+              h('button', { class: 'n', onclick: () => { bg.remove(); res(null); } }, 'Cancel'),
+              h('button', { class: 'o', style: 'margin-top:0', onclick: () => { const v = inp.value; bg.remove(); res(v); } }, 'OK')
+            )
+          )
+        );
+        document.body.appendChild(bg);
+        setTimeout(() => { inp.focus(); inp.select(); }, 30);
+      });
+    }
+
+    const uuid = () => (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
+    const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
+    const money = n => Math.round(Number(n) || 0).toLocaleString() + ' ကျပ်';
+    const ck = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const dkey = ts => {
+      const d = new Date(ts || Date.now());
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     };
-    const money = n => Math.round(Number(n) || 0).toLocaleString('en-US') + (lang === 'en' ? ' MMK' : ' ကျပ်');
-    const r2 = x => Math.round((Number(x) || 0) * 100) / 100;
-    const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : ('id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9)));
-    const pad = n => String(n).padStart(2, '0');
-    const dkey = t => {
-      const d = new Date(t);
-      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    const ddisp = k => {
+      if (!k || k.length < 10) return k || '';
+      return k.slice(5, 7) + '/' + k.slice(8, 10) + '/' + k.slice(0, 4);
     };
-    const ymkey = t => dkey(t).slice(0, 7);
     const dbounds = k => {
       const [y, m, d] = k.split('-').map(Number);
-      return [new Date(y, m - 1, d, 0, 0, 0, 0).getTime(), new Date(y, m - 1, d, 23, 59, 59, 999).getTime()];
+      const a = new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+      const b = new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+      return [a, b];
     };
-    const mbounds = ym => {
-      const [y, m] = ym.split('-').map(Number);
-      return [new Date(y, m - 1, 1, 0, 0, 0, 0).getTime(), new Date(y, m, 0, 23, 59, 59, 999).getTime()];
+    const tm = ts => {
+      const d = new Date(ts || Date.now());
+      return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     };
-    const daysInMonth = (y, m) => new Date(y, m, 0).getDate();
-    const tm = t => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    const sd_ = t => new Date(t).toLocaleDateString('en-GB') + ' ' + tm(t);
-
-    // Supplier Capacities (Authoritative)
-    const AGENTS = {
-      'TT Gas':   { kg: 48, viss: 28.5 },
-      'NGN':      { kg: 48, viss: 28.5 },
-      'Easy Gas': { kg: 50, viss: 30.0 }
-    };
-
-    // Four Separate Oxygen Types (Never merged; never matched by product-name regex)
-    const O2_TYPES = {
-      '40L_FACTORY':  { id: '40L_FACTORY',  labelMy: '40L (စက်ရုံအိုး)',     labelEn: '40L Factory',  ownership: 'factory', defaultRate: 19500 },
-      '47L_FACTORY':  { id: '47L_FACTORY',  labelMy: '47L (စက်ရုံအိုး)',     labelEn: '47L Factory',  ownership: 'factory', defaultRate: 23500 },
-      '40L_OWN':      { id: '40L_OWN',      labelMy: '40L (အပိုင်)',         labelEn: '40L Shop-Own', ownership: 'shop',    defaultRate: 19500 },
-      'OVER_40L_OWN': { id: 'OVER_40L_OWN', labelMy: 'Over 40L (အပိုင်)',    labelEn: 'Over 40L Own', ownership: 'shop',    defaultRate: 25000 }
-    };
-    const o2Label = tid => {
-      const x = O2_TYPES[tid];
-      return x ? (lang === 'en' ? x.labelEn : x.labelMy) : tid;
-    };
-
-    // Site & Business Payment Terms
-    const SITE_TERMS = {
-      'immediate':   { labelMy: 'လက်ငင်းရှင်း',       labelEn: 'Immediate' },
-      'next_return': { labelMy: 'ခေါက်ပြန်ရှင်း',      labelEn: 'Next Return' },
-      '15_days':     { labelMy: '၁၅ ရက်တစ်ခါရှင်း',   labelEn: 'Every 15 Days' },
-      'month_end':   { labelMy: 'လကုန်ရှင်း',         labelEn: 'Month-End' }
-    };
-    const termLabel = k => {
-      const x = SITE_TERMS[k];
-      return x ? (lang === 'en' ? x.labelEn : x.labelMy) : k;
-    };
-
-    const CATS = ['LPG ဓာတ်ငွေ့', 'LPG အိုး/ဗူး', 'အောက်ဆီဂျင်', 'မီးဖို', 'Regulator/Valve', 'ဆက်စပ်ပစ္စည်း'];
-    const UNITS = ['ခု', 'ဗူး', 'အိုး', 'kg', 'viss'];
-    const PAY = {
-      cash: 'ငွေသား (Cash)',
-      kpay: 'KPay',
-      wave: 'Wave Pay',
-      aya: 'AyA Pay',
-      credit: 'ကြွေး / Site Term',
-      pending: 'COD (ပို့ပြီးငွေချေ)',
-      dropoff: 'Drop-off (ထားခဲ့ဗူး/အိုး)'
-    };
-    const ECAT = {
-      factory: 'စက်ရုံ / ကုန်ပစ္စည်းဝယ်စရိတ်',
-      shop: 'ဆိုင်အသုံးစရိတ်',
-      transport: 'သယ်ယူပို့ဆောင်စရိတ်',
-      owner: 'အိမ်အသုံးစရိတ် / လစာ',
-      savings: 'စုငွေ (Savings)',
-      rent: 'ဆိုင်ခန်းလခ (Cash Rent)',
-      other: 'အထွေထွေ စရိတ်'
-    };
-    const MTH = ['cash', 'kpay', 'wave', 'aya'];
-    const STORES = ['products', 'sales', 'gasEv', 'pays', 'stk', 'cf', 'meta'];
-
-    const SAMPLE = [
-      ['Gas (ပိဿာ)', 'LPG ဓာတ်ငွေ့', 'viss', null, 'viss'],
-      ['Gas ဗူးဖြည့်', 'LPG ဓာတ်ငွေ့', 'ဗူး', null, 'can'],
-      ['40L O2 (စက်ရုံအိုး)', 'အောက်ဆီဂျင်', 'အိုး', '40L_FACTORY', null],
-      ['47L O2 (စက်ရုံအိုး)', 'အောက်ဆီဂျင်', 'အိုး', '47L_FACTORY', null],
-      ['40L O2 (အပိုင်)', 'အောက်ဆီဂျင်', 'အိုး', '40L_OWN', null],
-      ['Over 40L O2 (အပိုင်)', 'အောက်ဆီဂျင်', 'အိုး', 'OVER_40L_OWN', null],
-      ['EFF ဗူးသစ်', 'LPG အိုး/ဗူး', 'ဗူး', null, null],
-      ['15kg (Thailand)', 'LPG အိုး/ဗူး', 'အိုး', null, null],
-      ['Rinnai RI-522A', 'မီးဖို', 'ခု', null, null],
-      ['YAMATO L.P.G Regulator', 'Regulator/Valve', 'ခု', null, null],
-      ['YAMATO O2 Regulator', 'Regulator/Valve', 'ခု', null, null]
-    ];
+    const sd_ = ts => ts ? (dkey(ts) + ' ' + tm(ts)) : '';
 
     // =========================================================================
-    // 2. INDEXEDDB ENGINE (SCHEMA v4 PRESERVED + ISOLATED TEST DB SUPPORT)
+    // 3. GLOBAL STATE & INDEXEDDB (SCHEMA v4)
     // =========================================================================
+    let db = null;
     let activeDbName = 'aung-gas-pos';
-    let db;
+    let lang = 'my';
+    let tab = 1;
+    let repTab = 1;
+    let expSubTab = 1;
+    let repMonthly = false;
+    let saving = false;
+    let saleId = uuid();
+    let lines = [];
 
-    function openDb(name = activeDbName) {
-      return new Promise((ok, no) => {
-        const req = indexedDB.open(name, 4);
-        req.onupgradeneeded = () => {
-          const d = req.result;
-          STORES.forEach(n => {
-            if (!d.objectStoreNames.contains(n)) {
-              d.createObjectStore(n, { keyPath: n === 'meta' ? 'k' : 'id' });
+    let products = [];
+    let sales = [];
+    let pays = [];
+    let stk = [];
+    let cf = [];
+    let meta = [];
+    let gasCyl = [];
+    let gasEv = [];
+
+    let cfg = {
+      cans: 7,
+      o2Rates: { '40L_FACTORY': 19500, '47L_FACTORY': 23500, '40L_OWN': 19500, 'OVER_40L_OWN': 25000 },
+      motherCapL: 55,
+      motherCapConfirmed: false,
+      dashWidgets: { pnl: true, gas: true, o2: true, debt: true, fac: true, backup: true }
+    };
+    let rc = {
+      head: 'သာကေတ၊ ရန်ကုန်မြို့\nLPG ဓာတ်ငွေ့ နှင့် ဆေးရုံသုံး/စက်မှုသုံး အောက်ဆီဂျင် ရောင်းဝယ်ရေး',
+      foot: 'ဝယ်ယူအားပေးမှုကို ကျေးဇူးတင်ပါသည်။',
+      size: 3
+    };
+    let bk = 0;
+    let lockedMonths = [];
+    let rentSchedule = [{ from: '2020-01', to: '2026-12', monthlyRent: 750000 }];
+    let restoreConflicts = [];
+    let activeStaff = { id: 'OWNER', name: 'Owner', role: 'owner', perms: { void: true, reopen: true, discount: true, merge: true, backup: true } };
+
+    const DEVICE_ID = (() => {
+      try {
+        let id = localStorage.getItem('aung_pos_dev_id');
+        if (!id) { id = 'DEV-' + uuid().slice(0, 8); localStorage.setItem('aung_pos_dev_id', id); }
+        return id;
+      } catch (e) { return 'DEV-LOCAL'; }
+    })();
+
+    const tr = k => (I18N[lang] && I18N[lang][k]) || I18N.my[k] || k;
+    const o2Label = id => {
+      const t = O2_TYPES[id];
+      if (!t) return id || '';
+      return lang === 'en' ? t.labelEn : t.labelMy;
+    };
+    const termLabel = k => (SITE_TERMS[k] ? (lang === 'en' ? SITE_TERMS[k].labelEn : SITE_TERMS[k].labelMy) : (k || 'လက်ငင်းရှင်း'));
+    const payLabel = s => PAY[s.pay] || s.pay || '';
+    const lineGrossAmt = l => l.foc ? 0 : (Number(l.qty) || 0) * (Number(l.price) || 0);
+
+    function openDb(name) {
+      return new Promise((res, rej) => {
+        const req = indexedDB.open(name, DB_SCHEMA_VER);
+        req.onupgradeneeded = e => {
+          const d = e.target.result;
+          STORES.forEach(st => {
+            if (!d.objectStoreNames.contains(st)) {
+              d.createObjectStore(st, { keyPath: st === 'meta' ? 'k' : 'id' });
             }
           });
         };
-        req.onsuccess = () => ok(req.result);
-        req.onerror = () => no(req.error);
+        req.onsuccess = e => res(e.target.result);
+        req.onerror = e => rej(e.target.error);
       });
     }
 
     function run(storeNames, mode, fn) {
-      return new Promise((ok, no) => {
+      return new Promise((res, rej) => {
         const tx = db.transaction(storeNames, mode);
-        let result;
-        tx.oncomplete = () => ok(result);
-        tx.onabort = () => no(tx.error || new Error('TX_ABORTED'));
-        tx.onerror = () => no(tx.error || new Error('TX_ERROR'));
-        try {
-          result = fn(tx);
-        } catch (err) {
-          try { tx.abort(); } catch (e) {}
-          no(err);
-        }
+        let out;
+        try { out = fn(tx); } catch (err) { try { tx.abort(); } catch (e) {} return rej(err); }
+        tx.oncomplete = () => res(out);
+        tx.onerror = e => rej(e.target.error || new Error('Transaction error'));
+        tx.onabort = e => rej(e.target.error || new Error('Transaction aborted'));
       });
     }
-    const all = s => new Promise((ok, no) => {
-      const q = db.transaction(s).objectStore(s).getAll();
-      q.onsuccess = () => ok(q.result || []);
-      q.onerror = () => no(q.error);
+
+    const getAll = st => new Promise((res, rej) => {
+      const r = db.transaction([st], 'readonly').objectStore(st).getAll();
+      r.onsuccess = () => res(r.result || []);
+      r.onerror = e => rej(e.target.error);
     });
-    const add = (s, o) => run(s, 'readwrite', t => t.objectStore(s).add(o));
-    const put = (s, o) => run(s, 'readwrite', t => t.objectStore(s).put(o));
+    const put = (st, val) => run([st], 'readwrite', t => t.objectStore(st).put(val));
+    const add = (st, val) => run([st], 'readwrite', t => t.objectStore(st).add(val));
+    const getMeta = k => { const x = meta.find(m => m.k === k); return x ? x.v : undefined; };
 
-    // =========================================================================
-    // 3. IN-MEMORY STATE, MODALS & PBKDF2 SECURITY / STAFF PERMISSIONS
-    // =========================================================================
-    let cf = [], bk = null, stk = [], rc = { head: '', foot: '', size: 3 }, pays = [], gasEv = [], metaList = [];
-    let cfg = {
-      usable: 28.5, cans: 7, nominal: 29.3, low: 2, lowO2: 20,
-      canMin: 197, canMax: 203,
-      motherCapL: 55, motherCapConfirmed: false,
-      motherFillCost: 25000,
-      pbkdf2Iter: 600000,
-      o2Rates: { '40L_FACTORY': 19500, '47L_FACTORY': 23500, '40L_OWN': 19500, 'OVER_40L_OWN': 25000 },
-      dashWidgets: { pnl: true, gas: true, o2: true, debt: true, fac: true, backup: true }
-    };
-    let rentSchedule = [{ from: '2026-01', to: '2026-12', monthlyRent: 750000 }];
-    let lockedMonths = [];
-    let ownerAuth = null;
-    let staffList = [];
-    let activeStaff = null;
-    let restoreConflicts = [];
-    let products = [], sales = [], lines = [], saleId = uuid(), saving = false, tab = 1;
-    let repTab = 1; // 1=ငွေစာရင်းချုပ် (v23), 2=အရောင်း, 3=စရိတ်, 4=ကြွေး, 5=စာရင်းပိတ် (v23), 6=P&L (v24)
-    let expSubTab = 1; // 1=စရိတ်များ (Expenses), 2=ယာယီချေးငွေ (Temporary Loans)
-
-    const getMeta = k => {
-      const found = metaList.find(x => x.k === k);
-      return found ? found.v : undefined;
-    };
-    const note = (box, txt, isOk = false) => {
-      if (!box) return;
-      box.replaceChildren(h('div', { class: 'msg ' + (isOk ? 'k' : 'e') }, txt));
-    };
-
-    function uiConfirm(msg, okTxt = 'အတည်ပြုမည်', cancelTxt = 'မလုပ်ပါ') {
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const box = h('div', { class: 'modal-box' },
-          h('div', { style: 'white-space:pre-line;margin-bottom:14px;font-size:14.5px' }, msg),
-          h('div', { class: 'row' },
-            cancelTxt ? h('button', { class: 'n', onclick: () => { bg.remove(); res(false); } }, cancelTxt) : '',
-            h('button', { class: 'o', style: 'margin-top:0', onclick: () => { bg.remove(); res(true); } }, okTxt)
-          )
-        );
-        bg.append(box);
-        document.body.append(bg);
-      });
-    }
-    const uiAlert = msg => uiConfirm(msg, 'OK', null);
-
-    function uiPrompt(title, defVal = '', inputType = 'text', placeholder = '') {
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const inp = h('input', {
-          type: inputType,
-          value: defVal === null || defVal === undefined ? '' : String(defVal),
-          placeholder,
-          step: 'any'
-        });
-        const box = h('div', { class: 'modal-box' },
-          h('b', { style: 'font-size:15px;display:block;margin-bottom:8px' }, title),
-          inp,
-          h('div', { class: 'row', style: 'margin-top:12px' },
-            h('button', { class: 'n', onclick: () => { bg.remove(); res(null); } }, 'မလုပ်ပါ'),
-            h('button', { class: 'o', style: 'margin-top:0', onclick: () => { bg.remove(); res(inp.value); } }, 'အတည်ပြုမည်')
-          )
-        );
-        bg.append(box);
-        document.body.append(bg);
-        setTimeout(() => { inp.focus(); inp.select(); }, 40);
-      });
-    }
-
-    // PBKDF2-HMAC-SHA256 Crypto Helpers
-    const PBKDF2_DEFAULT_ITER = 600000;
-    let pinAuthInFlight = false;
-
-    const bufToHex = buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    const hexToBuf = hex => new Uint8Array((hex.match(/.{1,2}/g) || []).map(b => parseInt(b, 16)));
-    const genSaltHex = () => {
-      const b = new Uint8Array(16);
-      crypto.getRandomValues(b);
-      return bufToHex(b);
-    };
-    const genRecoveryCode = () => {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      const r = new Uint8Array(8);
-      crypto.getRandomValues(r);
-      const s = Array.from(r).map(x => chars[x % chars.length]).join('');
-      return 'AUNG-' + s.slice(0, 4) + '-' + s.slice(4, 8);
-    };
-
-    async function derivePbkdf2Hex(secret, saltHex, iterations = PBKDF2_DEFAULT_ITER) {
-      const enc = new TextEncoder();
-      const keyMat = await crypto.subtle.importKey('raw', enc.encode(String(secret).trim()), { name: 'PBKDF2' }, false, ['deriveBits']);
-      const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: hexToBuf(saltHex), iterations, hash: 'SHA-256' }, keyMat, 256);
-      return bufToHex(bits);
-    }
-
-    async function benchmarkPbkdf2(iters = PBKDF2_DEFAULT_ITER) {
-      const salt = genSaltHex();
-      const t0 = performance.now();
-      await derivePbkdf2Hex('123456', salt, iters);
-      return Math.round(performance.now() - t0);
-    }
-
-    async function logPinAudit(eventType, detail) {
-      await put('meta', { k: 'pin_audit_' + uuid(), v: { eventType, detail, at: Date.now(), deviceId: DEVICE_ID } });
-    }
-
-    async function setupOwnerPinModal(forceNew = false) {
-      if (!forceNew && ownerAuth && ownerAuth.pinHashHex) return true;
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const p1 = h('input', { type: 'password', inputmode: 'numeric', placeholder: 'Owner PIN (၄ - ၆ ဂဏန်း)' });
-        const p2 = h('input', { type: 'password', inputmode: 'numeric', placeholder: 'Owner PIN ထပ်ရိုက်ပါ' });
-        const iterSel = h('select', {},
-          h('option', { value: '600000' }, '600,000 Iterations (Target Standard)'),
-          h('option', { value: '310000' }, '310,000 Iterations (Device Latency Fallback)')
-        );
-        iterSel.value = String(cfg.pbkdf2Iter || 600000);
-        const msg = h('div');
-
-        const saveBtn = h('button', {
-          class: 'o',
-          onclick: async () => {
-            if (pinAuthInFlight) return;
-            const a = p1.value.trim(), b = p2.value.trim();
-            if (!/^\d{4,6}$/.test(a)) return note(msg, 'PIN ကို ဂဏန်း ၄ လုံးမှ ၆ လုံးအတွင်း ထည့်ပါ။');
-            if (a !== b) return note(msg, 'PIN နှစ်ခု မတူညီပါ။');
-            pinAuthInFlight = true;
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'PBKDF2 Key ဖန်တီးနေပါသည်...';
-            try {
-              const iters = parseInt(iterSel.value, 10) || 600000;
-              const pinSaltHex = genSaltHex();
-              const recoverySaltHex = genSaltHex();
-              const recCode = genRecoveryCode();
-              const pinHashHex = await derivePbkdf2Hex(a, pinSaltHex, iters);
-              const recoveryHashHex = await derivePbkdf2Hex(recCode, recoverySaltHex, iters);
-              const authObj = {
-                ownerId: 'OWNER',
-                alg: 'PBKDF2-SHA256',
-                iter: iters,
-                pinSaltHex,
-                pinHashHex,
-                recoverySaltHex,
-                recoveryHashHex,
-                failedAttempts: 0,
-                lockUntil: 0,
-                updatedAt: Date.now()
-              };
-              await run('meta', 'readwrite', t => {
-                t.objectStore('meta').put({ k: 'owner_auth', v: authObj });
-                t.objectStore('meta').put({ k: 'gascfg', v: { ...cfg, pbkdf2Iter: iters } });
-                t.objectStore('meta').put({ k: 'pin_audit_' + uuid(), v: { eventType: 'OWNER_PIN_SET', detail: 'iter=' + iters, at: Date.now(), deviceId: DEVICE_ID } });
-              });
-              await reload();
-              bg.remove();
-              await uiAlert('Owner PIN သိမ်းပြီးပါပြီ။\n\nတစ်ခါသုံး Recovery Code (သီးခြား Salt ဖြင့် သိမ်းဆည်းထားသည်)−\n\n🔑 ' + recCode + '\n\nဤ Code ကို တစ်ကြိမ်သာ သုံးနိုင်ပြီး သုံးပြီးသည်နှင့် Code အသစ်သို့ ပြောင်းလဲပါမည်။');
-              res(true);
-            } catch (e) {
-              note(msg, 'Error: ' + (e && e.message || e));
-            } finally {
-              pinAuthInFlight = false;
-              saveBtn.disabled = false;
-              saveBtn.textContent = 'Owner PIN သိမ်းမည်';
-            }
-          }
-        }, 'Owner PIN သိမ်းမည်');
-
-        bg.append(h('div', { class: 'modal-box' },
-          h('b', { style: 'font-size:17px' }, 'Owner PIN Setup (PBKDF2-HMAC-SHA256)'),
-          h('small', {}, 'ပုံမှန်နေ့စဉ်အရောင်းများအတွက် PIN မလိုပါ။ Void, >2% Discount, Month Reopen, Conflict Resolution တို့အတွက် Owner PIN လိုအပ်ပါသည်။'),
-          h('label', {}, 'New Owner PIN'), p1,
-          h('label', {}, 'Confirm PIN'), p2,
-          h('label', {}, 'PBKDF2 Iterations'), iterSel,
-          msg, saveBtn,
-          !forceNew ? h('button', { class: 'n', style: 'width:100%;margin-top:8px', onclick: () => { bg.remove(); res(false); } }, 'နောက်မှ သတ်မှတ်မည်') : ''
-        ));
-        document.body.append(bg);
-      });
-    }
-
-    async function requireOwnerPin(actionLabel) {
-      if (!ownerAuth || !ownerAuth.pinHashHex) {
-        const created = await setupOwnerPinModal(false);
-        if (!created) return false;
-      }
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const pinIn = h('input', { type: 'password', inputmode: 'numeric', placeholder: 'Owner PIN ရိုက်ထည့်ပါ' });
-        const msg = h('div');
-
-        const checkLock = () => {
-          const now = Date.now();
-          if (ownerAuth.lockUntil && now < ownerAuth.lockUntil) {
-            const sec = Math.ceil((ownerAuth.lockUntil - now) / 1000);
-            note(msg, 'PIN မှားယွင်းမှု များနေသဖြင့် ' + sec + ' စက္ကန့် စောင့်ပါ။');
-            return true;
-          }
-          return false;
-        };
-        checkLock();
-
-        const verifyBtn = h('button', {
-          class: 'o',
-          onclick: async () => {
-            if (pinAuthInFlight) return;
-            if (checkLock()) return;
-            const val = pinIn.value.trim();
-            if (!val) return note(msg, 'PIN ထည့်ပါ။');
-            pinAuthInFlight = true;
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = 'Verifying...';
-            try {
-              const hHex = await derivePbkdf2Hex(val, ownerAuth.pinSaltHex, ownerAuth.iter || PBKDF2_DEFAULT_ITER);
-              if (hHex === ownerAuth.pinHashHex) {
-                await put('meta', { k: 'owner_auth', v: { ...ownerAuth, failedAttempts: 0, lockUntil: 0 } });
-                await reload();
-                bg.remove();
-                res(true);
-              } else {
-                const fails = (ownerAuth.failedAttempts || 0) + 1;
-                let waitMs = 0;
-                if (fails === 4) waitMs = 30000;
-                else if (fails === 5) waitMs = 300000;
-                else if (fails >= 6) waitMs = 900000;
-                const upd = { ...ownerAuth, failedAttempts: fails, lockUntil: waitMs ? Date.now() + waitMs : 0 };
-                await run('meta', 'readwrite', t => {
-                  t.objectStore('meta').put({ k: 'owner_auth', v: upd });
-                  t.objectStore('meta').put({ k: 'pin_audit_' + uuid(), v: { eventType: 'PIN_FAIL', detail: 'fails=' + fails + ' act=' + actionLabel, at: Date.now(), deviceId: DEVICE_ID } });
-                });
-                await reload();
-                pinIn.value = '';
-                note(msg, 'PIN မှားယွင်းနေပါသည် (အကြိမ် ' + fails + ')' + (waitMs ? ' — ' + Math.round(waitMs / 1000) + 's lock' : ''));
-              }
-            } finally {
-              pinAuthInFlight = false;
-              verifyBtn.disabled = false;
-              verifyBtn.textContent = 'အတည်ပြုမည်';
-            }
-          }
-        }, 'အတည်ပြုမည်');
-
-        const recBtn = h('button', {
-          class: 'n',
-          style: 'width:100%;margin-top:8px',
-          onclick: async () => {
-            if (pinAuthInFlight) return;
-            const code = await uiPrompt('တစ်ခါသုံး Recovery Code (AUNG-XXXX-XXXX) ထည့်ပါ', '', 'text', 'AUNG-XXXX-XXXX');
-            if (!code) return;
-            pinAuthInFlight = true;
-            try {
-              const rHash = await derivePbkdf2Hex(code.trim().toUpperCase(), ownerAuth.recoverySaltHex, ownerAuth.iter || PBKDF2_DEFAULT_ITER);
-              if (rHash !== ownerAuth.recoveryHashHex) {
-                await logPinAudit('RECOVERY_REJECTED', 'invalid_or_used_code');
-                await reload();
-                return note(msg, 'Recovery Code မှားယွင်းနေပါသည် သို့မဟုတ် အသုံးပြုပြီးသား Code ဖြစ်ပါသည်။');
-              }
-              await logPinAudit('RECOVERY_USED_AND_ROTATED', 'one_time_code_consumed');
-              await reload();
-              bg.remove();
-              const ok = await setupOwnerPinModal(true);
-              res(ok);
-            } finally {
-              pinAuthInFlight = false;
-            }
-          }
-        }, 'Recovery Code ဖြင့် PIN အသစ်ပြောင်းမည် (One-Time Use & Rotate)');
-
-        bg.append(h('div', { class: 'modal-box' },
-          h('b', { style: 'font-size:16px' }, 'Owner PIN Verification'),
-          h('div', { style: 'margin:6px 0;color:var(--mut);font-size:13.5px' }, actionLabel),
-          pinIn, msg, verifyBtn, recBtn,
-          h('button', { class: 'g', style: 'width:100%;margin-top:8px', onclick: () => { bg.remove(); res(false); } }, 'Cancel')
-        ));
-        document.body.append(bg);
-        setTimeout(() => pinIn.focus(), 40);
-      });
-    }
-
-    function hasStaffPerm(permKey) {
-      if (!activeStaff) return true;
-      return !!(activeStaff.perms && activeStaff.perms[permKey]);
-    }
-
-    async function staffLoginModal() {
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const sel = h('select', {},
-          h('option', { value: 'OWNER' }, 'Owner Mode'),
-          ...staffList.map(s => h('option', { value: s.id }, 'Staff: ' + s.name))
-        );
-        if (activeStaff) sel.value = activeStaff.id;
-        const pinIn = h('input', { type: 'password', inputmode: 'numeric', placeholder: 'PIN (Owner ဖြစ်လျှင် Owner PIN)' });
-        const msg = h('div');
-
-        const goBtn = h('button', {
-          class: 'o',
-          onclick: async () => {
-            if (pinAuthInFlight) return;
-            if (sel.value === 'OWNER') {
-              bg.remove();
-              const ok = await requireOwnerPin('Switch to Owner Mode');
-              if (ok) { activeStaff = null; updateRoleBadge(); }
-              return res(ok);
-            }
-            const st = staffList.find(x => x.id === sel.value);
-            if (!st) return;
-            pinAuthInFlight = true;
-            try {
-              const hHex = await derivePbkdf2Hex(pinIn.value.trim(), st.saltHex, st.iter || 600000);
-              if (hHex !== st.pinHashHex) return note(msg, 'Staff PIN မှားယွင်းနေပါသည်။');
-              activeStaff = st;
-              updateRoleBadge();
-              bg.remove();
-              res(true);
-            } finally { pinAuthInFlight = false; }
-          }
-        }, 'ပြောင်းမည် (Switch)');
-
-        bg.append(h('div', { class: 'modal-box' },
-          h('b', { style: 'font-size:16px' }, 'Owner / Staff Mode Switch'),
-          h('label', {}, 'User'), sel,
-          h('label', {}, 'PIN'), pinIn,
-          msg, goBtn,
-          h('button', { class: 'n', style: 'width:100%;margin-top:8px', onclick: () => { bg.remove(); res(false); } }, 'ပိတ်မည်')
-        ));
-        document.body.append(bg);
-      });
-    }
-
-    function updateRoleBadge() {
-      const b = $('#roleBadge');
-      if (!b) return;
-      b.textContent = activeStaff ? ('STAFF: ' + activeStaff.name) : 'OWNER';
-      b.className = activeStaff ? 'tag' : 'tag b';
-    }
-
-    // =========================================================================
-    // 4. MONTH HARD LOCK & APPEND-ONLY AUDIT TRAIL
-    // =========================================================================
-    const isMonthLocked = dateOrYm => {
-      if (!dateOrYm) return false;
-      return lockedMonths.includes(String(dateOrYm).slice(0, 7));
-    };
-
-    async function guardMonthUnlocked(dateOrYm, opLabel) {
-      const ym = String(dateOrYm || '').slice(0, 7);
-      if (!ym || !isMonthLocked(ym)) return true;
-      await uiAlert('🔒 Month Hard Lock (' + ym + ')\n\n"' + ym + '" လစာရင်းကို ပိတ်သိမ်းထားသဖြင့် "' + opLabel + '" ပြုလုပ်၍ မရပါ။\nပြင်ဆင်ရန် လိုအပ်ပါက Owner PIN နှင့် အကြောင်းရင်းထည့်၍ လစာရင်းကို ပြန်ဖွင့်ပါ။');
-      return false;
-    }
-
-    async function toggleMonthLock(ym, shouldLock) {
-      const pinOk = await requireOwnerPin(shouldLock ? ('Lock Month ' + ym) : ('Reopen Locked Month ' + ym));
-      if (!pinOk) return false;
-      const reason = ((await uiPrompt(shouldLock ? (ym + ' လပိတ် မှတ်ချက်') : (ym + ' ပြန်ဖွင့်ရသည့် အကြောင်းရင်း (မဖြစ်မနေထည့်ပါ)'))) || '').trim();
-      if (!shouldLock && !reason) {
-        await uiAlert('လစာရင်း ပြန်ဖွင့်ရန် အကြောင်းရင်း ထည့်ရပါမည်။');
-        return false;
-      }
-      const nextLocked = shouldLock
-        ? Array.from(new Set([...lockedMonths, ym]))
-        : lockedMonths.filter(x => x !== ym);
-      const auditEntry = {
-        id: uuid(),
-        type: shouldLock ? 'period_reclose_log' : 'period_reopen_log',
-        targetMonth: ym,
-        ownerId: 'OWNER',
-        reason: reason || (shouldLock ? 'Closed & locked' : ''),
-        at: Date.now(),
-        deviceId: DEVICE_ID
-      };
-      await run(['meta', 'cf'], 'readwrite', t => {
-        t.objectStore('meta').put({ k: 'locked_months', v: nextLocked });
-        t.objectStore('cf').add(auditEntry);
-      });
-      await reload();
-      return true;
-    }
-
-    // =========================================================================
-    // 5. SNAPSHOTS, VERIFIED BACKUP EXPORT, CANONICAL CONFLICTS & RESTORE
-    // =========================================================================
-    function canonicalize(v) {
-      if (v === null || typeof v !== 'object') return Object.is(v, -0) ? 0 : v;
-      if (Array.isArray(v)) return v.map(canonicalize);
-      const out = {};
-      Object.keys(v).sort().forEach(k => {
-        if (v[k] !== undefined) out[k] = canonicalize(v[k]);
-      });
-      return out;
-    }
-    const canonicalJson = v => JSON.stringify(canonicalize(v));
-
-    async function sha256Text(txt) {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
-      return bufToHex(buf);
-    }
-
-    async function dumpAll() {
-      const o = {};
-      for (const n of STORES) o[n] = await all(n);
-      o.meta = o.meta.filter(x => !x.k.startsWith('auto_snapshot_'));
-      return {
-        app: 'aung-gas-pos',
-        version: APP_VER,
-        schema: 4,
-        exportedAt: new Date().toISOString(),
-        deviceId: DEVICE_ID,
-        data: o
-      };
-    }
-
-    async function saveRollingSnapshot(tag = 'daily_auto') {
-      const snap = await dumpAll();
-      const ptr = ((getMeta('auto_snapshot_ptr') || 0) % 3) + 1;
-      await run('meta', 'readwrite', t => {
-        t.objectStore('meta').put({ k: 'auto_snapshot_' + ptr, v: { slot: ptr, tag, at: Date.now(), payload: snap } });
-        t.objectStore('meta').put({ k: 'auto_snapshot_ptr', v: ptr });
-        t.objectStore('meta').put({ k: 'last_auto_backup_at', v: Date.now() });
-      });
-    }
-
-    async function exportExternalBackup(confirmExternalSaved = true) {
-      const dump = await dumpAll();
-      const jsonStr = JSON.stringify(dump);
-      const parsed = JSON.parse(jsonStr);
-      if (!parsed || parsed.app !== 'aung-gas-pos') throw new Error('JSON parse verification failed');
-      const digest = await sha256Text(jsonStr);
-      const fname = 'aung-pos-v24-' + dkey(Date.now()) + '-' + new Date().toTimeString().slice(0, 5).replace(':', '') + '.json';
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = h('a', { href: url, download: fname });
-      document.body.append(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-
-      const now = Date.now();
-      await run('meta', 'readwrite', t => {
-        t.objectStore('meta').put({ k: 'lastBackup', v: now });
-        t.objectStore('meta').put({
-          k: 'last_verified_export',
-          v: { fname, sha256: digest, bytes: jsonStr.length, verifiedAt: now, confirmedByUser: !!confirmExternalSaved }
-        });
-      });
-      await reload();
-      return { fname, sha256: digest, verifiedAt: now };
-    }
-
-    const checkBk = d => {
-      if (!d || d.app !== 'aung-gas-pos' || !d.data || typeof d.data !== 'object') return 'Valid AUNG POS backup JSON မဟုတ်ပါ။';
-      if (!(d.schema <= 4)) return 'Unsupported newer schema version.';
-      for (const n of STORES) {
-        const arr = d.data[n];
-        if (arr === undefined) continue;
-        if (!Array.isArray(arr)) return n + ' store data is invalid.';
-        for (const r of arr) {
-          if (!r || typeof r !== 'object' || typeof (n === 'meta' ? r.k : r.id) !== 'string') return n + ' record missing string key/id.';
-          if (n === 'sales' && (typeof r.at !== 'number' || !Array.isArray(r.lines))) return 'Invalid sales record format.';
-          if (n === 'pays' && !Number.isFinite(r.amount)) return 'Invalid payment amount in pays.';
-          if (n === 'cf' && ['exp', 'ob', 'bal', 'loan', 'xfer', 'gas_ret', 'cyl_compensation', 'fac_refund_in'].includes(r.type) && !Number.isFinite(r.amt)) {
-            return 'Invalid numeric amount in cf store.';
-          }
-        }
-      }
-      return null;
-    };
-
-    const recordDateKey = (store, r) => {
-      if (store === 'sales' || store === 'pays') return r.at ? dkey(r.at) : null;
-      if (store === 'cf' || store === 'stk' || store === 'gasEv') return r.date || (r.at ? dkey(r.at) : null);
-      return null;
-    };
-
-    async function importAll(d, fresh = false) {
-      await saveRollingSnapshot('pre_restore');
-
-      const existing = {};
-      for (const n of STORES) existing[n] = await all(n);
-      const conflicts = [...(getMeta('restore_conflicts') || [])];
-      const stats = { added: 0, same: 0, conflicts: 0, lockedQuarantined: 0 };
-      const writeOps = [];
-
-      for (const n of STORES) {
-        const list = d.data[n] || [];
-        const map = new Map(existing[n].map(x => [n === 'meta' ? x.k : x.id, x]));
-        for (const r of list) {
-          const rid = n === 'meta' ? r.k : r.id;
-          if (n === 'meta' && (rid === 'owner_auth' || rid.startsWith('pin_audit_') || rid.startsWith('auto_snapshot_') || rid.startsWith('arc_') || rid.startsWith('caud_'))) {
-            continue;
-          }
-          const dk = recordDateKey(n, r);
-          const locked = dk && isMonthLocked(dk);
-          const localRec = map.get(rid);
-
-          if (locked) {
-            if (!localRec || canonicalJson(localRec) !== canonicalJson(r)) {
-              conflicts.push({
-                conflictId: uuid(),
-                store: n,
-                recordId: rid,
-                reason: 'LOCKED_MONTH',
-                lockedMonth: dk.slice(0, 7),
-                localRecord: localRec || null,
-                incomingRecord: r,
-                detectedAt: Date.now(),
-                status: 'pending'
-              });
-              stats.lockedQuarantined++;
-            } else {
-              stats.same++;
-            }
-            continue;
-          }
-
-          if (!localRec) {
-            writeOps.push({ store: n, record: r });
-            stats.added++;
-          } else if (canonicalJson(localRec) === canonicalJson(r)) {
-            stats.same++;
-          } else {
-            conflicts.push({
-              conflictId: uuid(),
-              store: n,
-              recordId: rid,
-              reason: 'CONTENT_CONFLICT',
-              lockedMonth: null,
-              localRecord: localRec,
-              incomingRecord: r,
-              detectedAt: Date.now(),
-              status: 'pending'
-            });
-            stats.conflicts++;
-          }
-        }
-      }
-
-      await run(STORES, 'readwrite', t => {
-        if (fresh) t.objectStore('products').clear();
-        writeOps.forEach(op => t.objectStore(op.store).put(op.record));
-        t.objectStore('meta').put({ k: 'restore_conflicts', v: conflicts });
-      });
-      await rebuildConflictIndex();
-      return stats;
-    }
-
-    async function resolveConflict(conflictId, decision, noteTxt = '') {
-      const list = getMeta('restore_conflicts') || [];
-      const idx = list.findIndex(c => c.conflictId === conflictId);
-      if (idx < 0) throw new Error('Conflict not found');
-      const c = list[idx];
-      if (c.status !== 'pending') throw new Error('Conflict already resolved (pending -> resolved is single-transition only)');
-      if (c.lockedMonth && isMonthLocked(c.lockedMonth)) {
-        throw new Error('Target month ' + c.lockedMonth + ' is locked. Reopen month with Owner PIN & reason first.');
-      }
-
-      const ok = await requireOwnerPin('Resolve Conflict (' + c.store + '::' + c.recordId.slice(-8) + ')');
-      if (!ok) return false;
-
-      const now = Date.now();
-      const nextList = [...list];
-      nextList[idx] = { ...c, status: 'resolved', decision, resolvedAt: now, note: noteTxt };
-
-      await run([c.store, 'meta'], 'readwrite', t => {
-        const mOs = t.objectStore('meta');
-        if (decision === 'ACCEPT_BACKUP') {
-          if (c.localRecord) {
-            mOs.put({
-              k: 'arc_' + conflictId,
-              v: { conflictId, store: c.store, recordId: c.recordId, archivedRecord: c.localRecord, archivedAt: now }
-            });
-          }
-          t.objectStore(c.store).put(c.incomingRecord);
-        }
-        mOs.put({ k: 'restore_conflicts', v: nextList });
-        mOs.put({
-          k: 'caud_' + uuid(),
-          v: { conflictId, store: c.store, recordId: c.recordId, decision, ownerId: 'OWNER', resolvedAt: now, note: noteTxt, deviceId: DEVICE_ID }
-        });
-      });
-      await rebuildConflictIndex();
-      await reload();
-      return true;
-    }
-
-    async function rebuildConflictIndex() {
-      const allM = await all('meta');
-      const arcSet = new Set(allM.filter(x => x.k.startsWith('arc_')).map(x => x.k));
-      const confs = (allM.find(x => x.k === 'restore_conflicts') || {}).v || [];
-      const idx = confs
-        .filter(c => c.status === 'resolved' && c.decision === 'ACCEPT_BACKUP' && arcSet.has('arc_' + c.conflictId))
-        .map(c => ({ conflictId: c.conflictId, arcKey: 'arc_' + c.conflictId, resolvedAt: c.resolvedAt }));
-      await put('meta', { k: 'conflict_archive_index', v: idx });
-    }
-
-    async function pruneOldArchivesIfVerified() {
-      const expInfo = getMeta('last_verified_export');
-      if (!expInfo || !expInfo.sha256 || !expInfo.confirmedByUser) {
-        return { pruned: 0, blockedReason: 'Verified external export & Owner confirmation required before pruning archives.' };
-      }
-      const cutoff = Date.now() - 90 * 86400000;
-      const allM = await all('meta');
-      const oldArcs = allM.filter(x => x.k.startsWith('arc_') && x.v && x.v.archivedAt && x.v.archivedAt < cutoff);
-      if (!oldArcs.length) return { pruned: 0, blockedReason: null };
-      await run('meta', 'readwrite', t => {
-        oldArcs.forEach(a => t.objectStore('meta').delete(a.k));
-      });
-      await rebuildConflictIndex();
-      await reload();
-      return { pruned: oldArcs.length, blockedReason: null };
-    }
-
-    // Get Latest Version (Unregisters Service Workers, Clears Caches, Reloads App while keeping IndexedDB intact)
-    async function getLatestVersion() {
-      const ok = await uiConfirm(
-        '🔄 နောက်ဆုံး version ကိုယူရန် (Get Latest Version)\n\nService Worker နှင့် Browser Cache အဟောင်းများကို ရှင်းလင်းပြီး App ကို နောက်ဆုံး Version ဖြင့် ပြန်လည်ဖွင့်ပေးပါမည်။\n\n(စာရင်းဇယား Data များ လုံးဝ မပျောက်ပါ)',
-        'နောက်ဆုံး Version ယူမည်',
-        'မလုပ်ပါ'
-      );
-      if (!ok) return;
-      try {
-        if ('serviceWorker' in navigator) {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (const r of regs) await r.unregister();
-        }
-        if ('caches' in window) {
-          const keys = await caches.keys();
-          for (const k of keys) await caches.delete(k);
-        }
-      } catch (e) {}
-      location.reload();
-    }
-
-    // =========================================================================
-    // 6. RELOAD & IDEMPOTENT V24 MIGRATION
-    // =========================================================================
     async function reload() {
-      metaList = await all('meta');
-      products = (await all('products')).sort((a, b) => a.name.localeCompare(b.name));
-      sales = (await all('sales')).sort((a, b) => b.at - a.at);
-      gasEv = (await all('gasEv')).sort((a, b) => b.at - a.at);
-      pays = (await all('pays')).sort((a, b) => b.at - a.at);
-      stk = await all('stk');
-      cf = await all('cf');
-
-      const mCfg = getMeta('gascfg');
-      const mRcpt = getMeta('rcpt');
-      const mRent = getMeta('rent_schedule');
-      const mLock = getMeta('locked_months');
-      const mAuth = getMeta('owner_auth');
-      const mStaff = getMeta('staff_auth');
-      const mConf = getMeta('restore_conflicts');
-
-      if (mCfg) cfg = { ...cfg, ...mCfg, o2Rates: { ...cfg.o2Rates, ...(mCfg.o2Rates || {}) }, dashWidgets: { ...cfg.dashWidgets, ...(mCfg.dashWidgets || {}) } };
-      if (mRcpt) rc = mRcpt;
-      if (Array.isArray(mRent) && mRent.length) rentSchedule = mRent;
-      lockedMonths = Array.isArray(mLock) ? mLock : [];
-      ownerAuth = mAuth || null;
-      staffList = Array.isArray(mStaff) ? mStaff : [];
-      restoreConflicts = Array.isArray(mConf) ? mConf : [];
-      bk = getMeta('lastBackup') || null;
+      [products, sales, pays, stk, cf, meta, gasCyl, gasEv] = await Promise.all(STORES.map(getAll));
+      const c = getMeta('gascfg'); if (c) cfg = { ...cfg, ...c };
+      const r = getMeta('rcpt'); if (r) rc = { ...rc, ...r };
+      bk = getMeta('last_bk') || 0;
+      lockedMonths = getMeta('locked_months') || [];
+      const rs = getMeta('rent_schedule'); if (Array.isArray(rs) && rs.length) rentSchedule = rs;
+      restoreConflicts = getMeta('restore_conflicts') || [];
     }
 
     async function seedAndMigrate() {
-      const seeded = await new Promise(ok => {
-        const q = db.transaction('meta').objectStore('meta').get('seeded');
-        q.onsuccess = () => ok(q.result);
-      });
-      if (!seeded) {
+      await reload();
+      if (!products.length) {
+        const now = Date.now();
         await run(['products', 'meta'], 'readwrite', t => {
-          SAMPLE.forEach(([n, c, u, o2t, g]) => {
-            t.objectStore('products').add({
-              id: uuid(), name: n, cat: c, unit: u,
-              o2type: o2t || undefined, gas: g || undefined,
-              sample: true, at: Date.now(), rev: 1, updatedAt: Date.now(), deviceId: DEVICE_ID
-            });
-          });
-          t.objectStore('meta').put({ k: 'seeded', v: Date.now() });
+          const pOs = t.objectStore('products');
+          [
+            { id: uuid(), name: 'Gas (ပိဿာ)', cat: 'ဓာတ်ငွေ့', unit: 'ပိဿာ', gas: 'viss', sellPrice: 4200, buyPrice: 3000, stock: 0 },
+            { id: uuid(), name: 'Gas ဗူးဖြည့်', cat: 'ဓာတ်ငွေ့', unit: 'ဗူး', gas: 'can', sellPrice: 650, buyPrice: 430, stock: 0 },
+            { id: uuid(), name: '40L O2 (စက်ရုံအိုး)', cat: 'အောက်ဆီဂျင်', unit: 'အိုး', o2type: '40L_FACTORY', sellPrice: 24000, buyPrice: 19500, stock: 0 },
+            { id: uuid(), name: '47L O2 (စက်ရုံအိုး)', cat: 'အောက်ဆီဂျင်', unit: 'အိုး', o2type: '47L_FACTORY', sellPrice: 28000, buyPrice: 23500, stock: 0 },
+            { id: uuid(), name: '40L O2 (ဆိုင်ပိုင်အိုး)', cat: 'အောက်ဆီဂျင်', unit: 'အိုး', o2type: '40L_OWN', sellPrice: 24000, buyPrice: 19500, stock: 0 },
+            { id: uuid(), name: 'Over 40L O2 (ဆိုင်ပိုင်အိုး)', cat: 'အောက်ဆီဂျင်', unit: 'အိုး', o2type: 'OVER_40L_OWN', sellPrice: 30000, buyPrice: 25000, stock: 0 }
+          ].forEach(p => pOs.add({ ...p, createdAt: now }));
+          t.objectStore('meta').put({ k: 'gascfg', v: cfg });
+          t.objectStore('meta').put({ k: 'rent_schedule', v: rentSchedule });
         });
       }
-
-      const mig = await new Promise(ok => {
-        const q = db.transaction('meta').objectStore('meta').get('v24_migrated_s1');
-        q.onsuccess = () => ok(q.result);
-      });
-      if (!mig) {
-        const ps = await all('products');
-        const cfs = await all('cf');
-        await run(['products', 'cf', 'meta'], 'readwrite', t => {
-          cfs.forEach(e => {
-            if (e.type === 'exp' && !e.voided && !e.isRentPayment && /ဆိုင်ခန်း|အိမ်လခ|rent/i.test(e.desc || '')) {
-              t.objectStore('cf').put({ ...e, cat: 'rent', isRentPayment: true });
-            }
+      if (!getMeta('v24_rent_audit')) {
+        const expItems = cf.filter(e => e.type === 'exp' && !e.voided);
+        await run(['cf', 'meta'], 'readwrite', t => {
+          const cOs = t.objectStore('cf');
+          expItems.forEach(e => {
+            if (e.cat === 'rent' && !e.isRentPayment) cOs.put({ ...e, isRentPayment: true });
           });
-          if (!ps.some(p => p.gas === 'viss')) t.objectStore('products').add({ id: uuid(), name: 'Gas (ပိဿာ)', cat: 'LPG ဓာတ်ငွေ့', unit: 'viss', gas: 'viss', sample: false, at: Date.now() });
-          if (!ps.some(p => p.gas === 'can')) t.objectStore('products').add({ id: uuid(), name: 'Gas ဗူးဖြည့်', cat: 'LPG ဓာတ်ငွေ့', unit: 'ဗူး', gas: 'can', sample: false, at: Date.now() });
-          if (!getMeta('rent_schedule')) t.objectStore('meta').put({ k: 'rent_schedule', v: rentSchedule });
-          t.objectStore('meta').put({ k: 'v24_migrated_s1', v: Date.now() });
+          t.objectStore('meta').put({ k: 'v24_rent_audit', v: { at: Date.now() } });
         });
       }
     }
 
     // =========================================================================
-    // 7. V23 GAS DUAL-SLOT ENGINE + V24 ACTUAL WEIGHT & VARIANCE RECONCILIATION
+    // 4. PBKDF2 PIN SECURITY, STAFF PERMISSIONS & MONTH HARD LOCK
     // =========================================================================
-    const agOf = e => e.agent || 'TT Gas';
-    const capOf = e => Number(e.cap) || ((AGENTS[agOf(e)] || {}).viss) || cfg.usable;
-    const liveCyls = () => gasEv.filter(e => e.type === 'cyl' && !e.closed).sort((a, b) => a.at - b.at);
-    const liveRole = r => liveCyls().find(e => (e.role || 'viss') === r);
+    function genSaltHex() {
+      const b = new Uint8Array(16);
+      crypto.getRandomValues(b);
+      return Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+    }
 
-    function soldSince(t, role) {
-      let n = 0;
-      sales.forEach(x => {
-        if (!x.voided && x.at >= t && !x.hist) {
-          x.lines.forEach(l => {
-            if (role === 'can' && l.gasRole === 'can') n += (Number(l.qty) || 0);
-            else if (role !== 'can' && l.gasViss > 0 && l.gasRole !== 'can') n += (Number(l.gasViss) || 0);
-          });
+    async function derivePbkdf2Hex(pin, saltHex, iterations = 310000) {
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey('raw', enc.encode(String(pin)), 'PBKDF2', false, ['deriveBits']);
+      const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+      const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, key, 256);
+      return Array.from(new Uint8Array(bits), x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function benchmarkPbkdf2(iter) {
+      const t0 = performance.now();
+      await derivePbkdf2Hex('1234', genSaltHex(), iter);
+      return Math.round(performance.now() - t0);
+    }
+
+    let pinCheckBusy = false;
+    let pinFailCount = 0;
+    let pinLockUntil = 0;
+
+    function updateRoleBadge() {
+      const b = $('#roleBadge');
+      if (b) b.textContent = (activeStaff.role === 'owner' ? 'OWNER' : ('STAFF: ' + activeStaff.name));
+    }
+
+    function hasStaffPerm(perm) {
+      if (activeStaff.role === 'owner') return true;
+      return !!(activeStaff.perms && activeStaff.perms[perm]);
+    }
+
+    async function setupOwnerPinModal(forceReset = false) {
+      const existing = getMeta('owner_pin_sec');
+      if (existing && !forceReset) return true;
+      const p1 = await uiPrompt('Owner PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း 4–6 လုံး)', '', 'password');
+      if (!p1 || p1.length < 4) { await uiAlert('PIN အနည်းဆုံး 4 လုံး ထည့်ရပါမည်။'); return false; }
+      const p2 = await uiPrompt('Owner PIN ထပ်မံအတည်ပြုပါ', '', 'password');
+      if (p1 !== p2) { await uiAlert('PIN နှစ်ခု မတူညီပါ။'); return false; }
+      const salt = genSaltHex();
+      const recCode = 'REC-' + genSaltHex().slice(0, 8).toUpperCase();
+      const recSalt = genSaltHex();
+      const hash = await derivePbkdf2Hex(p1, salt, 310000);
+      const recHash = await derivePbkdf2Hex(recCode, recSalt, 310000);
+      await put('meta', {
+        k: 'owner_pin_sec',
+        v: { salt, hash, iter: 310000, recSalt, recHash, updatedAt: Date.now() }
+      });
+      await put('meta', { k: 'pin_audit_' + uuid(), v: { action: 'PIN_SET', at: Date.now() } });
+      await reload();
+      await uiAlert('Owner PIN သတ်မှတ်ပြီးပါပြီ။\n\nSingle-Use Recovery Code:\n' + recCode + '\n\n(ဤကုဒ်ကို လုံခြုံသောနေရာတွင် မှတ်သားထားပါ)');
+      return true;
+    }
+
+    async function requireOwnerPin(reason) {
+      let sec = getMeta('owner_pin_sec');
+      if (!sec) {
+        const ok = await setupOwnerPinModal(false);
+        if (!ok) return false;
+        sec = getMeta('owner_pin_sec');
+      }
+      if (Date.now() < pinLockUntil) {
+        const secLeft = Math.ceil((pinLockUntil - Date.now()) / 1000);
+        await uiAlert('PIN မှားယွင်းမှုများသဖြင့် ' + secLeft + ' စက္ကန့် စောင့်ပါ။');
+        return false;
+      }
+      if (pinCheckBusy) return false;
+      const entered = await uiPrompt('🔒 Owner PIN လိုအပ်ပါသည်\nလုပ်ဆောင်ချက်: ' + reason, '', 'password');
+      if (!entered) return false;
+      pinCheckBusy = true;
+      try {
+        const hTry = await derivePbkdf2Hex(entered.trim(), sec.salt, sec.iter || 310000);
+        if (hTry === sec.hash) {
+          pinFailCount = 0;
+          await put('meta', { k: 'pin_audit_' + uuid(), v: { action: 'PIN_OK', reason, at: Date.now() } });
+          return true;
         }
-      });
-      return n;
+        pinFailCount++;
+        if (pinFailCount >= 4) pinLockUntil = Date.now() + 30000;
+        await put('meta', { k: 'pin_audit_' + uuid(), v: { action: 'PIN_FAIL', reason, at: Date.now() } });
+        await uiAlert('Owner PIN မှားယွင်းနေပါသည်။');
+        return false;
+      } finally {
+        pinCheckBusy = false;
+      }
     }
 
-    function cylBal(c) {
-      const role = c.role || 'viss';
-      const used = soldSince(c.at, role);
-      const isCan = role === 'can';
-      const unitTot = isCan ? capOf(c) * (cfg.cans || 7) : capOf(c);
-      const b = unitTot - used + (Number(c.adj) || 0);
-      return Math.max(b, 0);
+    async function staffLoginModal() {
+      const ch = await uiPrompt('Account ပြောင်းရန်:\n1 = Owner (PIN ဖြင့်ဝင်မည်)\n2 = Staff Mode (ပုံမှန်အရောင်း PIN မလို)', '1', 'number');
+      if (ch === '2') {
+        const sName = await uiPrompt('Staff အမည် ထည့်ပါ', 'Staff 1');
+        if (!sName) return;
+        activeStaff = { id: 'STAFF-' + ck(sName), name: sName.trim(), role: 'staff', perms: { void: false, reopen: false, discount: false, merge: false, backup: true } };
+        updateRoleBadge();
+        show(tab);
+      } else if (ch === '1') {
+        const ok = await requireOwnerPin('Switch to Owner Mode');
+        if (ok) {
+          activeStaff = { id: 'OWNER', name: 'Owner', role: 'owner', perms: { void: true, reopen: true, discount: true, merge: true, backup: true } };
+          updateRoleBadge();
+          show(tab);
+        }
+      }
     }
 
-    function agentCounts(ag) {
-      let full = 0, emp = 0;
-      gasEv.forEach(e => {
-        if (e.voided || agOf(e) !== ag) return;
-        if (e.type === 'recv') full += (Number(e.qty) || 0);
-        else if (e.type === 'ret') emp -= (Number(e.qty) || 0);
-        else if (e.type === 'eswap') { full += (Number(e.qty) || 0); emp -= (Number(e.qty) || 0); }
-        else if (e.type === 'cyl') { full -= 1; if (e.closed && !e.partialRet) emp += 1; }
-        else if (e.type === 'ecount') emp = (Number(e.qty) || 0);
-      });
-      const openV = liveCyls().filter(c => agOf(c) === ag && (c.role || 'viss') === 'viss').length;
-      const openC = liveCyls().filter(c => agOf(c) === ag && c.role === 'can').length;
-      return { full: Math.max(full, 0), emp: Math.max(emp, 0), openV, openC };
+    const isMonthLocked = dkOrYm => {
+      if (!dkOrYm) return false;
+      const ym = String(dkOrYm).slice(0, 7);
+      return Array.isArray(lockedMonths) && lockedMonths.includes(ym);
+    };
+
+    async function guardMonthUnlocked(dkOrYm, actionLabel) {
+      const ym = String(dkOrYm || '').slice(0, 7);
+      if (!isMonthLocked(ym)) return true;
+      await uiAlert('🔒 Month Hard Lock (' + ym + ')\n"' + actionLabel + '" ပြုလုပ်၍ မရပါ။\nစာရင်းချုပ် Tab မှ Owner PIN ဖြင့် Reopen လုပ်ပြီးမှ ပြင်ဆင်ပါ။');
+      return false;
+    }
+
+    async function toggleMonthLock(ym, lockIt) {
+      if (lockIt) {
+        const ok = await requireOwnerPin('Hard Lock Month ' + ym);
+        if (!ok) return;
+        const next = Array.from(new Set([...lockedMonths, ym])).sort();
+        await run(['meta'], 'readwrite', t => {
+          const m = t.objectStore('meta');
+          m.put({ k: 'locked_months', v: next });
+          m.put({ k: 'period_reclose_log_' + uuid(), v: { ym, at: Date.now(), ownerId: 'OWNER' } });
+        });
+        await reload();
+      } else {
+        const reason = await uiPrompt('Reopen Month ' + ym + ' အကြောင်းရင်း (Reason) ရေးပါ');
+        if (!reason || !reason.trim()) return;
+        const ok = await requireOwnerPin('Reopen Locked Month ' + ym);
+        if (!ok) return;
+        const next = lockedMonths.filter(x => x !== ym);
+        await run(['meta'], 'readwrite', t => {
+          const m = t.objectStore('meta');
+          m.put({ k: 'locked_months', v: next });
+          m.put({ k: 'period_reopen_log_' + uuid(), v: { ym, reason: reason.trim(), at: Date.now(), ownerId: 'OWNER' } });
+        });
+        await reload();
+      }
+    }
+
+    // =========================================================================
+    // 5. GAS INVENTORY, ACTIVE SLOTS, DAILY RECONCILIATION & SUPPLIER COSTING
+    // =========================================================================
+    const agOf = c => c ? (c.agent || 'TT Gas') : 'TT Gas';
+    const capOf = ag => (AGENTS[ag] && AGENTS[ag].cap) || 28.5;
+
+    function liveRole(role) {
+      return gasCyl.find(c => c.role === role && c.state === 'open') || null;
+    }
+
+    function cylViss(c) {
+      if (!c) return 0;
+      if (c.state === 'full') return capOf(agOf(c));
+      if (c.state !== 'open') return 0;
+      const soldV = sales
+        .filter(s => !s.voided)
+        .flatMap(s => s.lines || [])
+        .filter(l => l.cylId === c.id)
+        .reduce((a, l) => a + (Number(l.gasViss) || 0), 0);
+      const startV = Number(c.startViss) || capOf(agOf(c));
+      const adjV = Number(c.adjViss) || 0;
+      return Math.max(r2(startV - soldV + adjV), 0);
     }
 
     function gasStockViss() {
-      let fullV = 0;
-      Object.keys(AGENTS).forEach(ag => {
-        fullV += agentCounts(ag).full * AGENTS[ag].viss;
-      });
-      const partV = liveCyls().filter(c => (c.role || 'viss') === 'viss').reduce((a, c) => a + cylBal(c), 0);
-      const buyBackV = gasInventorySummary().buyBackRemainingViss;
-      return { fullV, partV, buyBackV, totalGroundV: fullV + partV + buyBackV };
-    }
+      const fullByAg = { 'TT Gas': 0, 'NGN': 0, 'Easy Gas': 0 };
+      const emptyByAg = { 'TT Gas': 0, 'NGN': 0, 'Easy Gas': 0 };
+      const openByAg = { 'TT Gas': 0, 'NGN': 0, 'Easy Gas': 0 };
+      const openCyls = [];
 
-    function askSwap(role, titleTxt) {
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const agSel = h('select', {}, Object.keys(AGENTS).map(k => {
-          const cnt = agentCounts(k);
-          return h('option', { value: k }, k + ' (Full: ' + cnt.full + ' · ' + AGENTS[k].viss + ' viss)');
-        }));
-        const cur = liveRole(role);
-        const keepChk = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
-        const box = h('div', { class: 'modal-box' },
-          h('b', { style: 'font-size:16px' }, titleTxt),
-          cur ? h('div', { class: 'msg i' }, 'လက်ရှိဖွင့်ထားသောအိုး: ' + agOf(cur) + ' (ကျန် ' + r2(cylBal(cur)) + (role === 'can' ? ' ဗူး' : ' viss') + ')') : '',
-          h('label', {}, 'အိုးအသစ် ဖွင့်မည့် Supplier'), agSel,
-          cur ? h('label', { style: 'display:flex;align-items:center;margin-top:10px' }, keepChk, 'လက်ရှိအိုး မကုန်သေးပါ (Partial အဖြစ် ခဏဖယ်ထားမည်)') : '',
-          h('div', { class: 'row', style: 'margin-top:12px' },
-            h('button', { class: 'n', onclick: () => { bg.remove(); res(null); } }, 'Cancel'),
-            h('button', { class: 'o', style: 'margin-top:0', onclick: () => { bg.remove(); res({ agent: agSel.value, keepOld: keepChk.checked }); } }, 'အိုးအသစ်ဖွင့်မည်')
-          )
-        );
-        bg.append(box);
-        document.body.append(bg);
+      gasCyl.forEach(c => {
+        const ag = agOf(c);
+        if (c.state === 'full') fullByAg[ag] = (fullByAg[ag] || 0) + 1;
+        else if (c.state === 'empty') emptyByAg[ag] = (emptyByAg[ag] || 0) + 1;
+        else if (c.state === 'open') {
+          openByAg[ag] = (openByAg[ag] || 0) + 1;
+          openCyls.push({ cyl: c, ag, remV: cylViss(c) });
+        }
       });
+
+      const buyBackEvents = gasEv.filter(e => e.type === 'gas_ret' && !e.voided);
+      const buyBackInV = buyBackEvents.reduce((a, e) => a + (Number(e.viss) || 0), 0);
+      const buyBackSoldV = sales
+        .filter(s => !s.voided)
+        .flatMap(s => s.lines || [])
+        .filter(l => l.isBuyBackStock)
+        .reduce((a, l) => a + (Number(l.gasViss) || 0), 0);
+      const buyBackRemV = Math.max(r2(buyBackInV - buyBackSoldV), 0);
+
+      let fullV = 0;
+      AG_LIST.forEach(ag => { fullV += (fullByAg[ag] || 0) * capOf(ag); });
+      const openV = openCyls.reduce((a, x) => a + x.remV, 0);
+      const totalGroundV = r2(fullV + openV + buyBackRemV);
+      const totalFullCnt = AG_LIST.reduce((a, ag) => a + (fullByAg[ag] || 0), 0);
+      const totalEmptyCnt = AG_LIST.reduce((a, ag) => a + (emptyByAg[ag] || 0), 0);
+
+      return {
+        fullByAg, emptyByAg, openByAg, openCyls,
+        fullV: r2(fullV), openV: r2(openV), buyBackRemV,
+        totalGroundV, totalFullCnt, totalEmptyCnt
+      };
     }
 
     function gasInventorySummary() {
-      const suppliers = {};
-      Object.keys(AGENTS).forEach(ag => {
-        const nomPerCyl = AGENTS[ag].viss;
-        const intakes = gasEv
-          .filter(e => (e.type === 'recv' || e.type === 'eswap') && !e.voided && e.agent === ag)
+      const latestBySupplier = {};
+      AG_LIST.forEach(ag => {
+        const evs = gasEv
+          .filter(e => e.type === 'recv' && !e.voided && agOf(e) === ag && Number(e.cost) > 0)
           .sort((a, b) => b.at - a.at);
-        const latestPriced = intakes.find(e => Number.isFinite(e.cost) && e.cost > 0);
-        const latestCylPrice = latestPriced ? latestPriced.cost : null;
-        const latestVissRate = latestCylPrice ? (latestCylPrice / nomPerCyl) : null;
+        if (evs.length) {
+          const ev = evs[0];
+          const nom = Number(ev.nominalViss) || (capOf(ag) * (Number(ev.qty) || 1));
+          const perCyl = Number(ev.cost) / (Number(ev.qty) || 1);
+          const perViss = Number(ev.cost) / nom;
+          latestBySupplier[ag] = { ratePerViss: perViss, ratePerCyl: perCyl, date: dkey(ev.at) };
+        }
+      });
 
-        let totalNominalViss = 0;
-        let totalActualViss = 0;
-        let varianceViss = 0;
-        let varianceCostMmk = 0;
+      const bbEvs = gasEv.filter(e => e.type === 'gas_ret' && !e.voided).sort((a, b) => b.at - a.at);
+      const st = gasStockViss();
+      const latestBb = bbEvs[0] || null;
+      return {
+        latestBySupplier,
+        buyBackRatePerViss: latestBb ? (Number(latestBb.buyBackRatePerViss) || (Number(latestBb.buyBackCost) / (Number(latestBb.viss) || 1))) : null,
+        buyBackTotalViss: st.buyBackRemV,
+        buyBackRemainingViss: st.buyBackRemV
+      };
+    }
 
-        intakes.forEach(e => {
-          const nV = Number.isFinite(e.nominalViss) ? e.nominalViss : ((e.qty || 0) * nomPerCyl);
-          const aV = Number.isFinite(e.actualViss) ? e.actualViss : nV;
-          const shortV = Math.max(nV - aV, 0);
-          const rate = (Number.isFinite(e.cost) && e.cost > 0) ? (e.cost / nomPerCyl) : (latestVissRate || 0);
-          totalNominalViss += nV;
-          totalActualViss += aV;
-          varianceViss -= shortV;
-          varianceCostMmk += shortV * rate;
-        });
+    function gasDayReconcile(k) {
+      const [a, b] = dbounds(k);
+      // Opening balance: explicit gas_open for date k, or previous day's gas_close, or 0
+      const explicitOpen = gasEv.filter(e => e.type === 'gas_open' && e.date === k).sort((x, y) => y.at - x.at)[0];
+      let openV = 0;
+      if (explicitOpen) {
+        openV = Number(explicitOpen.viss) || 0;
+      } else {
+        const prevCloses = gasEv.filter(e => e.type === 'gas_close' && e.date < k).sort((x, y) => y.date.localeCompare(x.date) || y.at - x.at);
+        if (prevCloses.length) openV = Number(prevCloses[0].groundViss) || 0;
+      }
 
-        suppliers[ag] = {
-          agent: ag,
-          nomPerCyl,
-          latestCylPrice,
-          latestVissRate,
-          effectiveDate: latestPriced ? dkey(latestPriced.at) : null,
-          totalNominalViss,
-          totalActualViss,
-          varianceViss,
-          varianceCostMmk
+      // + အဝင် (In): supplier intakes + gas_ret buy-backs on date k
+      const dayRecvs = gasEv.filter(e => e.type === 'recv' && !e.voided && e.at >= a && e.at <= b);
+      const recvByAg = {};
+      let recvV = 0;
+      dayRecvs.forEach(e => {
+        const ag = agOf(e);
+        const q = Number(e.qty) || 1;
+        const v = Number(e.actualViss) || (q * capOf(ag));
+        recvV += v;
+        recvByAg[ag] = (recvByAg[ag] || { qty: 0, viss: 0 });
+        recvByAg[ag].qty += q;
+        recvByAg[ag].viss = r2(recvByAg[ag].viss + v);
+      });
+      const dayBb = gasEv.filter(e => e.type === 'gas_ret' && !e.voided && e.at >= a && e.at <= b);
+      const bbV = dayBb.reduce((acc, e) => acc + (Number(e.viss) || 0), 0);
+      const totalInV = r2(recvV + bbV);
+
+      const inParts = [];
+      Object.entries(recvByAg).forEach(([ag, info]) => inParts.push(ag + ' ' + info.qty + ' × ' + capOf(ag) + ' = ' + r2(info.viss)));
+      if (bbV > 0) inParts.push('Buy-Back = ' + r2(bbV));
+
+      // - ယနေ့ ပိဿာအရောင်း (viss sales on date k)
+      const dayLines = sales.filter(s => !s.voided && saleRevenueDateKey(s) === k).flatMap(s => s.lines || []);
+      const vissSold = r2(dayLines.filter(l => l.gasRole === 'viss').reduce((acc, l) => acc + (Number(l.gasViss) || 0), 0));
+
+      // - ဗူးအိုးလဲ (can cylinder swaps on date k)
+      const daySwaps = gasEv.filter(e => e.type === 'swap' && !e.voided && e.role === 'can' && e.at >= a && e.at <= b);
+      const canSwapV = r2(daySwaps.reduce((acc, e) => acc + (Number(e.capViss) || capOf(agOf(e))), 0));
+      const swapLabels = daySwaps.map(e => agOf(e) + ' (' + (Number(e.capViss) || capOf(agOf(e))) + ' viss)');
+
+      const bookStock = r2(openV + totalInV - vissSold - canSwapV);
+      const gStock = gasStockViss();
+      const groundStock = gStock.totalGroundV;
+      const variance = r2(groundStock - bookStock);
+
+      return {
+        openV: r2(openV),
+        totalInV,
+        inSummary: inParts.length ? '(' + inParts.join(', ') + ')' : '',
+        vissSold,
+        canSwapV,
+        canSwapSummary: swapLabels.length ? '(' + swapLabels.join(', ') + ')' : '',
+        bookStock,
+        groundStock,
+        gStock,
+        variance
+      };
+    }
+
+    async function askSwap(role) {
+      const dk = dkey(Date.now());
+      if (!(await guardMonthUnlocked(dk, 'Gas Cylinder Swap'))) return;
+      const ch = await uiPrompt(
+        (role === 'viss' ? 'ပိဿာဖြည့်အိုး' : 'ဗူးဖြည့်အိုး') + ' အိုးအသစ်လဲရန် Supplier ရွေးပါ:\n' +
+        '1 = TT Gas (48kg / 28.5 viss)\n' +
+        '2 = NGN (48kg / 28.5 viss)\n' +
+        '3 = Easy Gas (50kg / 30 viss)',
+        '1', 'number'
+      );
+      const ag = { '1': 'TT Gas', '2': 'NGN', '3': 'Easy Gas' }[String(ch || '').trim()];
+      if (!ag) return;
+
+      const cur = liveRole(role);
+      const fullCyl = gasCyl.find(c => c.state === 'full' && agOf(c) === ag);
+      if (!fullCyl) {
+        const addNew = await uiConfirm(ag + ' အပြည့်အိုး လက်ကျန် (0) ဖြစ်နေပါသည်။ အိုးအသစ် 1 လုံး ထည့်ပြီး ချက်ချင်းဖွင့်သုံးမလား?');
+        if (!addNew) return;
+      }
+
+      const now = Date.now();
+      const cap = capOf(ag);
+      await run(['gasCyl', 'gasEv'], 'readwrite', t => {
+        const cOs = t.objectStore('gasCyl');
+        if (cur) cOs.put({ ...cur, state: 'empty', role: null, closedAt: now });
+        if (fullCyl) {
+          cOs.put({ ...fullCyl, state: 'open', role, startViss: cap, adjViss: 0, openedAt: now });
+        } else {
+          cOs.add({ id: uuid(), agent: ag, state: 'open', role, startViss: cap, adjViss: 0, openedAt: now });
+        }
+        t.objectStore('gasEv').add({ id: uuid(), at: now, type: 'swap', role, agent: ag, capViss: cap });
+      });
+      await reload();
+      viewGas();
+    }
+
+    async function weighB(role) {
+      const cur = liveRole(role);
+      if (!cur) return uiAlert('လက်ရှိဖွင့်သုံးနေသော အိုး မရှိပါ။ အရင် အိုးလဲမည် ကို နှိပ်ပါ။');
+      const curV = cylViss(cur);
+      const inp = await uiPrompt(
+        agOf(cur) + ' (' + (role === 'viss' ? 'ပိဿာဖြည့်အိုး' : 'ဗူးဖြည့်အိုး') + ')\n' +
+        'လက်ရှိ စာရင်းလက်ကျန်: ' + r2(curV) + ' viss\n' +
+        'ကတ္တားဖြင့် လက်တွေ့ချိန်တွယ်ရရှိသော ပိဿာ ထည့်ပါ:',
+        r2(curV), 'number'
+      );
+      const actual = parseFloat(inp);
+      if (isNaN(actual) || actual < 0) return;
+      const diff = r2(actual - curV);
+      await put('gasCyl', { ...cur, adjViss: r2((Number(cur.adjViss) || 0) + diff) });
+      await add('gasEv', { id: uuid(), at: Date.now(), type: 'weigh', role, cylId: cur.id, agent: agOf(cur), diffViss: diff, actualViss: actual });
+      await reload();
+      viewGas();
+    }
+
+    // =========================================================================
+    // 6. OXYGEN 4-TYPE OWNERSHIP MATRIX & MOTHER CYLINDER STATUS
+    // =========================================================================
+    function o2StockMatrix() {
+      const res = {};
+      Object.values(O2_TYPES).forEach(t => {
+        res[t.id] = {
+          id: t.id,
+          ownership: t.ownership,
+          rate: (cfg.o2Rates && cfg.o2Rates[t.id]) || t.defaultRate,
+          full: 0,
+          empty: 0,
+          atCustomer: 0,
+          atFactory: 0,
+          payable: 0
         };
       });
 
-      const buyBacks = gasEv.filter(e => e.type === 'gas_ret' && !e.voided);
-      const buyBackTotalViss = buyBacks.reduce((a, e) => a + (Number(e.viss) || 0), 0);
-      const buyBackTotalCost = buyBacks.reduce((a, e) => a + (Number(e.buyBackCost) || 0), 0);
-      let buyBackSoldViss = 0;
-      sales.forEach(s => {
-        if (!s.voided) s.lines.forEach(l => { if (l.isBuyBackStock && l.gasViss > 0) buyBackSoldViss += l.gasViss; });
+      stk.filter(e => !e.voided).forEach(e => {
+        const t = e.o2type && res[e.o2type];
+        if (!t) return;
+        const q = Number(e.qty) || 0;
+        if (e.type === 'o2_stock_set') {
+          if (e.target === 'full') t.full = Number(e.newQty) || 0;
+          if (e.target === 'empty') t.empty = Number(e.newQty) || 0;
+        } else if (e.type === 'o2_mov') {
+          if (e.locationFrom === 'SHOP_FULL') t.full -= q;
+          if (e.locationFrom === 'SHOP_EMPTY') t.empty -= q;
+          if (e.locationFrom === 'AT_CUSTOMER') t.atCustomer -= q;
+          if (e.locationFrom === 'AT_FACTORY') t.atFactory -= q;
+
+          if (e.locationTo === 'SHOP_FULL') t.full += q;
+          if (e.locationTo === 'SHOP_EMPTY') t.empty += q;
+          if (e.locationTo === 'AT_CUSTOMER') t.atCustomer += q;
+          if (e.locationTo === 'AT_FACTORY') t.atFactory += q;
+        } else if (e.type === 'o2_fac_send') {
+          t.empty -= q;
+          t.atFactory += q;
+        } else if (e.type === 'o2_fac_recv') {
+          t.atFactory = Math.max(t.atFactory - q, 0);
+          t.full += q;
+          t.payable += Math.max((Number(e.totalAmt) || 0) - (Number(e.paidAmt) || 0), 0);
+        }
       });
-      const buyBackRemainingViss = Math.max(buyBackTotalViss - buyBackSoldViss, 0);
-      const buyBackRatePerViss = buyBackTotalViss > 0 ? (buyBackTotalCost / buyBackTotalViss) : null;
 
-      return { suppliers, buyBackTotalViss, buyBackTotalCost, buyBackRemainingViss, buyBackRatePerViss };
+      return res;
     }
-
-    // =========================================================================
-    // 8. OXYGEN 4-TYPE MATRIX, CUSTOMERS, RENT, LOANS & P&L CALCULATIONS
-    // =========================================================================
-    const payOf = s => s.pay || 'cash';
-    const lineGrossAmt = l => l.foc ? 0 : (Number(l.qty) || 0) * (Number(l.price) || 0);
-    const stotal = s => Math.max(s.lines.reduce((a, l) => a + lineGrossAmt(l), 0) - (Number(s.discount) || 0), 0);
-    const partsOf = s => s.parts || [{ m: payOf(s), a: stotal(s) }];
-    const payLabel = s => {
-      const P = partsOf(s);
-      return P.map(x => (PAY[x.m] || x.m) + (P.length > 1 ? ' ' + money(x.a) : '')).join(' + ');
-    };
-    const creditOf = s => partsOf(s).filter(x => x.m === 'credit' || x.m === 'pending').reduce((a, x) => a + x.a, 0);
-
-    const isO2DropoffAwaitingPickup = s => !s.voided && !!s.isO2Dropoff && !s.pickedUpAt;
-    const isGeneralDropoffUnpaid = s => !s.voided && !s.isO2Dropoff && partsOf(s).some(x => x.m === 'dropoff') && !s.settledTodayAt;
-    const isDeferredUnrecognized = s => isO2DropoffAwaitingPickup(s) || isGeneralDropoffUnpaid(s);
-
-    const saleRevenueDateKey = s => {
-      if (s.voided || isDeferredUnrecognized(s)) return null;
-      if (s.isO2Dropoff && s.pickedUpAt) return dkey(s.pickedUpAt);
-      if (s.settledTodayAt) return dkey(s.settledTodayAt);
-      return dkey(s.at);
-    };
-
-    const ck = n => String(n || '').trim().toLowerCase();
 
     function custO2Custody(custKey, o2type) {
       return cf
-        .filter(e => e.type === 'o2cust' && !e.voided && ck(e.cust) === custKey && (!o2type || e.o2type === o2type))
+        .filter(e => !e.voided && e.type === 'o2cust' && ck(e.cust) === custKey && (!o2type || e.o2type === o2type))
         .reduce((a, e) => a + (Number(e.qtyDelta) || 0), 0);
-    }
-
-    function o2StockMatrix() {
-      const mat = {};
-      Object.values(O2_TYPES).forEach(t => {
-        const rate = (cfg.o2Rates && cfg.o2Rates[t.id]) || t.defaultRate;
-        mat[t.id] = { ...t, rate, full: 0, empty: 0, atCustomer: 0, atFactory: 0, payable: 0 };
-      });
-
-      const evs = [...stk].sort((a, b) => a.at - b.at);
-      Object.keys(mat).forEach(tid => {
-        const lastFullSet = evs.filter(e => e.type === 'o2_stock_set' && e.o2type === tid && e.target === 'full').slice(-1)[0];
-        const lastEmptySet = evs.filter(e => e.type === 'o2_stock_set' && e.o2type === tid && e.target === 'empty').slice(-1)[0];
-        let full = lastFullSet ? lastFullSet.newQty : 0;
-        let empty = lastEmptySet ? lastEmptySet.newQty : 0;
-        let atFac = 0;
-
-        evs.forEach(e => {
-          if (e.voided || e.o2type !== tid) return;
-          if (e.type === 'o2_mov') {
-            if (!lastFullSet || e.at > lastFullSet.at) {
-              if (e.locationFrom === 'SHOP_FULL') full -= e.qty;
-              if (e.locationTo === 'SHOP_FULL') full += e.qty;
-            }
-            if (!lastEmptySet || e.at > lastEmptySet.at) {
-              if (e.locationFrom === 'SHOP_EMPTY') empty -= e.qty;
-              if (e.locationTo === 'SHOP_EMPTY') empty += e.qty;
-            }
-            if (e.locationFrom === 'AT_FACTORY') atFac -= e.qty;
-            if (e.locationTo === 'AT_FACTORY') atFac += e.qty;
-          } else if (e.type === 'o2_fac_recv') {
-            if (!lastFullSet || e.at > lastFullSet.at) full += e.qty;
-            atFac = Math.max(atFac - e.qty, 0);
-            mat[tid].payable += Math.max((e.totalAmt || 0) - (e.paidAmt || 0), 0);
-          } else if (e.type === 'o2_fac_send') {
-            if (!lastEmptySet || e.at > lastEmptySet.at) empty -= e.qty;
-            atFac += e.qty;
-          }
-        });
-        mat[tid].full = full;
-        mat[tid].empty = empty;
-        mat[tid].atFactory = atFac;
-      });
-
-      cf.filter(e => e.type === 'o2cust' && !e.voided).forEach(e => {
-        if (mat[e.o2type]) mat[e.o2type].atCustomer += (Number(e.qtyDelta) || 0);
-      });
-      return mat;
     }
 
     function motherCylStatus() {
       const capL = Number(cfg.motherCapL) || 55;
-      const fillCost = (cfg.o2Rates && cfg.o2Rates.OVER_40L_OWN) || 25000;
-      const active = stk.filter(e => e.type === 'o2_mother' && !e.closed).sort((a, b) => a.at - b.at)[0] || null;
-      if (!active) return { active: null, capL, remL: 0, costPerL: fillCost / capL };
-      const usedL = stk
-        .filter(e => e.type === 'o2_mother_fill' && !e.voided && e.motherId === active.id)
-        .reduce((a, e) => a + (Number(e.liters) || 0), 0);
-      const cL = Number(active.capL) || capL;
-      const fC = Number(active.fillCost) || fillCost;
-      return { active, capL: cL, remL: Math.max(cL - usedL, 0), costPerL: fC / cL };
+      const rate = (cfg.o2Rates && cfg.o2Rates.OVER_40L_OWN) || 25000;
+      const recvs = stk.filter(e => !e.voided && e.type === 'o2_fac_recv' && e.o2type === 'OVER_40L_OWN').sort((a, b) => b.at - a.at);
+      const active = recvs[0] || null;
+      const usedL = active
+        ? stk.filter(e => !e.voided && e.type === 'o2_mother_fill' && e.motherId === active.id).reduce((a, e) => a + (Number(e.liters) || 0), 0)
+        : 0;
+      const remL = Math.max(r2(capL - usedL), 0);
+      return { active, capL, remL, costPerL: rate / capL };
     }
 
+    // =========================================================================
+    // 7. CUSTOMERS, RECEIVABLES, CASH FLOW (V23) & P&L ENGINE (V24)
+    // =========================================================================
+    const isO2DropoffAwaitingPickup = s => !s.voided && s.isO2Dropoff && !s.pickedUpAt;
+    const isDeferredUnrecognized = s => isO2DropoffAwaitingPickup(s);
+    const saleRevenueDateKey = s => dkey(s.pickedUpAt || s.at);
+
     function customers() {
-      const map = {};
-      const get = n => {
-        const k = ck(n);
-        return map[k] = map[k] || { key: k, name: String(n).trim(), phone: '', cr: 0, pd: 0, compCr: 0, compPd: 0 };
+      const map = new Map();
+      const ensure = name => {
+        const k = ck(name);
+        if (!k) return null;
+        if (!map.has(k)) map.set(k, { key: k, name: String(name).trim(), phone: '', bal: 0, compBal: 0 });
+        return map.get(k);
       };
-      cf.filter(e => e.type === 'cust' && !e.mergedInto).sort((a, b) => a.at - b.at).forEach(e => {
-        const c = get(e.name);
-        if (e.phone !== undefined) c.phone = e.phone;
+      sales.filter(s => !s.voided && s.cust && !isO2DropoffAwaitingPickup(s)).forEach(s => {
+        const c = ensure(s.cust);
+        if (c && (s.pay === 'credit' || s.pay === 'pending')) c.bal += (Number(s.total) || 0);
       });
-      sales.filter(s => !s.voided && !isDeferredUnrecognized(s) && s.cust).forEach(s => {
-        get(s.cust).cr += creditOf(s);
+      cf.filter(e => !e.voided && e.cust).forEach(e => {
+        const c = ensure(e.cust);
+        if (!c) return;
+        if (e.type === 'ob') c.bal += (Number(e.amt) || 0);
+        if (e.type === 'cyl_compensation') c.compBal += (Number(e.amt) || 0);
       });
-      cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => {
-        get(e.cust).cr += (Number(e.amt) || 0);
+      pays.filter(p => !p.voided && p.cust).forEach(p => {
+        const c = ensure(p.cust);
+        if (!c) return;
+        if (p.isCompensation) c.compBal -= (Number(p.amount) || 0);
+        else c.bal -= (Number(p.amount) || 0);
       });
-      pays.filter(p => !p.voided).forEach(p => {
-        if (p.isCompensation) get(p.cust).compPd += (Number(p.amount) || 0);
-        else get(p.cust).pd += (Number(p.amount) || 0);
-      });
-      cf.filter(e => e.type === 'cyl_compensation' && !e.voided).forEach(e => {
-        get(e.cust).compCr += (Number(e.amt) || 0);
-      });
-      return Object.values(map).map(c => ({
-        ...c,
-        bal: c.cr - c.pd,
-        compBal: c.compCr - c.compPd
-      }));
+      return Array.from(map.values());
     }
 
     function unpaidInvoices(custKey) {
-      const invs = sales
-        .filter(s => !s.voided && !isDeferredUnrecognized(s) && ck(s.cust) === custKey && creditOf(s) > 0)
+      const invs = sales.filter(s => !s.voided && !isO2DropoffAwaitingPickup(s) && ck(s.cust) === custKey && (s.pay === 'credit' || s.pay === 'pending'))
         .sort((a, b) => a.at - b.at);
-      const paidMap = {};
+      const paidBySale = new Map();
       pays.filter(p => !p.voided && !p.isCompensation && ck(p.cust) === custKey).forEach(p => {
         (p.allocations || []).forEach(al => {
-          paidMap[al.saleId] = (paidMap[al.saleId] || 0) + (Number(al.appliedAmt) || 0);
+          paidBySale.set(al.saleId, (paidBySale.get(al.saleId) || 0) + (Number(al.appliedAmt) || 0));
         });
       });
       return invs.map(s => {
-        const dueTotal = creditOf(s);
-        const paid = paidMap[s.id] || 0;
-        return { sale: s, dueTotal, paid, rem: Math.max(dueTotal - paid, 0) };
+        const rem = Math.max((Number(s.total) || 0) - (paidBySale.get(s.id) || 0), 0);
+        return { sale: s, rem };
       }).filter(x => x.rem > 0.5);
     }
 
-    function getRentForPeriod(periodKey, isMonthly) {
-      const ym = periodKey.slice(0, 7);
-      const entry = rentSchedule.find(r => ym >= r.from && ym <= r.to);
-      if (!entry || !(Number(entry.monthlyRent) > 0)) {
-        return {
-          confirmed: false,
-          allocatedRent: 0,
-          monthlyRent: 0,
-          daysInMonth: null,
-          warning: ym >= '2027-01' ? '2027 Rent Unconfirmed' : 'Rent Schedule Unconfirmed'
-        };
-      }
-      const mRent = Number(entry.monthlyRent);
-      if (isMonthly) {
-        return { confirmed: true, allocatedRent: mRent, monthlyRent: mRent, daysInMonth: null, warning: null };
-      }
-      const [y, m] = ym.split('-').map(Number);
-      const dim = daysInMonth(y, m);
-      return { confirmed: true, allocatedRent: mRent / dim, monthlyRent: mRent, daysInMonth: dim, warning: null };
+    function stockOf(p) {
+      if (!p || p.gas || p.o2type) return null;
+      const base = Number(p.stock);
+      if (isNaN(base)) return null;
+      const sold = sales.filter(s => !s.voided).flatMap(s => s.lines || []).filter(l => l.pid === p.id).reduce((a, l) => a + (Number(l.qty) || 0), 0);
+      return r2(base - sold);
     }
 
-    function calcPnL(periodKey, isMonthly) {
-      const [a, b] = isMonthly ? mbounds(periodKey) : dbounds(periodKey);
+    // Restored v23 Cash Flow Engine (Cash, KPay, Wave, AyA) — Kept strictly separate from P&L
+    function flows(m, a, b) {
+      let i = 0, o = 0;
+      sales.filter(s => !s.voided && !isO2DropoffAwaitingPickup(s)).forEach(s => {
+        const ts = s.pickedUpAt || s.at;
+        if (ts >= a && ts <= b && s.pay === m) i += (Number(s.total) || 0);
+      });
+      pays.filter(p => !p.voided && p.at >= a && p.at <= b && p.method === m).forEach(p => {
+        i += (Number(p.amount) || 0);
+      });
+      cf.filter(e => !e.voided).forEach(e => {
+        if (e.type === 'exp' && e.at >= a && e.at <= b && e.m === m) o += (Number(e.amt) || 0);
+        if (e.type === 'fac_refund_in' && e.at >= a && e.at <= b && e.m === m) i += (Number(e.amt) || 0);
+        if (e.type === 'xfer' && e.at >= a && e.at <= b) {
+          if (e.to === m) i += (Number(e.amt) || 0);
+          if (e.from === m) o += (Number(e.amt) || 0);
+        }
+        if (e.type === 'loan') {
+          const isBorrow = (e.dir || 'borrow') === 'borrow';
+          if (e.at >= a && e.at <= b && e.m === m) {
+            if (isBorrow) i += (Number(e.amt) || 0);
+            else o += (Number(e.amt) || 0);
+          }
+          if (e.repaid && e.repaidAt >= a && e.repaidAt <= b && (e.repaidMethod || e.m) === m) {
+            if (isBorrow) o += (Number(e.amt) || 0);
+            else i += (Number(e.amt) || 0);
+          }
+        }
+      });
+      gasEv.filter(e => !e.voided && e.at >= a && e.at <= b).forEach(e => {
+        if (e.type === 'gas_ret' && e.m === m) o += (Number(e.buyBackCost) || 0);
+        if (e.type === 'recv' && e.m === m) o += (Number(e.cost) || 0);
+      });
+      return { i: Math.round(i), o: Math.round(o) };
+    }
+
+    function opening(m, k) {
+      const explicit = cf.filter(e => e.type === 'bal' && e.kind === 'open' && e.method === m && e.date === k).sort((a, b) => b.at - a.at)[0];
+      if (explicit) return Number(explicit.amt) || 0;
+      const prevClose = cf.filter(e => e.type === 'bal' && e.kind === 'close' && e.method === m && e.date < k).sort((a, b) => b.date.localeCompare(a.date) || b.at - a.at)[0];
+      if (prevClose) return Number(prevClose.amt) || 0;
+      return 0;
+    }
+
+    function getRentForPeriod(dateOrYm, isMonthly) {
+      const ym = String(dateOrYm).slice(0, 7);
+      const slot = rentSchedule.find(r => ym >= r.from && ym <= r.to);
+      if (!slot) {
+        return { monthlyRent: 0, daysInMonth: 0, allocatedRent: 0, warning: ym >= '2027-01' ? '2027 Rent Unconfirmed' : 'Rent Unconfirmed' };
+      }
+      const [y, m] = ym.split('-').map(Number);
+      const daysInMonth = new Date(y, m, 0).getDate();
+      const allocatedRent = isMonthly ? slot.monthlyRent : (slot.monthlyRent / daysInMonth);
+      return { monthlyRent: slot.monthlyRent, daysInMonth, allocatedRent, warning: null };
+    }
+
+    function calcPnL(dateOrYm, isMonthly) {
+      const matchPeriod = dk => isMonthly ? dk.startsWith(dateOrYm) : dk === dateOrYm;
+      const relSales = sales.filter(s => !s.voided && !isO2DropoffAwaitingPickup(s) && matchPeriod(saleRevenueDateKey(s)));
       const gInfo = gasInventorySummary();
-      const supplierList = Object.values(gInfo.suppliers).filter(x => x.latestVissRate > 0);
-      const defaultRate = supplierList.length ? supplierList[0].latestVissRate : null;
+      const prodMap = new Map(products.map(p => [p.id, p]));
 
       let grossRevenue = 0;
       let gasCogs = 0;
@@ -1510,72 +1205,56 @@
       let focCogs = 0;
       let missingCostCount = 0;
       let estimatedGasCount = 0;
-      const appliedGasMeta = new Set();
+      const appliedGasMetaSet = new Set();
 
-      sales.forEach(s => {
-        if (s.voided) return;
-        const revDk = saleRevenueDateKey(s);
-        if (!revDk) return;
-        const revTs = dbounds(revDk)[0] + 43200000;
-        if (revTs < a || revTs > b) return;
-
-        s.lines.forEach(l => {
-          if (!l.foc) grossRevenue += (Number(l.qty) || 0) * (Number(l.price) || 0);
-
-          if (l.gasViss > 0) {
-            if (l.isBuyBackStock && gInfo.buyBackRatePerViss !== null) {
-              const c = l.gasViss * gInfo.buyBackRatePerViss;
-              if (l.foc) focCogs += c; else gasCogs += c;
-              appliedGasMeta.add('Buy-Back Basis ' + Math.round(gInfo.buyBackRatePerViss).toLocaleString() + '/viss');
-            } else if (l.agent && gInfo.suppliers[l.agent] && gInfo.suppliers[l.agent].latestVissRate > 0) {
-              const sup = gInfo.suppliers[l.agent];
-              const c = l.gasViss * sup.latestVissRate;
-              if (l.foc) focCogs += c; else gasCogs += c;
-              appliedGasMeta.add(sup.agent + ': ' + Math.round(sup.latestVissRate).toLocaleString() + '/viss (intake ' + (sup.effectiveDate || '-') + ')');
-            } else if (defaultRate > 0) {
-              const c = l.gasViss * defaultRate;
-              if (l.foc) focCogs += c; else gasCogs += c;
-              estimatedGasCount++;
-              appliedGasMeta.add('Estimated ' + Math.round(defaultRate).toLocaleString() + '/viss (Unknown Supplier)');
-            } else {
-              missingCostCount++;
-            }
+      relSales.forEach(s => {
+        grossRevenue += (Number(s.total) || 0);
+        (s.lines || []).forEach(l => {
+          let lineCost = 0;
+          if (l.motherFillLiters > 0) {
+            lineCost = Number(l.costAtSale) || 0;
+            o2Cogs += lineCost;
           } else if (l.o2type && O2_TYPES[l.o2type]) {
-            const rate = (cfg.o2Rates && cfg.o2Rates[l.o2type]) || O2_TYPES[l.o2type].defaultRate;
-            const c = (Number(l.qty) || 0) * rate;
-            if (l.foc) focCogs += c; else o2Cogs += c;
-          } else if (l.motherFillLiters > 0) {
-            const c = Number(l.costAtSale) || 0;
-            if (l.foc) focCogs += c; else o2Cogs += c;
-          } else {
-            if (l.costMissing || l.costAtSale === null || l.costAtSale === undefined) {
-              missingCostCount++;
+            const rt = (cfg.o2Rates && cfg.o2Rates[l.o2type]) || O2_TYPES[l.o2type].defaultRate;
+            lineCost = (Number(l.qty) || 0) * rt;
+            o2Cogs += lineCost;
+          } else if (l.gasViss > 0) {
+            const gv = Number(l.gasViss) || 0;
+            if (l.isBuyBackStock && gInfo.buyBackRatePerViss !== null) {
+              lineCost = gv * gInfo.buyBackRatePerViss;
+              appliedGasMetaSet.add('Buy-Back @ ' + Math.round(gInfo.buyBackRatePerViss).toLocaleString() + '/viss');
+            } else if (l.agent && gInfo.latestBySupplier[l.agent]) {
+              const sup = gInfo.latestBySupplier[l.agent];
+              lineCost = gv * sup.ratePerViss;
+              appliedGasMetaSet.add(l.agent + ' @ ' + Math.round(sup.ratePerViss).toLocaleString() + '/viss (' + sup.date + ')');
             } else {
-              if (l.foc) focCogs += Number(l.costAtSale); else prodCogs += Number(l.costAtSale);
+              const fallback = Object.values(gInfo.latestBySupplier)[0];
+              const estRate = fallback ? fallback.ratePerViss : 3000;
+              lineCost = gv * estRate;
+              estimatedGasCount++;
+              appliedGasMetaSet.add('Estimated @ ' + Math.round(estRate).toLocaleString() + '/viss');
             }
+            if (l.foc) focCogs += lineCost;
+            else gasCogs += lineCost;
+          } else {
+            const pRec = prodMap.get(l.pid);
+            if (Number.isFinite(l.costAtSale)) lineCost = Number(l.costAtSale);
+            else if (pRec && Number.isFinite(pRec.buyPrice) && pRec.buyPrice > 0) lineCost = (Number(l.qty) || 0) * pRec.buyPrice;
+            else missingCostCount++;
+
+            if (l.foc) focCogs += lineCost;
+            else prodCogs += lineCost;
           }
         });
-        if (s.discount > 0) grossRevenue = Math.max(grossRevenue - Number(s.discount), 0);
       });
 
-      const weightVarianceExpense = Object.values(gInfo.suppliers).reduce((sum, sup) => {
-        const pEvs = gasEv.filter(e => (e.type === 'recv' || e.type === 'eswap') && !e.voided && e.agent === sup.agent && e.at >= a && e.at <= b);
-        return sum + pEvs.reduce((acc, e) => {
-          const nV = Number.isFinite(e.nominalViss) ? e.nominalViss : ((e.qty || 0) * sup.nomPerCyl);
-          const aV = Number.isFinite(e.actualViss) ? e.actualViss : nV;
-          const shortV = Math.max(nV - aV, 0);
-          const rate = (Number.isFinite(e.cost) && e.cost > 0) ? (e.cost / sup.nomPerCyl) : (sup.latestVissRate || 0);
-          return acc + shortV * rate;
-        }, 0);
-      }, 0);
+      const opEx = cf.filter(e => !e.voided && e.type === 'exp' && matchPeriod(dkey(e.at)) && e.cat !== 'saving' && !e.isRentPayment && !e.isO2Settlement)
+        .reduce((a, e) => a + (Number(e.amt) || 0), 0);
 
-      let opEx = 0;
-      cf.filter(e => e.type === 'exp' && !e.voided && e.at >= a && e.at <= b).forEach(e => {
-        if (e.cat === 'savings' || e.cat === 'rent' || e.isRentPayment || e.isO2Settlement) return;
-        opEx += (Number(e.amt) || 0);
-      });
+      const weightVarianceExpense = gasEv.filter(e => !e.voided && e.type === 'recv' && matchPeriod(dkey(e.at)))
+        .reduce((a, e) => a + (Number(e.varianceCostMmk) || 0), 0);
 
-      const rentInfo = getRentForPeriod(periodKey, isMonthly);
+      const rentInfo = getRentForPeriod(dateOrYm, isMonthly);
       const totalCogs = gasCogs + o2Cogs + prodCogs + focCogs;
       const grossProfit = grossRevenue - totalCogs;
       const netProfit = grossProfit - opEx - weightVarianceExpense - rentInfo.allocatedRent;
@@ -1583,68 +1262,260 @@
       return {
         grossRevenue, gasCogs, o2Cogs, prodCogs, focCogs, totalCogs,
         grossProfit, opEx, weightVarianceExpense, rentInfo, netProfit,
-        missingCostCount, estimatedGasCount,
-        appliedGasMeta: Array.from(appliedGasMeta),
-        buyBackOutflow: gasEv.filter(e => e.type === 'gas_ret' && !e.voided && e.at >= a && e.at <= b).reduce((s, e) => s + (Number(e.buyBackCost) || 0), 0)
+        missingCostCount, estimatedGasCount, appliedGasMeta: Array.from(appliedGasMetaSet)
       };
     }
 
-    // Cash Flow (v23 flows() preserved + Temporary Loans inflow/outflow + repayment)
-    function flows(method, a, b) {
-      let i = 0, o = 0;
-      sales.forEach(s => {
-        if (s.voided || isDeferredUnrecognized(s)) return;
-        const effTs = s.pickedUpAt || s.settledTodayAt || s.at;
-        if (effTs >= a && effTs <= b) {
-          partsOf(s).forEach(x => { if (x.m === method) i += (Number(x.a) || 0); });
-        }
-      });
-      pays.filter(p => !p.voided && p.method === method && p.at >= a && p.at <= b).forEach(p => {
-        i += (Number(p.amount) || 0);
-      });
-      cf.filter(e => e.type === 'exp' && !e.voided && e.m === method && e.at >= a && e.at <= b).forEach(e => {
-        o += (Number(e.amt) || 0);
-      });
-      gasEv.filter(e => e.type === 'gas_ret' && !e.voided && e.m === method && e.at >= a && e.at <= b).forEach(e => {
-        o += (Number(e.buyBackCost) || 0);
-      });
-      cf.filter(e => e.type === 'fac_refund_in' && !e.voided && e.m === method && e.at >= a && e.at <= b).forEach(e => {
-        i += (Number(e.amt) || 0);
-      });
-      cf.filter(e => e.type === 'loan' && !e.voided).forEach(e => {
-        const dir = e.dir || 'borrow';
-        if (dir === 'borrow') {
-          if (e.m === method && e.at >= a && e.at <= b) i += (Number(e.amt) || 0);
-          if (e.repaid && e.repaidMethod === method && e.repaidAt >= a && e.repaidAt <= b) o += (Number(e.amt) || 0);
-        } else {
-          if (e.m === method && e.at >= a && e.at <= b) o += (Number(e.amt) || 0);
-          if (e.repaid && e.repaidMethod === method && e.repaidAt >= a && e.repaidAt <= b) i += (Number(e.amt) || 0);
-        }
-      });
-      cf.filter(e => e.type === 'xfer' && !e.voided).forEach(e => {
-        if (e.to === method && e.at >= a && e.at <= b) i += (Number(e.amt) || 0);
-        if (e.from === method && e.at >= a && e.at <= b) o += (Number(e.amt) || 0);
-      });
-      return { i, o };
+    // =========================================================================
+    // 8. BACKUP, ROLLING SNAPSHOTS, CONFLICT QUEUE & GET LATEST VERSION
+    // =========================================================================
+    async function dumpAll() {
+      const data = {};
+      for (const st of STORES) data[st] = await getAll(st);
+      return { app: 'aung-gas-pos', schema: DB_SCHEMA_VER, exportedAt: Date.now(), deviceId: DEVICE_ID, data };
     }
 
-    function opening(method, k) {
-      const R = cf.filter(e => e.type === 'bal' && e.method === method);
-      const op = R.filter(r => r.kind === 'open' && r.date === k).sort((a, b) => b.at - a.at)[0];
-      if (op) return Number(op.amt) || 0;
-      const cl = R.filter(r => r.kind === 'close' && r.date < k).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.at - a.at)[0];
-      if (!cl) return null;
-      const f = flows(method, dbounds(cl.date)[1] + 1, dbounds(k)[0] - 1);
-      return (Number(cl.amt) || 0) + f.i - f.o;
+    async function sha256Text(txt) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+      return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function stockOf(p) {
-      const c = stk.filter(e => e.pid === p.id && e.type === 'count').sort((a, b) => b.at - a.at)[0];
-      if (!c) return null;
-      let n = Number(c.qty) || 0;
-      stk.forEach(e => { if (e.pid === p.id && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += (Number(e.qty) || 0); });
-      sales.forEach(x => { if (!x.voided && x.at > c.at) x.lines.forEach(l => { if (l.pid === p.id) n -= (Number(l.qty) || 0); }); });
-      return n;
+    async function saveRollingSnapshot(reason) {
+      const snap = await dumpAll();
+      const raw = JSON.stringify(snap);
+      const now = Date.now();
+      const snaps = (getMeta('rolling_snapshots') || []).slice(-2);
+      snaps.push({ id: uuid(), at: now, reason, size: raw.length, data: snap });
+      await run(['meta'], 'readwrite', t => {
+        const m = t.objectStore('meta');
+        m.put({ k: 'rolling_snapshots', v: snaps });
+        m.put({ k: 'last_auto_backup_at', v: now });
+      });
+    }
+
+    async function exportExternalBackup(sharePrompt = false) {
+      const payload = await dumpAll();
+      const json = JSON.stringify(payload, null, 2);
+      const hash = await sha256Text(json);
+      const fname = 'aung-gas-pos-v24-' + dkey(Date.now()) + '.json';
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = h('a', { href: url, download: fname });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+      const now = Date.now();
+      await run(['meta'], 'readwrite', t => {
+        const m = t.objectStore('meta');
+        m.put({ k: 'last_bk', v: now });
+        m.put({ k: 'last_verified_export', v: { at: now, sha256: hash, fname } });
+      });
+      await reload();
+
+      if (sharePrompt && navigator.canShare) {
+        try {
+          const f = new File([blob], fname, { type: 'application/json' });
+          if (navigator.canShare({ files: [f] })) await navigator.share({ title: fname, files: [f] });
+        } catch (e) {}
+      }
+      return { fname, sha256: hash };
+    }
+
+    function checkBk(d) {
+      if (!d || typeof d !== 'object') return 'Invalid JSON backup.';
+      if (d.app && d.app !== 'aung-gas-pos') return 'Wrong app backup file.';
+      if (!d.data || typeof d.data !== 'object') return 'Missing backup data object.';
+      return null;
+    }
+
+    async function importAll(d, skipPreSnap = false) {
+      if (!skipPreSnap) await saveRollingSnapshot('pre_restore');
+      let added = 0, same = 0, conflicts = 0, lockedQuarantined = 0;
+      const newConflicts = [...restoreConflicts];
+
+      for (const st of STORES) {
+        if (st === 'meta') continue;
+        const incoming = Array.isArray(d.data[st]) ? d.data[st] : [];
+        const existing = await getAll(st);
+        const exMap = new Map(existing.map(x => [x.id, x]));
+
+        for (const rec of incoming) {
+          if (!rec || !rec.id) continue;
+          const recDate = rec.date || (rec.at ? dkey(rec.at) : null);
+          if (recDate && isMonthLocked(recDate)) {
+            lockedQuarantined++;
+            newConflicts.push({
+              conflictId: uuid(), store: st, recordId: rec.id, status: 'pending',
+              reason: 'LOCKED_MONTH', lockedMonth: recDate.slice(0, 7),
+              localCopy: exMap.get(rec.id) || null, backupCopy: rec, at: Date.now()
+            });
+            continue;
+          }
+          const loc = exMap.get(rec.id);
+          if (!loc) {
+            await put(st, rec);
+            added++;
+          } else if (JSON.stringify(loc) === JSON.stringify(rec)) {
+            same++;
+          } else {
+            conflicts++;
+            newConflicts.push({
+              conflictId: uuid(), store: st, recordId: rec.id, status: 'pending',
+              reason: 'CONTENT_MISMATCH',
+              localCopy: loc, backupCopy: rec, at: Date.now()
+            });
+          }
+        }
+      }
+      await put('meta', { k: 'restore_conflicts', v: newConflicts });
+      await reload();
+      return { added, same, conflicts, lockedQuarantined };
+    }
+
+    async function resolveConflict(conflictId, action, noteTxt) {
+      const idx = restoreConflicts.findIndex(c => c.conflictId === conflictId && c.status === 'pending');
+      if (idx < 0) return;
+      const c = restoreConflicts[idx];
+      if (c.reason === 'LOCKED_MONTH' && isMonthLocked(c.lockedMonth)) {
+        throw new Error('Month ' + c.lockedMonth + ' is locked. Reopen month first.');
+      }
+      const ok = await requireOwnerPin('Resolve Restore Conflict (' + c.store + '::' + c.recordId.slice(-6) + ')');
+      if (!ok) return;
+
+      if (action === 'ACCEPT_BACKUP') {
+        const archives = getMeta('conflict_archives') || [];
+        if (c.localCopy) archives.push({ id: uuid(), archivedAt: Date.now(), store: c.store, record: c.localCopy });
+        await run([c.store, 'meta'], 'readwrite', t => {
+          t.objectStore(c.store).put(c.backupCopy);
+          t.objectStore('meta').put({ k: 'conflict_archives', v: archives });
+        });
+      }
+      const updated = [...restoreConflicts];
+      updated[idx] = { ...c, status: 'resolved', resolution: action, resolvedAt: Date.now(), note: noteTxt };
+      await put('meta', { k: 'restore_conflicts', v: updated });
+      await reload();
+    }
+
+    async function pruneOldArchivesIfVerified() {
+      const ver = getMeta('last_verified_export');
+      const archives = getMeta('conflict_archives') || [];
+      if (!ver || archives.length <= 50) return { pruned: 0 };
+      const kept = archives.slice(-50);
+      await put('meta', { k: 'conflict_archives', v: kept });
+      return { pruned: archives.length - kept.length };
+    }
+
+    async function getLatestVersion() {
+      const go = await uiConfirm(
+        'နောက်ဆုံး Version ကို ရယူပါမည်။\n\n' +
+        'သင့် စာရင်း Data များ လုံးဝ မပျောက်ဘဲ App Cache ကိုသာ ရှင်းလင်းပြီး ပြန်ဖွင့်ပေးပါမည်။ ဆက်လုပ်မလား?',
+        'ယူမည် (Update)', 'Cancel'
+      );
+      if (!go) return;
+      try {
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.update().catch(() => {})));
+          regs.forEach(r => { if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' }); });
+        }
+      } catch (e) {}
+      location.reload();
+    }
+
+    // =========================================================================
+    // 8B. 80MM THERMAL RECEIPT PRINT SYSTEM (printSale)
+    // =========================================================================
+    function printSale(idOrSale) {
+      const s = typeof idOrSale === 'string' ? sales.find(x => x.id === idOrSale) : idOrSale;
+      if (!s) return uiAlert('ဘောင်ချာ မှတ်တမ်း မတွေ့ပါ။');
+      const box = $('#rcpt');
+      if (!box) return;
+
+      const sz = Number(rc.size) || 3;
+      const fontPx = sz === 1 ? '10.5px' : sz === 2 ? '11.5px' : sz === 4 ? '13.5px' : '12px';
+      box.style.fontSize = fontPx;
+
+      const custName = s.cust ? String(s.cust).trim() : '';
+      const custRec = custName ? customers().find(c => c.key === ck(custName)) : null;
+
+      const headerLines = (rc.head || 'သာကေတ၊ ရန်ကုန်မြို့\nLPG ဓာတ်ငွေ့ နှင့် ဆေးရုံသုံး/စက်မှုသုံး အောက်ဆီဂျင် ရောင်းဝယ်ရေး')
+        .split('\n')
+        .map(line => h('div', { class: 'c' }, line));
+
+      const itemNodes = (s.lines || []).map(l => {
+        const lineAmt = lineGrossAmt(l);
+        const typeTag = l.o2type
+          ? (' [' + o2Label(l.o2type) + (l.o2Movement ? ' · ' + l.o2Movement : '') + ']')
+          : (l.gasViss > 0 ? (' [' + r2(l.gasViss) + ' viss]') : '');
+        return h('div', { class: 'it' },
+          h('div', { class: 'nm' }, l.name + typeTag + (l.foc ? ' [FOC]' : '')),
+          h('div', { class: 'r' },
+            h('span', {}, l.qty + ' ' + (l.unit || '') + ' × ' + (l.foc ? '0 (FOC)' : (Number(l.price) || 0).toLocaleString())),
+            h('span', {}, l.foc ? 'FOC' : lineAmt.toLocaleString())
+          )
+        );
+      });
+
+      const subTotal = (s.lines || []).reduce((acc, l) => acc + lineGrossAmt(l), 0);
+      const disc = Number(s.discount) || 0;
+
+      const custodyBlock = custRec ? (() => {
+        const cKey = custRec.key;
+        const c40F = custO2Custody(cKey, '40L_FACTORY');
+        const c47F = custO2Custody(cKey, '47L_FACTORY');
+        const c40O = custO2Custody(cKey, '40L_OWN');
+        const cOvO = custO2Custody(cKey, 'OVER_40L_OWN');
+        const hasAnyCust = (c40F + c47F + c40O + cOvO) > 0;
+        const hasBal = (custRec.bal > 0.5) || (custRec.compBal > 0.5);
+        if (!hasAnyCust && !hasBal) return '';
+        return h('div', {},
+          h('div', { class: 'dd' }),
+          hasBal ? h('div', { class: 'r b' }, h('span', {}, 'လက်ကျန်ကြွေး (Balance):'), h('span', {}, money(custRec.bal))) : '',
+          custRec.compBal > 0.5 ? h('div', { class: 'r' }, h('span', {}, 'အိုးလျော်ကြေးကျန်:'), h('span', {}, money(custRec.compBal))) : '',
+          hasAnyCust ? h('div', { style: 'margin-top:3px;font-size:0.92em' },
+            h('b', {}, 'Customer အိုးလက်ကျန် (Custody): '),
+            [
+              c40F ? ('40Lစက်ရုံ:' + c40F) : '',
+              c47F ? ('47Lစက်ရုံ:' + c47F) : '',
+              c40O ? ('40Lအပိုင်:' + c40O) : '',
+              cOvO ? ('Over40L:' + cOvO) : ''
+            ].filter(Boolean).join(', ')
+          ) : ''
+        );
+      })() : '';
+
+      const footerLines = (rc.foot || 'ဝယ်ယူအားပေးမှုကို ကျေးဇူးတင်ပါသည်။')
+        .split('\n')
+        .map(line => h('div', { class: 'ft' }, line));
+
+      box.replaceChildren(
+        h('div', { class: 'c big' }, 'AUNG Gas Solutions'),
+        ...headerLines,
+        h('div', { class: 'dd' }),
+        h('div', { class: 'r' }, h('span', {}, 'ဘောင်ချာ: #' + s.id.slice(-6).toUpperCase()), h('span', {}, dkey(s.at) + ' ' + tm(s.at))),
+        custName ? h('div', { class: 'r' }, h('span', {}, 'ဝယ်သူ: ' + custName), h('span', {}, s.term && s.term !== 'immediate' ? termLabel(s.term) : '')) : '',
+        s.tag ? h('div', {}, 'Tag/Token: ' + s.tag) : '',
+        s.isO2Dropoff ? h('div', { class: 'r b' }, h('span', {}, 'O2 Status:'), h('span', {}, s.pickedUpAt ? ('Picked Up (' + dkey(s.pickedUpAt) + ')') : 'Filled – Awaiting Pickup')) : '',
+        s.voided ? h('div', { class: 'c', style: 'font-weight:900;margin:4px 0' }, '*** VOIDED / ပယ်ဖျက်ပြီး ***') : '',
+        h('div', { class: 'dd' }),
+        ...itemNodes,
+        h('div', { class: 'ss' }),
+        disc > 0 ? h('div', { class: 'r' }, h('span', {}, 'စုစုပေါင်း (Subtotal)'), h('span', {}, subTotal.toLocaleString())) : '',
+        disc > 0 ? h('div', { class: 'r' }, h('span', {}, 'လျှော့ဈေး (Discount)'), h('span', {}, '−' + disc.toLocaleString())) : '',
+        h('div', { class: 'r tt' }, h('span', {}, 'ကျသင့်ငွေ'), h('span', {}, money(s.total))),
+        h('div', { class: 'r' }, h('span', {}, 'ပေးချေမှု'), h('span', {}, payLabel(s))),
+        custodyBlock,
+        h('div', { class: 'dd' }),
+        ...footerLines
+      );
+
+      setTimeout(() => window.print(), 60);
     }
 
     // =========================================================================
@@ -1669,10 +1540,7 @@
               (lendSum > 0 ? 'ထုတ်ချေးထားငွေ: ' + money(lendSum) : '')
             )
           ),
-          h('button', {
-            class: 'n',
-            onclick: () => { expSubTab = 2; show(7); }
-          }, 'ကြည့်ရန် / ပြန်ဆပ်မည်')
+          h('button', { class: 'n', onclick: () => { expSubTab = 2; show(7); } }, 'ကြည့်ရန် / ပြန်ဆပ်မည်')
         )
       );
     }
@@ -1887,9 +1755,11 @@
             return { ...l, lineId: saleId + ':' + idx, costAtSale, costMissing };
           });
 
+          const savedSaleId = saleId;
           const saleObj = {
-            id: saleId,
+            id: savedSaleId,
             at: saleTs,
+            createdAt: now,
             pay: pm,
             parts: [{ m: pm, a: total }],
             cust: cName || null,
@@ -1916,26 +1786,26 @@
                     id: uuid(), movementId: uuid(), saleLineId: l.lineId,
                     type: 'o2_mov', o2type: l.o2type, ownership: own,
                     movementType: l.o2Movement, locationFrom: 'SHOP_FULL', locationTo: 'AT_CUSTOMER',
-                    qty: l.qty, at: saleTs
+                    qty: l.qty, at: saleTs, createdAt: now
                   });
                   t.objectStore('stk').add({
                     id: uuid(), movementId: uuid(), saleLineId: l.lineId,
                     type: 'o2_mov', o2type: l.o2type, ownership: own,
                     movementType: l.o2Movement, locationFrom: 'AT_CUSTOMER', locationTo: 'SHOP_EMPTY',
-                    qty: l.qty, at: saleTs
+                    qty: l.qty, at: saleTs, createdAt: now
                   });
                 } else {
                   t.objectStore('stk').add({
                     id: uuid(), movementId: uuid(), saleLineId: l.lineId,
                     type: 'o2_mov', o2type: l.o2type, ownership: own,
                     movementType: l.o2Movement, locationFrom: 'SHOP_FULL', locationTo: 'AT_CUSTOMER',
-                    qty: l.qty, at: saleTs
+                    qty: l.qty, at: saleTs, createdAt: now
                   });
                   if (cName && l.o2Movement !== 'o2_dropoff_pickup') {
                     t.objectStore('cf').add({
                       id: uuid(), movementId: uuid(), saleLineId: l.lineId,
                       type: 'o2cust', cust: cName, o2type: l.o2type, ownership: own,
-                      qtyDelta: l.qty, at: saleTs
+                      qtyDelta: l.qty, at: saleTs, createdAt: now
                     });
                   }
                 }
@@ -1949,7 +1819,12 @@
           cust.value = '';
           tagIn.value = '';
           await reload();
-          note(msg, 'အရောင်းမှတ်တမ်း သိမ်းပြီးပါပြီ (costAtSale snapshot saved)။', true);
+          msg.replaceChildren(
+            h('div', { class: 'msg k', style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px' },
+              h('span', {}, '✓ အရောင်းမှတ်တမ်း သိမ်းပြီးပါပြီ (#' + savedSaleId.slice(-6).toUpperCase() + ')'),
+              h('button', { class: 'n', onclick: () => printSale(savedSaleId) }, '🖨 ဘောင်ချာ Print ထုတ်မည်')
+            )
+          );
         } catch (e) {
           note(msg, 'Error (Rolled back): ' + (e && e.message || e));
         } finally {
@@ -2006,12 +1881,13 @@
         const dayRev = sales.filter(s => !s.voided && saleRevenueDateKey(s) === dkey(Date.now())).reduce((a, s) => a + s.total, 0);
         todayList.replaceChildren(
           h('h2', {}, 'ယနေ့ Recognized Sales: ' + money(dayRev)),
-          h('div', { class: 'card' }, ts.length ? ts.map(s => h('div', { class: 'li' },
+          h('div', { class: 'card' }, ts.length ? ts.map(s => h('div', { class: 'li', style: 'flex-wrap:wrap' },
             h('span', { class: s.voided ? 'void' : '' },
               tm(s.pickedUpAt || s.at) + ' · ' + s.lines.map(l => l.name + '×' + l.qty).join(', ') + ' · ' + payLabel(s) + (s.cust ? ' (' + s.cust + ')' : '')
             ),
-            h('span', {},
-              h('b', { class: s.voided ? 'void' : '' }, money(s.total)), ' ',
+            h('span', { style: 'display:flex;align-items:center;gap:6px' },
+              h('b', { class: s.voided ? 'void' : '' }, money(s.total)),
+              h('button', { class: 'n', style: 'padding:4px 8px;font-size:12px', onclick: () => printSale(s) }, '🖨 Print'),
               !s.voided ? h('button', {
                 class: 'g',
                 onclick: async () => {
@@ -2066,284 +1942,314 @@
     }
 
     // =========================================================================
-    // 10. VIEW 2: PRODUCTS (EXPLICIT O2TYPE & BUY PRICE FOR COMMIT SNAPSHOT)
+    // 10. VIEW 2: PRODUCTS (WITH COMMIT-TIME COST & FOC SUPPORT)
     // =========================================================================
     function viewProducts() {
       const app = $('#app');
       app.replaceChildren();
       const msg = h('div');
-      const nn = h('input', { placeholder: 'ပစ္စည်းနာမည်' });
-      const nc = h('select', {}, CATS.map(c => h('option', { value: c }, c)));
-      const nu = h('select', {}, UNITS.map(u => h('option', { value: u }, u)));
-      const no2 = h('select', {},
-        h('option', { value: '' }, '-- Oxygen Type (အောက်ဆီဂျင်ဆိုလျှင် ၄ မျိုးမှ ရွေးပါ) --'),
-        ...Object.values(O2_TYPES).map(t => h('option', { value: t.id }, o2Label(t.id) + ' [' + t.ownership + ']'))
-      );
-      const bp = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'Buy Price / အရင်းဈေး' });
-      const sp = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'Sell Price / ရောင်းဈေး' });
+
+      const nm = h('input', { placeholder: 'ပစ္စည်းအမည် (Product Name)' });
+      const ct = h('select', {}, CATS.map(c => h('option', { value: c }, c)));
+      const un = h('select', {}, UNITS.map(u => h('option', { value: u }, u)));
+      const sp = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'ရောင်းဈေး (Sell Price)' });
+      const bp = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'ဝယ်ဈေး (Buy Price — COGS အတွက်)' });
+      const st = h('input', { type: 'number', inputmode: 'decimal', placeholder: 'လက်ကျန် (Opening Stock)' });
 
       const addBtn = h('button', {
         class: 'o',
         onclick: async () => {
-          const n = nn.value.trim();
-          if (!n) return note(msg, 'ပစ္စည်းနာမည် ထည့်ပါ။');
-          if (nc.value === 'အောက်ဆီဂျင်' && !no2.value) return note(msg, 'Oxygen ပစ္စည်းအတွက် Type ရွေးပါ။');
+          const name = nm.value.trim();
+          if (!name) return note(msg, 'ပစ္စည်းအမည် ထည့်ပါ။');
           await add('products', {
-            id: uuid(), name: n, cat: nc.value, unit: nu.value,
-            o2type: no2.value || undefined,
-            buyPrice: parseFloat(bp.value) || null,
-            sellPrice: parseFloat(sp.value) || null,
-            at: Date.now()
+            id: uuid(),
+            name,
+            cat: ct.value,
+            unit: un.value,
+            sellPrice: parseFloat(sp.value) || 0,
+            buyPrice: parseFloat(bp.value) || 0,
+            stock: st.value === '' ? null : (parseFloat(st.value) || 0),
+            createdAt: Date.now()
           });
-          nn.value = bp.value = sp.value = '';
           await reload();
           viewProducts();
         }
-      }, 'ပစ္စည်း ထည့်မည်');
+      }, 'ပစ္စည်းအသစ် သိမ်းမည်');
 
       app.append(
         h('div', { class: 'card' },
-          h('b', {}, 'ပစ္စည်းအသစ် ထည့်ရန်'),
-          nn,
-          h('div', { class: 'row' }, nc, nu),
-          no2,
-          h('div', { class: 'row' }, bp, sp),
-          addBtn
+          h('b', {}, 'ပစ္စည်းစာရင်း အသစ်ထည့်ရန်'),
+          nm,
+          h('div', { class: 'row' }, ct, un),
+          h('div', { class: 'row' }, sp, bp),
+          st, addBtn
         ),
         msg,
         h('div', { class: 'card' },
           h('b', {}, 'ပစ္စည်းစာရင်း (' + products.length + ')'),
-          ...products.map(p => h('div', { class: 'li', style: 'flex-wrap:wrap' },
-            h('span', {},
-              p.name,
-              p.o2type ? h('span', { class: 'tag b' }, o2Label(p.o2type)) : '',
-              h('br'),
-              h('small', {}, p.cat + ' · Buy: ' + (p.buyPrice ? money(p.buyPrice) : '-') + ' · Sell: ' + (p.sellPrice ? money(p.sellPrice) : '-'))
-            ),
-            h('button', {
-              class: 'n',
-              onclick: async () => {
-                const v = parseFloat(await uiPrompt(p.name + ' Buy Price အသစ် (ယခင်ရောင်းပြီးသား costAtSale မပြောင်းပါ)', p.buyPrice || '', 'number'));
-                if (isNaN(v) || v < 0) return;
-                await put('products', { ...p, buyPrice: v });
-                await reload();
-                viewProducts();
-              }
-            }, 'Buy Price ပြင်')
-          ))
+          ...products.map(p => {
+            const curSt = stockOf(p);
+            return h('div', { class: 'li', style: 'flex-wrap:wrap' },
+              h('span', {},
+                h('b', {}, p.name), ' (' + p.unit + ')',
+                p.o2type ? h('span', { class: 'tag b' }, o2Label(p.o2type)) : '',
+                p.gas ? h('span', { class: 'tag' }, 'Gas: ' + p.gas) : '',
+                h('br'),
+                h('small', {}, 'ရောင်း: ' + money(p.sellPrice) + ' · ဝယ်(COGS): ' + money(p.buyPrice) + (curSt !== null ? ' · လက်ကျန်: ' + curSt : ''))
+              ),
+              h('button', {
+                class: 'n',
+                onclick: async () => {
+                  const nSell = parseFloat(await uiPrompt(p.name + ' ရောင်းဈေး အသစ်', p.sellPrice || 0, 'number'));
+                  if (isNaN(nSell)) return;
+                  const nBuy = parseFloat(await uiPrompt(p.name + ' ဝယ်ဈေး (COGS) အသစ် (ယခင်အရောင်းများ မပြောင်းပါ)', p.buyPrice || 0, 'number'));
+                  if (isNaN(nBuy)) return;
+                  await put('products', { ...p, sellPrice: nSell, buyPrice: nBuy });
+                  await reload();
+                  viewProducts();
+                }
+              }, 'ဈေးပြင်')
+            );
+          })
         )
       );
     }
 
     // =========================================================================
-    // 11. VIEW 3: GAS စာရင်း (RESTORED FAMILIAR V23 GAS RECONCILIATION & DUAL SLOTS)
+    // 11. VIEW 3: GAS စာရင်းချုပ် (EXACT TABLET SCREENSHOT LAYOUT & WORKFLOW)
     // =========================================================================
+    let gasRecDate = dkey(Date.now());
+
     function viewGas() {
       const app = $('#app');
       app.replaceChildren();
       const msg = h('div');
-      const gInfo = gasInventorySummary();
-      const gStock = gasStockViss();
-      const todayKey = dkey(Date.now());
-      const [t0, t1] = dbounds(todayKey);
 
-      const prevClose = gasEv.filter(e => e.type === 'gas_close' && e.date < todayKey).sort((a, b) => b.date.localeCompare(a.date))[0];
-      const todayOb = gasEv.filter(e => e.type === 'gas_ob' && e.date === todayKey).sort((a, b) => b.at - a.at)[0];
-      const openViss = todayOb ? Number(todayOb.viss) : (prevClose ? Number(prevClose.groundViss) : 0);
+      const rec = gasDayReconcile(gasRecDate);
+      const gs = rec.gStock;
+      const openCnt = gs.openCyls.length;
+      const diffSign = rec.variance >= 0 ? ('+' + r2(rec.variance)) : String(r2(rec.variance));
 
-      const inTodayViss = gasEv
-        .filter(e => (e.type === 'recv' || e.type === 'eswap') && !e.voided && e.at >= t0 && e.at <= t1)
-        .reduce((a, e) => a + (Number.isFinite(e.actualViss) ? e.actualViss : ((e.qty || 0) * (AGENTS[agOf(e)] || { viss: 28.5 }).viss)), 0);
-      const buyBackTodayViss = gasEv
-        .filter(e => e.type === 'gas_ret' && !e.voided && e.at >= t0 && e.at <= t1)
-        .reduce((a, e) => a + (Number(e.viss) || 0), 0);
-      let soldTodayViss = 0;
-      sales.forEach(s => {
-        if (!s.voided && !s.hist && s.at >= t0 && s.at <= t1) {
-          s.lines.forEach(l => { if (l.gasViss > 0) soldTodayViss += (Number(l.gasViss) || 0); });
-        }
-      });
-
-      const bookViss = openViss + inTodayViss + buyBackTodayViss - soldTodayViss;
-      const groundViss = gStock.totalGroundV;
-      const diffViss = groundViss - bookViss;
-
-      const reconcileCard = h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
-        h('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px' },
-          h('b', { style: 'font-size:16px' }, 'Gas စာရင်းချုပ် (' + todayKey + ')'),
+      // Card 1: Main Gas Stock (ပိဿာလက်ကျန် စုစုပေါင်း) — matches screenshot 1000005172
+      const mainGasCard = h('div', { class: 'card' },
+        h('div', { style: 'font-weight:700;font-size:15px;color:var(--grey-dark)' }, 'Main Gas Stock (ပိဿာလက်ကျန် စုစုပေါင်း)'),
+        h('div', { class: 'gas-big' }, r2(gs.totalGroundV) + ' ပိဿာ'),
+        h('div', { style: 'font-size:12.5px;color:var(--mut);margin-bottom:8px' },
+          'အပြည့် ' + gs.totalFullCnt + ' လုံး · လက်ကျန်အိုး (လ/က) ' + openCnt + ' လုံး · အခွံ ' + gs.totalEmptyCnt + ' လုံး' +
+          (gs.buyBackRemV > 0 ? (' · Buy-Back ' + r2(gs.buyBackRemV) + ' viss') : '') +
+          ' · Diff ' + diffSign + ' viss'
+        ),
+        ...AG_LIST.map(ag => h('div', { class: 'li' },
+          h('span', { style: 'font-weight:600' }, AGENTS[ag].label),
+          h('span', { style: 'font-weight:700' },
+            'အပြည့် ', h('span', { style: 'color:var(--ok)' }, gs.fullByAg[ag] || 0),
+            ' · လ/က ', h('span', { style: 'color:var(--org)' }, gs.openByAg[ag] || 0),
+            ' · အခွံ ', h('span', {}, gs.emptyByAg[ag] || 0)
+          )
+        )),
+        h('button', {
+          class: 'buyback-btn',
+          onclick: async () => {
+            const dk = dkey(Date.now());
+            if (!(await guardMonthUnlocked(dk, 'Gas Buy-Back (gasret)'))) return;
+            const v = parseFloat(await uiPrompt('ဖောက်သည်ထံမှ ပြန်ဝယ်/အမ်းယူသည့် Gas ပိဿာ (Viss)', '', 'number'));
+            if (!(v > 0)) return;
+            const cost = parseFloat(await uiPrompt('အမှန်တကယ် ပေးချေလိုက်သော Buy-Back ငွေပမာဏ (ကျပ် — သီးခြား Cost Basis ဖြစ်သိမ်းမည်)', '', 'number'));
+            if (!(cost >= 0)) return;
+            const ch = await uiPrompt('ငွေပေးချေသည့် Channel: 1=ငွေသား 2=KPay 3=Wave 4=AyA', '1', 'number');
+            const pm = { '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' }[String(ch || '').trim()] || 'cash';
+            await add('gasEv', {
+              id: uuid(), at: Date.now(), type: 'gas_ret',
+              viss: v, buyBackCost: cost, buyBackRatePerViss: cost / v, m: pm, voided: false
+            });
+            await reload();
+            viewGas();
+            note(msg, '✓ Gas Buy-Back ' + r2(v) + ' viss (' + money(cost) + ' · ' + PAY[pm] + ') မှတ်တမ်းတင်ပြီးပါပြီ။', true);
+          }
+        }, '↩ Gas လက်ကျန်ပြန်ဝယ် / အမ်းငွေ မှတ်မည်'),
+        h('div', { class: 'row', style: 'margin-top:8px' },
           h('button', {
             class: 'n',
-            style: 'padding:4px 8px;font-size:12px',
             onclick: async () => {
-              if (!(await guardMonthUnlocked(todayKey, 'Gas Opening Balance'))) return;
-              const v = parseFloat(await uiPrompt('မနက်ဖွင့် ပိဿာလက်ကျန် (Opening Viss)', openViss, 'number'));
-              if (isNaN(v) || v < 0) return;
-              await add('gasEv', { id: uuid(), at: Date.now(), type: 'gas_ob', date: todayKey, viss: v });
+              const dk = dkey(Date.now());
+              if (!(await guardMonthUnlocked(dk, 'Gas Supplier Intake'))) return;
+              const ch = await uiPrompt('Gas Supplier အဝင် 1=TT Gas (28.5) 2=NGN (28.5) 3=Easy Gas (30)', '1', 'number');
+              const ag = { '1': 'TT Gas', '2': 'NGN', '3': 'Easy Gas' }[String(ch || '').trim()];
+              if (!ag) return;
+              const q = parseInt(await uiPrompt(ag + ' အဝင် အိုးအရေအတွက် (Cylinders)', '1', 'number'), 10);
+              if (!(q > 0)) return;
+              const nom = r2(q * capOf(ag));
+              const act = parseFloat(await uiPrompt('လက်တွေ့ ကတ္တားချိန် စုစုပေါင်း ပိဿာ (Nominal: ' + nom + ' viss)', nom, 'number'));
+              if (!(act > 0)) return;
+              const cost = parseFloat(await uiPrompt('Supplier ပေးချေရမည့် ကျသင့်ငွေ စုစုပေါင်း (ကျပ်)', '', 'number'));
+              if (!(cost >= 0)) return;
+              const payCh = await uiPrompt('ငွေပေးချေမှု Channel (0=အကြွေး/နောက်မှရှင်း, 1=ငွေသား, 2=KPay, 3=Wave, 4=AyA)', '1', 'number');
+              const pm = { '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' }[String(payCh || '').trim()] || null;
+              const shortV = Math.max(r2(nom - act), 0);
+              const varCost = shortV > 0 ? r2((cost / nom) * shortV) : 0;
+              const now = Date.now();
+              await run(['gasCyl', 'gasEv'], 'readwrite', t => {
+                const cOs = t.objectStore('gasCyl');
+                for (let i = 0; i < q; i++) cOs.add({ id: uuid(), agent: ag, state: 'full', role: null, receivedAt: now });
+                t.objectStore('gasEv').add({
+                  id: uuid(), at: now, type: 'recv', agent: ag, qty: q,
+                  nominalViss: nom, actualViss: act, shortageViss: shortV,
+                  varianceCostMmk: varCost, cost, m: pm, voided: false
+                });
+              });
               await reload();
               viewGas();
             }
-          }, 'မနက်ဖွင့် ပိဿာပြင်')
-        ),
-        h('div', { class: 'li' }, h('span', {}, 'မနက်ဖွင့် လက်ကျန် (Opening)'), h('b', {}, r2(openViss) + ' viss')),
-        h('div', { class: 'li' }, h('span', {}, '+ ယနေ့ အဝင် (Actual Received)'), h('span', { style: 'color:var(--ok)' }, '+' + r2(inTodayViss) + ' viss')),
-        buyBackTodayViss > 0 ? h('div', { class: 'li' }, h('span', {}, '+ ယနေ့ Buy-Back ပြန်ဝယ်'), h('span', { style: 'color:var(--ok)' }, '+' + r2(buyBackTodayViss) + ' viss')) : '',
-        h('div', { class: 'li' }, h('span', {}, '− ယနေ့ အရောင်းထွက် (Sales)'), h('span', { style: 'color:var(--red)' }, '−' + r2(soldTodayViss) + ' viss')),
-        h('div', { class: 'li', style: 'background:#F3F4F6;padding:6px' }, h('b', {}, '= စာရင်းကျန် (Book Stock)'), h('b', {}, r2(bookViss) + ' viss')),
-        h('div', { class: 'li' }, h('span', {}, 'ဆိုင်ရှိ အမှန်လက်ကျန် (Ground: Full ' + r2(gStock.fullV) + ' + Open ' + r2(gStock.partV) + (gStock.buyBackV > 0 ? ' + BuyBack ' + r2(gStock.buyBackV) : '') + ')'), h('b', {}, r2(groundViss) + ' viss')),
-        h('div', { class: 'li', style: 'border-top:2px solid var(--grey-dark)' },
-          h('b', {}, 'ကွာဟချက် (Ground − Book)'),
-          h('b', { style: 'color:' + (Math.abs(diffViss) > 0.2 ? 'var(--red)' : 'var(--ok)') }, (diffViss >= 0 ? '+' : '') + r2(diffViss) + ' viss')
-        ),
-        h('button', {
-          class: 'n',
-          style: 'width:100%;margin-top:8px',
-          onclick: () => {
-            const linesTxt = ['AUNG Gas Solutions — Gas အော်ဒါမှာရန် (' + todayKey + ')'];
-            Object.keys(AGENTS).forEach(ag => {
-              const c = agentCounts(ag);
-              linesTxt.push('• ' + ag + ': အပြည့် ' + c.full + ' လုံး | အခွံ ' + c.emp + ' လုံး');
-            });
-            const txt = linesTxt.join('\n');
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).catch(() => {});
-            note(msg, 'Viber / SMS အော်ဒါစာသား Copy ကူးပြီးပါပြီ−\n' + txt, true);
-          }
-        }, '📋 Viber / SMS အော်ဒါစာသား Copy ကူးမည်')
+          }, '+ Gas အဝင် (Supplier Intake)'),
+          h('button', {
+            class: 'n',
+            onclick: async () => {
+              const dk = dkey(Date.now());
+              if (!(await guardMonthUnlocked(dk, 'Set Gas Stock Baseline'))) return;
+              const ch = await uiPrompt('လက်ရှိ အပြည့်အိုး (Full) ပြင်မည့် Supplier:\n1=TT Gas 2=NGN 3=Easy Gas', '1', 'number');
+              const ag = { '1': 'TT Gas', '2': 'NGN', '3': 'Easy Gas' }[String(ch || '').trim()];
+              if (!ag) return;
+              const fullCnt = parseInt(await uiPrompt(ag + ' လက်ရှိ အပြည့်အိုး (Full) အရေအတွက်', gs.fullByAg[ag] || 0, 'number'), 10);
+              if (isNaN(fullCnt) || fullCnt < 0) return;
+              const empCnt = parseInt(await uiPrompt(ag + ' လက်ရှိ အခွံ (Empty) အရေအတွက်', gs.emptyByAg[ag] || 0, 'number'), 10);
+              if (isNaN(empCnt) || empCnt < 0) return;
+              const now = Date.now();
+              await run(['gasCyl'], 'readwrite', t => {
+                const cOs = t.objectStore('gasCyl');
+                gasCyl.filter(c => agOf(c) === ag && (c.state === 'full' || c.state === 'empty')).forEach(c => cOs.delete(c.id));
+                for (let i = 0; i < fullCnt; i++) cOs.add({ id: uuid(), agent: ag, state: 'full', role: null, receivedAt: now });
+                for (let i = 0; i < empCnt; i++) cOs.add({ id: uuid(), agent: ag, state: 'empty', role: null, closedAt: now });
+              });
+              await reload();
+              viewGas();
+            }
+          }, '⚙ အပြည့်/အခွံ လက်ကျန်ညှိ')
+        )
       );
 
+      // Card 2 & 3: Active Slots (ပိဿာဖြည့်အိုး & ဗူးဖြည့်အိုး) — matches screenshot 1000005172
       const slotCard = (role, title) => {
-        const c = liveRole(role);
-        const rem = c ? cylBal(c) : 0;
-        const unitStr = role === 'can' ? 'ဗူး' : 'viss';
-        return h('div', { class: 'card kpi-box ' + (role === 'viss' ? 'org' : '') },
-          h('div', { style: 'display:flex;justify-content:space-between;align-items:center' },
-            h('b', {}, title),
-            c ? h('span', { class: 'tag b' }, agOf(c)) : h('span', { class: 'tag r' }, 'မဖွင့်ရသေး')
-          ),
-          h('div', { style: 'font-size:18px;font-weight:700;margin:6px 0' }, c ? ('လက်ကျန်: ' + r2(rem) + ' ' + unitStr) : 'အိုးအသစ် ဖွင့်ရန်လိုသည်'),
+        const cur = liveRole(role);
+        const rem = cur ? cylViss(cur) : 0;
+        const estCans = Math.round(rem * (cfg.cans || 7));
+        return h('div', { class: 'card' },
+          h('div', { style: 'font-weight:700;font-size:15px' }, title + (cur ? (' · ' + agOf(cur)) : '')),
+          h('div', { class: 'gas-big' }, cur ? (r2(rem) + ' ပိဿာ') : 'မဖွင့်ရသေးပါ'),
+          cur ? h('div', { style: 'font-size:12.5px;color:var(--mut);margin-bottom:8px' }, '≈ Gas ဗူး: ' + estCans + ' ဗူး') : h('div', { style: 'margin-bottom:8px' }),
           h('div', { class: 'row' },
-            h('button', {
-              class: 'n',
-              onclick: async () => {
-                if (!(await guardMonthUnlocked(todayKey, 'Open/Swap Cylinder'))) return;
-                const ans = await askSwap(role, title + ' — အိုးအသစ်ဖွင့်မည်');
-                if (!ans) return;
-                const cnt = agentCounts(ans.agent);
-                if (cnt.full <= 0) return note(msg, ans.agent + ' အပြည့်အိုး လက်ကျန် (Full) မရှိပါ။');
-                const now = Date.now();
-                await run('gasEv', 'readwrite', t => {
-                  if (c && !ans.keepOld) t.objectStore('gasEv').put({ ...c, closed: true, closedAt: now });
-                  t.objectStore('gasEv').add({ id: uuid(), at: now, type: 'cyl', role, agent: ans.agent, cap: AGENTS[ans.agent].viss, closed: false, adj: 0 });
-                });
-                await reload();
-                viewGas();
-              }
-            }, c ? 'အိုးလဲ / အသစ်ဖွင့်' : 'အိုးဖွင့်မည်'),
-            c ? h('button', {
-              class: 'n',
-              onclick: async () => {
-                if (!(await guardMonthUnlocked(todayKey, 'Scale Weight Adjust'))) return;
-                const act = parseFloat(await uiPrompt('ကတ္တားပေါ်မှ အမှန်တကယ် လက်ကျန် (' + unitStr + ')', r2(rem), 'number'));
-                if (isNaN(act) || act < 0) return;
-                const delta = act - rem;
-                await put('gasEv', { ...c, adj: (Number(c.adj) || 0) + delta });
-                await reload();
-                viewGas();
-              }
-            }, '⚖ လက်ကျန်ချိန်ညှိ (Weigh)') : ''
+            h('button', { class: 'o', style: 'margin-top:0', onclick: () => askSwap(role) }, 'အိုးလဲမည်'),
+            h('button', { class: 'n', onclick: () => weighB(role) }, 'လက်ကျန်ချိန်မည်')
           )
         );
       };
 
-      const agSel = h('select', {}, Object.keys(AGENTS).map(k => h('option', { value: k }, k + ' (Nominal ' + AGENTS[k].viss + ' viss)')));
-      const evTypeSel = h('select', {},
-        h('option', { value: 'recv' }, 'အပြည့်အိုး အဝင် (Full Received)'),
-        h('option', { value: 'eswap' }, 'အခွံပေး အပြည့်ယူ (Supplier Swap)'),
-        h('option', { value: 'ret' }, 'အခွံချည်း ပြန်ပို့ (Empty Returned)')
-      );
-      const qtyIn = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'အိုးအရေအတွက် (Cylinders)' });
-      const actVissIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: 'Actual Weighed Viss (အမှန်တကယ် ချိန်တွယ်ရရှိ ပိဿာ)' });
-      const costIn = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'တစ်လုံး ဝယ်ဈေး (Cost per Cylinder)' });
+      // Card 4: နေ့စဉ် Gas စာရင်းတိုက်စစ်ချက် (Daily Gas Reconciliation) — matches screenshot 1000005173
+      const dateSel = h('select', { style: 'width:auto;min-width:135px;padding:6px 10px;font-weight:700' });
+      const dateOpts = new Set([dkey(Date.now()), gasRecDate]);
+      for (let i = 1; i <= 14; i++) dateOpts.add(dkey(Date.now() - i * 86400000));
+      Array.from(dateOpts).sort((a, b) => b.localeCompare(a)).forEach(dk => {
+        const opt = h('option', { value: dk }, ddisp(dk));
+        if (dk === gasRecDate) opt.selected = true;
+        dateSel.appendChild(opt);
+      });
+      dateSel.onchange = () => { gasRecDate = dateSel.value; viewGas(); };
 
-      const recvBtn = h('button', {
-        class: 'o',
-        onclick: async () => {
-          if (!(await guardMonthUnlocked(todayKey, 'Gas Supplier Event'))) return;
-          const ag = agSel.value, et = evTypeSel.value, q = parseInt(qtyIn.value, 10), c = parseFloat(costIn.value);
-          if (!(q > 0)) return note(msg, 'အိုးအရေအတွက် ထည့်ပါ။');
-          const nomV = q * AGENTS[ag].viss;
-          const actV = (et === 'ret') ? 0 : (isNaN(parseFloat(actVissIn.value)) ? nomV : parseFloat(actVissIn.value));
-          const shortV = (et === 'ret') ? 0 : Math.max(nomV - actV, 0);
-          const rate = (!isNaN(c) && c > 0) ? (c / AGENTS[ag].viss) : (gInfo.suppliers[ag].latestVissRate || 0);
-          const varMmk = shortV * rate;
-
-          await add('gasEv', {
-            id: uuid(), at: Date.now(), type: et, agent: ag, qty: q,
-            nominalViss: nomV, actualViss: actV,
-            shortageViss: shortV, varianceCostMmk: varMmk,
-            cost: isNaN(c) ? null : c,
-            auditLog: []
-          });
-          await reload();
-          viewGas();
-          note(msg, ag + ' (' + et + ') ' + q + ' လုံး မှတ်ပြီးပါပြီ' + (et !== 'ret' ? ' (Actual: ' + r2(actV) + ' viss, Shortage Variance: ' + money(varMmk) + ')' : '') + '။', true);
+      const groundBreakdown = [];
+      AG_LIST.forEach(ag => {
+        const cnt = gs.fullByAg[ag] || 0;
+        if (cnt > 0) {
+          groundBreakdown.push(h('div', { class: 'gas-row' },
+            h('span', {}, 'Full · ' + ag + ' (' + cnt + ' × ' + capOf(ag) + ' viss)'),
+            h('span', {}, r2(cnt * capOf(ag)) + ' viss')
+          ));
         }
-      }, 'Supplier Gas စာရင်း သိမ်းမည်');
+      });
+      gs.openCyls.forEach(oc => {
+        groundBreakdown.push(h('div', { class: 'gas-row' },
+          h('span', {}, 'လ/က · ' + oc.ag + ' (1 × ' + r2(oc.remV) + ' viss)'),
+          h('span', {}, r2(oc.remV) + ' viss')
+        ));
+      });
+      if (gs.buyBackRemV > 0) {
+        groundBreakdown.push(h('div', { class: 'gas-row' },
+          h('span', {}, 'Buy-Back Stock'),
+          h('span', {}, r2(gs.buyBackRemV) + ' viss')
+        ));
+      }
 
-      const buyBackBtn = h('button', {
-        class: 'n',
-        style: 'width:100%;margin-top:8px;border-color:var(--org);color:#9A3412',
-        onclick: async () => {
-          if (!(await guardMonthUnlocked(todayKey, 'Gas Buy-Back'))) return;
-          const v = parseFloat(await uiPrompt('ပြန်ဝယ်/ပြန်လက်ခံရရှိသော Gas ပိဿာ (viss)', '', 'number'));
-          if (!(v > 0)) return;
-          const bCost = parseFloat(await uiPrompt('Buy-Back ပေးချေငွေ စုစုပေါင်း (ကျပ် — သီးခြား Cost Basis ဖြင့် သိမ်းမည်)', '', 'number'));
-          if (isNaN(bCost) || bCost < 0) return;
-          const ch = await uiPrompt('Payment Channel 1=Cash 2=KPay 3=Wave 4=AyA', '1', 'number');
-          const pm = { '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' }[String(ch || '').trim()] || 'cash';
-          await add('gasEv', {
-            id: uuid(), at: Date.now(), type: 'gas_ret',
-            viss: v, buyBackCost: bCost, buyBackRatePerViss: bCost / v, m: pm
-          });
-          await reload();
-          viewGas();
-          note(msg, 'Gas Buy-Back +' + v + ' viss (Cost basis: ' + Math.round(bCost / v).toLocaleString() + '/viss, Cash out: ' + money(bCost) + ') မှတ်ပြီးပါပြီ။', true);
-        }
-      }, '↩ Gas Buy-Back (Separate Cost Basis · Not Negative Revenue)');
-
-      app.append(
-        reconcileCard,
-        slotCard('viss', 'ပိဿာဖြည့်အိုး (Bulk Viss Cylinder)'),
-        slotCard('can', 'ဗူးဖြည့်အိုး (4kg Can Refill Cylinder)'),
-        h('div', { class: 'card' },
-          h('b', {}, 'Supplier Cylinder Stock, Latest Price & Weight Variance'),
-          ...Object.values(gInfo.suppliers).map(s => {
-            const cnt = agentCounts(s.agent);
-            return h('div', { class: 'li', style: 'flex-wrap:wrap' },
-              h('span', {},
-                h('b', {}, s.agent), ' · Full: ', h('b', { style: 'color:var(--ok)' }, cnt.full), ' · Empty: ', h('b', {}, cnt.emp), h('br'),
-                h('small', {}, 'Latest: ' + (s.latestCylPrice ? (money(s.latestCylPrice) + ' (' + Math.round(s.latestVissRate).toLocaleString() + '/viss · ' + s.effectiveDate + ')') : 'Unset'))
-              ),
-              h('span', { style: 'text-align:right' },
-                h('small', {}, 'Actual: ' + r2(s.totalActualViss) + ' / Nom: ' + r2(s.totalNominalViss) + ' viss'), h('br'),
-                h('b', { style: 'color:var(--red)' }, 'Variance Expense: ' + money(s.varianceCostMmk))
-              )
-            );
-          }),
-          h('div', { class: 'li' },
-            h('span', {}, h('b', {}, 'Buy-Back Pool (gas_ret)'), h('br'), h('small', {}, 'Remaining: ' + r2(gInfo.buyBackRemainingViss) + ' / ' + r2(gInfo.buyBackTotalViss) + ' viss')),
-            h('b', {}, gInfo.buyBackRatePerViss !== null ? (Math.round(gInfo.buyBackRatePerViss).toLocaleString() + '/viss') : '-')
+      const reconcileCard = h('div', { class: 'card', style: 'border:1.5px solid var(--grey)' },
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px' },
+          h('b', { style: 'font-size:16px' }, 'နေ့စဉ် Gas စာရင်းတိုက်စစ်ချက်'),
+          dateSel
+        ),
+        h('div', { class: 'gas-row' },
+          h('span', { style: 'color:var(--mut)' }, 'Opening Balance'),
+          h('b', {}, r2(rec.openV) + ' viss')
+        ),
+        h('div', { class: 'gas-row' },
+          h('span', {}, '+ အဝင် (In) ' + rec.inSummary),
+          h('b', { style: 'color:var(--ok)' }, '+' + r2(rec.totalInV) + ' viss')
+        ),
+        h('div', { class: 'gas-row' },
+          h('span', {}, '− ယနေ့ ပိဿာအရောင်း:'),
+          h('span', {}, '−' + r2(rec.vissSold) + ' viss')
+        ),
+        h('div', { class: 'gas-row' },
+          h('span', {}, '− ဗူးအိုးလဲ ' + rec.canSwapSummary),
+          h('span', {}, '−' + r2(rec.canSwapV) + ' viss')
+        ),
+        h('div', { class: 'gas-row sep' },
+          h('span', {}, '= စာရင်းလက်ကျန် (Book Stock)'),
+          h('span', {}, r2(rec.bookStock) + ' viss')
+        ),
+        h('div', { class: 'gas-subbox' },
+          h('div', { style: 'font-weight:700;margin-bottom:4px' }, 'မြေပြင်လက်ကျန် (Ground Stock)'),
+          ...(groundBreakdown.length ? groundBreakdown : [h('small', {}, 'မြေပြင်လက်ကျန် မရှိသေးပါ')]),
+          h('div', { class: 'gas-row sep' },
+            h('span', {}, '= မြေပြင်လက်ကျန် စုစုပေါင်း:'),
+            h('span', {}, r2(rec.groundStock) + ' viss')
           )
         ),
-        h('div', { class: 'card' },
-          h('b', {}, 'Gas Supplier Intake / Swap / Empty Return'),
-          evTypeSel, agSel, qtyIn, actVissIn, costIn, recvBtn, buyBackBtn
+        h('div', { class: 'gas-row', style: 'font-size:15.5px;font-weight:800;margin:6px 0' },
+          h('span', {}, 'ကွာဟချက် (မြေပြင် − စာရင်း):'),
+          h('span', { style: 'color:' + (rec.variance < 0 ? 'var(--red)' : 'var(--ok)') }, diffSign + ' viss')
         ),
-        msg
+        h('div', { class: 'row' },
+          h('button', {
+            class: 'n',
+            onclick: async () => {
+              if (!(await guardMonthUnlocked(gasRecDate, 'Gas Opening Balance'))) return;
+              const v = parseFloat(await uiPrompt(ddisp(gasRecDate) + ' Gas Opening Balance (viss) ပြင်မည်', r2(rec.openV), 'number'));
+              if (isNaN(v) || v < 0) return;
+              await add('gasEv', { id: uuid(), at: Date.now(), type: 'gas_open', date: gasRecDate, viss: r2(v) });
+              await reload();
+              viewGas();
+            }
+          }, 'Opening ပြင်မည်'),
+          h('button', {
+            class: 'n',
+            onclick: async () => {
+              if (!(await guardMonthUnlocked(gasRecDate, 'Save Evening Gas Ground Stock'))) return;
+              await add('gasEv', { id: uuid(), at: Date.now(), type: 'gas_close', date: gasRecDate, groundViss: r2(rec.groundStock), bookViss: r2(rec.bookStock), varianceViss: r2(rec.variance) });
+              await reload();
+              viewGas();
+              note(msg, '✓ ' + ddisp(gasRecDate) + ' ညနေလက်ကျန် (' + r2(rec.groundStock) + ' viss) သိမ်းပြီးပါပြီ။', true);
+            }
+          }, 'ညနေလက်ကျန် သိမ်းမည်')
+        )
+      );
+
+      app.append(
+        msg,
+        mainGasCard,
+        slotCard('viss', 'ပိဿာဖြည့်အိုး (လက်ရှိသုံးနေတာ)'),
+        slotCard('can', 'ဗူးဖြည့်အိုး (လက်ရှိသုံးနေတာ)'),
+        reconcileCard
       );
     }
 
     // =========================================================================
-    // 12. VIEW 6: OXYGEN 4-TYPE MATRIX, MOTHER CYLINDER & FACTORY SETTLEMENTS
+    // 12. VIEW 6: OXYGEN 4-TYPE MATRIX, BACKDATED O2 ENTRY & FACTORY SETTLEMENTS
     // =========================================================================
     function viewOxy() {
       const app = $('#app');
@@ -2351,6 +2257,7 @@
       const msg = h('div');
       const mat = o2StockMatrix();
       const mStat = motherCylStatus();
+      const cl = h('datalist', { id: 'o2cl' }, customers().map(c => h('option', { value: c.name })));
 
       const matrixCard = h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
         h('b', { style: 'font-size:16px' }, 'Oxygen 4-Type Ownership & Stock Matrix'),
@@ -2378,22 +2285,199 @@
         )
       );
 
+      // Backdated / Past-Days Oxygen Entry Card (effectiveDate + createdAt audit + Month Lock check)
+      const bdDateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
+      const bdActionSel = h('select', {},
+        h('option', { value: 'counter_swap' }, '1) Counter Exchange (အခွံ ၁:၁ လဲ အရောင်း)'),
+        h('option', { value: 'site_deliver_keep' }, '2) Site Delivery — Keep (Customer Custody +)'),
+        h('option', { value: 'site_deliver_swap' }, '3) Site Delivery — Swap (Site အခွံချက်ချင်းလဲ)'),
+        h('option', { value: 'cust_empty_return' }, '4) Customer Empty Return (အခွံပြန်အပ် · Custody −)'),
+        h('option', { value: 'o2_dropoff_pickup' }, '5) O2 Drop-off (Filled – Awaiting Pickup)'),
+        h('option', { value: 'stock_set_full' }, '6) Adjust Shop Full Stock Baseline'),
+        h('option', { value: 'stock_set_empty' }, '7) Adjust Shop Empty Stock Baseline')
+      );
+      const bdTypeSel = h('select', {}, Object.values(O2_TYPES).map(t => h('option', { value: t.id }, o2Label(t.id) + ' [' + t.ownership + ']')));
+      const bdQtyIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'အရေအတွက် (Cylinders)' });
+      const bdPriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'တစ်အိုး ရောင်းဈေး (အရောင်းဖြစ်လျှင်)' });
+      const bdCustIn = h('input', { list: 'o2cl', placeholder: 'Customer / Site Name (Custody / Drop-off / Credit)' });
+      const bdPaySel = h('select', {}, Object.entries(PAY).map(([k, v]) => h('option', { value: k }, v)));
+      const bdNoteIn = h('input', { placeholder: 'မှတ်ချက် (ဥပမာ- ယမန်နေ့ ညနေပိုင်း အရောင်း/အခွံပြန်အပ်)' });
+
+      const bdSaveBtn = h('button', {
+        class: 'o',
+        onclick: async () => {
+          const effDate = bdDateIn.value || dkey(Date.now());
+          if (!(await guardMonthUnlocked(effDate, 'Backdated Oxygen Entry (' + effDate + ')'))) return;
+
+          const act = bdActionSel.value;
+          const tid = bdTypeSel.value;
+          const own = O2_TYPES[tid].ownership;
+          const q = parseInt(bdQtyIn.value, 10);
+          const unitPr = parseFloat(bdPriceIn.value) || 0;
+          const cName = bdCustIn.value.trim();
+          const pm = bdPaySel.value;
+          const noteTxt = bdNoteIn.value.trim();
+
+          if (act === 'stock_set_full' || act === 'stock_set_empty') {
+            if (isNaN(q) || q < 0) return note(msg, 'အိုးအရေအတွက် 0 သို့မဟုတ် အထက် ထည့်ပါ။');
+            const now = Date.now();
+            const effTs = effDate === dkey(now) ? now : dbounds(effDate)[0] + 43200000;
+            await add('stk', {
+              id: uuid(), movementId: uuid(), type: 'o2_stock_set',
+              o2type: tid, ownership: own, target: act === 'stock_set_full' ? 'full' : 'empty',
+              newQty: q, at: effTs, createdAt: now, note: noteTxt
+            });
+            await reload();
+            viewOxy();
+            return note(msg, '✓ ' + effDate + ' အတွက် ' + o2Label(tid) + ' Stock Baseline (' + q + ') သိမ်းပြီးပါပြီ (createdAt audit logged)။', true);
+          }
+
+          if (!(q > 0)) return note(msg, 'အိုးအရေအတွက် 1 နှင့်အထက် ထည့်ပါ။');
+          const curMat = o2StockMatrix()[tid];
+
+          if (act === 'cust_empty_return') {
+            if (!cName) return note(msg, 'အခွံပြန်အပ်သည့် Customer Name ထည့်ပါ။');
+            const held = custO2Custody(ck(cName), tid);
+            if (held < q) {
+              return note(msg, '⛔ ' + cName + ' ထံတွင် ' + o2Label(tid) + ' Custody (' + held + ' လုံး) သာရှိသဖြင့် ' + q + ' လုံး ပြန်အပ်၍ မရပါ။');
+            }
+            const now = Date.now();
+            const effTs = effDate === dkey(now) ? now : dbounds(effDate)[0] + 43200000;
+            const movId = uuid();
+            await run(['stk', 'cf'], 'readwrite', t => {
+              t.objectStore('stk').add({
+                id: uuid(), movementId: movId, saleLineId: null,
+                type: 'o2_mov', o2type: tid, ownership: own, movementType: 'cust_empty_return',
+                locationFrom: 'AT_CUSTOMER', locationTo: 'SHOP_EMPTY', qty: q,
+                at: effTs, createdAt: now, note: noteTxt
+              });
+              t.objectStore('cf').add({
+                id: uuid(), movementId: movId, type: 'o2cust',
+                cust: cName, o2type: tid, ownership: own, qtyDelta: -q,
+                at: effTs, createdAt: now, note: noteTxt
+              });
+            });
+            await reload();
+            viewOxy();
+            return note(msg, '✓ ' + effDate + ' ရက်စွဲဖြင့် ' + cName + ' ထံမှ ' + o2Label(tid) + ' အခွံ ' + q + ' လုံး ပြန်အပ်စာရင်း သိမ်းပြီးပါပြီ။', true);
+          }
+
+          if (curMat.full < q) {
+            return note(msg, '⛔ ' + o2Label(tid) + ' Full Stock (' + curMat.full + ') မလုံလောက်ပါ။');
+          }
+          if ((act === 'site_deliver_keep' || pm === 'credit' || pm === 'pending') && !cName) {
+            return note(msg, 'Customer / Site Name ထည့်ပါ။');
+          }
+
+          const now = Date.now();
+          const effTs = effDate === dkey(now) ? now : dbounds(effDate)[0] + 43200000;
+          const sId = uuid();
+          const lineId = sId + ':0';
+          const total = q * unitPr;
+          const isDrop = act === 'o2_dropoff_pickup';
+          const effPay = isDrop ? 'dropoff' : pm;
+
+          const saleRec = {
+            id: sId,
+            at: effTs,
+            createdAt: now,
+            pay: effPay,
+            parts: [{ m: effPay, a: total }],
+            cust: cName || null,
+            tag: noteTxt || null,
+            term: effPay === 'credit' ? 'next_return' : 'immediate',
+            discount: 0,
+            isO2Dropoff: isDrop,
+            pickedUpAt: null,
+            lines: [{
+              lineId, pid: null, name: o2Label(tid),
+              qty: q, unit: 'အိုး', price: unitPr, foc: unitPr === 0,
+              o2type: tid, ownership: own, o2Movement: act
+            }],
+            total,
+            voided: false,
+            rev: 1,
+            updatedAt: now,
+            deviceId: DEVICE_ID
+          };
+
+          await run(['sales', 'stk', 'cf'], 'readwrite', t => {
+            t.objectStore('sales').add(saleRec);
+            if (act === 'counter_swap' || act === 'site_deliver_swap') {
+              t.objectStore('stk').add({
+                id: uuid(), movementId: uuid(), saleLineId: lineId,
+                type: 'o2_mov', o2type: tid, ownership: own, movementType: act,
+                locationFrom: 'SHOP_FULL', locationTo: 'AT_CUSTOMER', qty: q,
+                at: effTs, createdAt: now, note: noteTxt
+              });
+              t.objectStore('stk').add({
+                id: uuid(), movementId: uuid(), saleLineId: lineId,
+                type: 'o2_mov', o2type: tid, ownership: own, movementType: act,
+                locationFrom: 'AT_CUSTOMER', locationTo: 'SHOP_EMPTY', qty: q,
+                at: effTs, createdAt: now, note: noteTxt
+              });
+            } else {
+              t.objectStore('stk').add({
+                id: uuid(), movementId: uuid(), saleLineId: lineId,
+                type: 'o2_mov', o2type: tid, ownership: own, movementType: act,
+                locationFrom: 'SHOP_FULL', locationTo: 'AT_CUSTOMER', qty: q,
+                at: effTs, createdAt: now, note: noteTxt
+              });
+              if (cName && !isDrop) {
+                t.objectStore('cf').add({
+                  id: uuid(), movementId: uuid(), saleLineId: lineId,
+                  type: 'o2cust', cust: cName, o2type: tid, ownership: own, qtyDelta: q,
+                  at: effTs, createdAt: now, note: noteTxt
+                });
+              }
+            }
+          });
+
+          await reload();
+          viewOxy();
+          note(msg, '✓ ' + effDate + ' ရက်စွဲဖြင့် ' + o2Label(tid) + ' (' + act + ') စာရင်း သိမ်းပြီးပါပြီ (createdAt: ' + sd_(now) + ')။', true);
+        }
+      }, 'အရင်ရက် / ယနေ့ Oxygen စာရင်း သိမ်းမည်');
+
+      const backdateO2Card = h('div', { class: 'card kpi-box org' },
+        h('b', { style: 'font-size:15.5px' }, '📅 Oxygen အရင်ရက်စာရင်း ထည့်ရန် (Backdated / Past-Days O2 Entry)'),
+        h('small', {}, 'ရွေးချယ်ထားသော Effective Date (at) ဖြင့် P&L နှင့် Stock တွင် တွက်ချက်ပြီး၊ စက်ရိုက်သွင်းချိန် (createdAt) ကို Audit အဖြစ် သီးခြားသိမ်းဆည်းပါမည်။'),
+        h('div', { class: 'row' },
+          h('div', {}, h('label', {}, 'ဖြစ်ပွားသည့် ရက်စွဲ (Effective Date)'), bdDateIn),
+          h('div', {}, h('label', {}, 'လုပ်ဆောင်ချက် (Movement)'), bdActionSel)
+        ),
+        h('div', { class: 'row' },
+          h('div', {}, h('label', {}, 'Oxygen Type (၄ မျိုး)'), bdTypeSel),
+          h('div', {}, h('label', {}, 'အရေအတွက် (Qty)'), bdQtyIn)
+        ),
+        h('div', { class: 'row' },
+          h('div', {}, h('label', {}, 'တစ်အိုး ရောင်းဈေး (Price)'), bdPriceIn),
+          h('div', {}, h('label', {}, 'ငွေပေးချေမှု (Payment)'), bdPaySel)
+        ),
+        h('label', {}, 'Customer / Site Name'), bdCustIn,
+        h('label', {}, 'မှတ်ချက် (Note)'), bdNoteIn,
+        bdSaveBtn
+      );
+
+      const facDateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
       const tSel = h('select', {}, Object.values(O2_TYPES).map(t => h('option', { value: t.id }, o2Label(t.id) + ' (' + money((cfg.o2Rates && cfg.o2Rates[t.id]) || t.defaultRate) + ')')));
       const qIn = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'အရေအတွက် (Cylinders)' });
 
       const sendEmptyBtn = h('button', {
         class: 'n',
         onclick: async () => {
-          const dk = dkey(Date.now());
+          const dk = facDateIn.value || dkey(Date.now());
           if (!(await guardMonthUnlocked(dk, 'Send Empty to Factory'))) return;
           const tid = tSel.value, q = parseInt(qIn.value, 10);
           if (!(q > 0)) return note(msg, 'အရေအတွက် ထည့်ပါ။');
           if (mat[tid].empty < q) return note(msg, '⛔ Shop Empty Stock (' + mat[tid].empty + ') မလုံလောက်ပါ။');
+          const now = Date.now();
+          const effTs = dk === dkey(now) ? now : dbounds(dk)[0] + 43200000;
           await add('stk', {
             id: uuid(), movementId: uuid(), saleLineId: null,
             type: 'o2_fac_send', o2type: tid, ownership: O2_TYPES[tid].ownership,
             movementType: 'fac_send_empty', locationFrom: 'SHOP_EMPTY', locationTo: 'AT_FACTORY',
-            qty: q, at: Date.now()
+            qty: q, at: effTs, createdAt: now
           });
           await reload();
           viewOxy();
@@ -2402,17 +2486,19 @@
 
       const recvFullBtn = h('button', {
         onclick: async () => {
-          const dk = dkey(Date.now());
+          const dk = facDateIn.value || dkey(Date.now());
           if (!(await guardMonthUnlocked(dk, 'Receive Full from Factory'))) return;
           const tid = tSel.value, q = parseInt(qIn.value, 10);
           if (!(q > 0)) return note(msg, 'အရေအတွက် ထည့်ပါ။');
           const rt = (cfg.o2Rates && cfg.o2Rates[tid]) || O2_TYPES[tid].defaultRate;
+          const now = Date.now();
+          const effTs = dk === dkey(now) ? now : dbounds(dk)[0] + 43200000;
           await add('stk', {
             id: uuid(), movementId: uuid(), saleLineId: null,
             type: 'o2_fac_recv', o2type: tid, ownership: O2_TYPES[tid].ownership,
             movementType: 'fac_recv_full', locationFrom: 'AT_FACTORY', locationTo: 'SHOP_FULL',
             qty: q, rate: rt, totalAmt: q * rt, paidAmt: 0, status: 'unpaid', settlementRefs: [],
-            at: Date.now()
+            at: effTs, createdAt: now
           });
           await reload();
           viewOxy();
@@ -2564,9 +2650,11 @@
         )
       );
 
-      app.append(msg, matrixCard,
+      app.append(
+        cl, msg, matrixCard, backdateO2Card,
         h('div', { class: 'card' },
           h('b', {}, 'Factory O2 Stock & Payable: ' + money(totPayable)),
+          h('label', {}, 'Factory Intake/Send Date (အရင်ရက်ရွေးနိုင်သည်)'), facDateIn,
           tSel, qIn,
           h('div', { class: 'row', style: 'margin-top:8px' }, sendEmptyBtn, recvFullBtn),
           settleBtn
@@ -2712,13 +2800,13 @@
 
       const stmtRows = [];
       sales.filter(s => !s.voided && ck(s.cust) === custKey).forEach(s => {
-        stmtRows.push({ at: s.at, kind: 'Invoice (' + termLabel(s.term) + ')', amt: s.total, paid: 0, note: s.lines.map(l => l.name + '×' + l.qty).join(', ') });
+        stmtRows.push({ at: s.at, kind: 'Invoice (' + termLabel(s.term) + ')', amt: s.total, paid: 0, note: s.lines.map(l => l.name + '×' + l.qty).join(', '), saleObj: s });
       });
       cf.filter(e => !e.voided && e.type === 'cyl_compensation' && ck(e.cust) === custKey).forEach(e => {
-        stmtRows.push({ at: e.at, kind: 'Lost Cyl Comp', amt: e.amt, paid: 0, note: o2Label(e.o2type) });
+        stmtRows.push({ at: e.at, kind: 'Lost Cyl Comp', amt: e.amt, paid: 0, note: o2Label(e.o2type), saleObj: null });
       });
       pays.filter(p => !p.voided && ck(p.cust) === custKey).forEach(p => {
-        stmtRows.push({ at: p.at, kind: p.isCompensation ? 'Comp Paid' : 'Payment', amt: 0, paid: p.amount, note: PAY[p.method] || p.method });
+        stmtRows.push({ at: p.at, kind: p.isCompensation ? 'Comp Paid' : 'Payment', amt: 0, paid: p.amount, note: PAY[p.method] || p.method, saleObj: null });
       });
       stmtRows.sort((a, b) => a.at - b.at);
 
@@ -2739,12 +2827,13 @@
           h('b', {}, 'Customer Statement'),
           h('div', { class: 'tbl-wrap' },
             h('table', { class: 'st-tbl' },
-              h('thead', {}, h('tr', {}, h('th', {}, 'Date'), h('th', {}, 'Type'), h('th', {}, 'Charge'), h('th', {}, 'Paid'))),
+              h('thead', {}, h('tr', {}, h('th', {}, 'Date'), h('th', {}, 'Type'), h('th', {}, 'Charge'), h('th', {}, 'Paid'), h('th', {}, 'Print'))),
               h('tbody', {}, ...stmtRows.map(r => h('tr', {},
                 h('td', {}, dkey(r.at)),
                 h('td', {}, r.kind + (r.note ? ' · ' + r.note : '')),
                 h('td', {}, r.amt ? r.amt.toLocaleString() : '-'),
-                h('td', {}, r.paid ? r.paid.toLocaleString() : '-')
+                h('td', {}, r.paid ? r.paid.toLocaleString() : '-'),
+                h('td', {}, r.saleObj ? h('button', { class: 'n', style: 'padding:2px 6px;font-size:11.5px;min-height:28px', onclick: () => printSale(r.saleObj) }, '🖨') : '-')
               )))
             )
           )
@@ -2753,7 +2842,7 @@
     }
 
     // =========================================================================
-    // 14. VIEW 7: စရိတ် & ယာယီချေးငွေ (RESTORED V23 TEMPORARY LOANS + EXPENSES)
+    // 14. VIEW 7: စရိတ် & ယာယီချေးငွေ (TEMPORARY LOANS + EXPENSES)
     // =========================================================================
     function viewExp() {
       const app = $('#app');
@@ -2834,7 +2923,6 @@
           )
         );
       } else {
-        // Sub-tab 2: ယာယီချေးငွေ (Temporary Loans — Borrow & Lend, Repay, Due Date, Void)
         const dirSel = h('select', {},
           h('option', { value: 'borrow' }, 'ယာယီချေးယူ (ငွေဝင် · Cash/Wallet Inflow)'),
           h('option', { value: 'lend' }, 'ယာယီထုတ်ချေး (ငွေထွက် · Cash/Wallet Outflow)')
@@ -2942,7 +3030,7 @@
     }
 
     // =========================================================================
-    // 15. VIEW 8: စာရင်းချုပ် (RESTORED V23 ငွေစာရင်းချုပ်, SALES, EXP, DEBTS, DAYCLOSE + V24 P&L)
+    // 15. VIEW 8: စာရင်းချုပ် (V23 ငွေစာရင်းချုပ်, SALES, EXP, DEBTS, DAYCLOSE + V24 P&L)
     // =========================================================================
     function viewReport(k) {
       k = k || dkey(Date.now());
@@ -3042,9 +3130,12 @@
         const totRev = daySales.reduce((acc, s) => acc + s.total, 0);
         bodyCard = h('div', { class: 'card' },
           h('b', {}, 'အရောင်းစာရင်း (' + k + ') · စုစုပေါင်း: ' + money(totRev)),
-          ...(daySales.length ? daySales.map(s => h('div', { class: 'li' },
+          ...(daySales.length ? daySales.map(s => h('div', { class: 'li', style: 'flex-wrap:wrap' },
             h('span', {}, tm(s.pickedUpAt || s.at) + ' · ' + s.lines.map(l => l.name + '×' + l.qty).join(', ') + ' (' + payLabel(s) + ')'),
-            h('b', {}, money(s.total))
+            h('span', { style: 'display:flex;align-items:center;gap:6px' },
+              h('b', {}, money(s.total)),
+              h('button', { class: 'n', style: 'padding:3px 8px;font-size:12px;min-height:30px', onclick: () => printSale(s) }, '🖨 Print')
+            )
           )) : [h('div', {}, h('small', {}, 'အရောင်းမှတ်တမ်း မရှိပါ။'))])
         );
       } else if (repTab === 3) {
@@ -3164,7 +3255,6 @@
         msg
       );
     }
-    let repMonthly = false;
 
     // =========================================================================
     // 16. VIEW 5: DATA, BACKUP/CONFLICTS, GET LATEST VERSION & GOLDEN DATASET
