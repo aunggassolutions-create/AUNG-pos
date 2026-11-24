@@ -1,15 +1,14 @@
 // AUNG Gas Solutions POS v24 — Development Branch Service Worker
-// Branch: feature/aung-pos-v24
-const CACHE_NAME = 'aung-gas-pos-v24-dev';
+// Branch: feature/aung-pos-v24 (Isolated from production main)
+
+const CACHE_NAME = 'aung-gas-pos-v24-s1';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png'
+  './manifest.webmanifest'
 ];
 
-// Install: pre-cache core offline assets and activate immediately
+// Install: Pre-cache core offline PWA shell and activate immediately
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -18,7 +17,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: purge outdated caches while preserving active dev cache
+// Activate: Clean up outdated caches while keeping the active v24 cache
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
@@ -31,7 +30,14 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: cache-first with network fallback, plus offline index.html fallback for navigation
+// Message: Support immediate activation from "နောက်ဆုံး version ကိုယူရန်"
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// Fetch: Cache-first for offline reliability, falling back to './index.html' on navigation
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
@@ -41,12 +47,20 @@ self.addEventListener('fetch', event => {
         if (cachedResponse) {
           return cachedResponse;
         }
-        return fetch(event.request).catch(() => {
-          if (event.request.mode === 'navigate' || (event.request.headers.get('accept') || '').includes('text/html')) {
-            return cache.match('./index.html');
-          }
-          return undefined;
-        });
+        return fetch(event.request)
+          .then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => {
+            const acceptHeader = event.request.headers.get('accept') || '';
+            if (event.request.mode === 'navigate' || acceptHeader.includes('text/html')) {
+              return cache.match('./index.html');
+            }
+            return undefined;
+          });
       })
     )
   );

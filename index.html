@@ -3,32 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0B1F3A">
+  <meta name="theme-color" content="#374151">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
   <title>AUNG Gas Solutions POS v24</title>
   <style>
     :root {
-      --navy: #0B1F3A;
-      --navy-2: #15345E;
-      --org: #E86A12;
-      --org-soft: #FFE9D6;
-      --bg: #F4F6F9;
+      /* Grey & Orange Brand Palette */
+      --grey: #374151;
+      --grey-dark: #1F2937;
+      --grey-mid: #4B5563;
+      --org: #EA580C;
+      --org-soft: #FFEDD5;
+      --bg: #F3F4F6;
       --card: #FFFFFF;
-      --ln: #D5DBE4;
-      --red: #B3261E;
-      --red-bg: #FDE7E5;
-      --ok: #1B7F3B;
-      --ok-bg: #E3F4E8;
-      --warn-bg: #FFF3E8;
-      --info-bg: #E8EEF7;
-      --mut: #5A6B82;
+      --ln: #D1D5DB;
+      --red: #B91C1C;
+      --red-bg: #FEE2E2;
+      --ok: #15803D;
+      --ok-bg: #DCFCE7;
+      --warn-bg: #FFF7ED;
+      --info-bg: #E5E7EB;
+      --mut: #6B7280;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       background: var(--bg);
-      color: var(--navy);
+      color: var(--grey-dark);
       font-family: "Noto Sans Myanmar", "Myanmar Text", system-ui, -apple-system, sans-serif;
       line-height: 1.65;
       padding-bottom: 84px;
@@ -47,7 +49,7 @@
     }
     #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
     header {
-      background: var(--navy);
+      background: var(--grey-dark);
       color: #FFFFFF;
       padding: 10px 14px;
       display: flex;
@@ -57,13 +59,14 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      box-shadow: 0 2px 6px rgba(11, 31, 58, .15);
+      border-bottom: 3px solid var(--org);
+      box-shadow: 0 2px 6px rgba(31, 41, 55, .18);
     }
-    header .brand { font-size: 16.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    header .brand span.acc { color: #FF8B38; }
+    header .brand { font-size: 16.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    header .brand span.acc { color: #FB923C; }
     header .hdr-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .lang-btn {
-      background: var(--navy-2);
+      background: var(--grey-mid);
       color: #FFFFFF;
       border: 1px solid rgba(255,255,255,.35);
       border-radius: 6px;
@@ -87,16 +90,16 @@
       max-width: 780px;
       margin: auto;
     }
-    h2 { font-size: 16.5px; margin: 14px 0 6px; color: var(--navy); }
+    h2 { font-size: 16.5px; margin: 14px 0 6px; color: var(--grey-dark); }
     .card {
       background: var(--card);
       border: 1px solid var(--ln);
       border-radius: 10px;
       padding: 12px;
       margin-bottom: 10px;
-      box-shadow: 0 1px 2px rgba(11, 31, 58, .04);
+      box-shadow: 0 1px 2px rgba(31, 41, 55, .05);
     }
-    .card.kpi-box { border-left: 4px solid var(--navy); }
+    .card.kpi-box { border-left: 4px solid var(--grey); }
     .card.kpi-box.org { border-left-color: var(--org); }
     .card.kpi-box.ok { border-left-color: var(--ok); }
     .card.kpi-box.warn { border-left-color: var(--red); }
@@ -109,8 +112,8 @@
     @media (min-width: 640px) {
       .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    .kpi-val { font-size: 16px; font-weight: 700; margin-top: 2px; word-break: break-word; }
-    label { display: block; font-size: 13.5px; margin-top: 8px; font-weight: 600; color: var(--navy); }
+    .kpi-val { font-size: 15.5px; font-weight: 700; margin-top: 2px; word-break: break-word; }
+    label { display: block; font-size: 13.5px; margin-top: 8px; font-weight: 600; color: var(--grey-dark); }
     input, select, textarea {
       width: 100%;
       padding: 10px;
@@ -118,7 +121,7 @@
       border: 1px solid var(--ln);
       border-radius: 8px;
       background: #FFFFFF;
-      color: var(--navy);
+      color: var(--grey-dark);
       margin-top: 3px;
     }
     .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
@@ -128,7 +131,7 @@
       border: 0;
       border-radius: 8px;
       padding: 10px 14px;
-      background: var(--navy);
+      background: var(--grey);
       color: #FFFFFF;
       cursor: pointer;
       min-height: 42px;
@@ -152,16 +155,16 @@
     }
     button.n {
       background: #FFFFFF;
-      color: var(--navy);
-      border: 1px solid var(--navy);
+      color: var(--grey-dark);
+      border: 1px solid var(--grey);
       padding: 7px 11px;
       font-size: 13px;
       min-height: 36px;
     }
     button:disabled { opacity: .5; cursor: not-allowed; }
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-    .sub-tabs button { flex: 1 1 100px; padding: 8px 6px; font-size: 12.5px; min-height: 38px; background: #E8EEF7; color: var(--navy); border: 1px solid var(--ln); }
-    .sub-tabs button.on { background: var(--navy); color: #FFFFFF; border-color: var(--navy); }
+    .sub-tabs button { flex: 1 1 95px; padding: 8px 6px; font-size: 12.5px; min-height: 38px; background: #E5E7EB; color: var(--grey-dark); border: 1px solid var(--ln); }
+    .sub-tabs button.on { background: var(--grey-dark); color: #FFFFFF; border-color: var(--grey-dark); }
     .li {
       display: flex;
       justify-content: space-between;
@@ -174,17 +177,17 @@
     .tag {
       font-size: 11.5px;
       background: var(--org-soft);
-      color: #9A4308;
+      color: #9A3412;
       border-radius: 5px;
       padding: 1px 6px;
       margin-left: 5px;
       display: inline-block;
       font-weight: 700;
     }
-    .tag.b { background: var(--info-bg); color: var(--navy); }
+    .tag.b { background: var(--info-bg); color: var(--grey-dark); }
     .tag.g { background: var(--ok-bg); color: var(--ok); }
     .tag.r { background: var(--red-bg); color: var(--red); }
-    .tot { font-size: 19px; font-weight: 700; text-align: right; margin-top: 8px; color: var(--navy); }
+    .tot { font-size: 19px; font-weight: 700; text-align: right; margin-top: 8px; color: var(--grey-dark); }
     .void { text-decoration: line-through; opacity: .55; }
     .msg {
       padding: 10px 12px;
@@ -194,10 +197,10 @@
       white-space: pre-line;
       font-weight: 600;
     }
-    .msg.e { background: var(--red-bg); color: var(--red); border: 1px solid #F5C2BE; }
-    .msg.k { background: var(--ok-bg); color: var(--ok); border: 1px solid #B7E4C4; }
-    .msg.w { background: var(--warn-bg); color: #9A4308; border: 1px solid #F7CFA8; }
-    .msg.i { background: var(--info-bg); color: var(--navy); border: 1px solid #C6D5EC; }
+    .msg.e { background: var(--red-bg); color: var(--red); border: 1px solid #FCA5A5; }
+    .msg.k { background: var(--ok-bg); color: var(--ok); border: 1px solid #86EFAC; }
+    .msg.w { background: var(--warn-bg); color: #9A3412; border: 1px solid #FDBA74; }
+    .msg.i { background: var(--info-bg); color: var(--grey-dark); border: 1px solid #D1D5DB; }
     nav {
       position: fixed;
       bottom: 0;
@@ -205,7 +208,7 @@
       right: 0;
       display: flex;
       background: #FFFFFF;
-      border-top: 2px solid var(--navy);
+      border-top: 2px solid var(--grey-dark);
       overflow-x: auto;
       z-index: 25;
     }
@@ -213,7 +216,7 @@
       flex: 0 0 auto;
       min-width: 22vw;
       background: #FFFFFF;
-      color: var(--navy);
+      color: var(--grey-dark);
       border-radius: 0;
       padding: 12px 8px;
       font-weight: 700;
@@ -230,11 +233,11 @@
     .st-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 6px; }
     .st-tbl th, .st-tbl td { border: 1px solid var(--ln); padding: 6px; text-align: right; }
     .st-tbl th:first-child, .st-tbl td:first-child { text-align: left; }
-    .st-tbl th { background: #F4F6F9; color: var(--navy); font-weight: 700; }
+    .st-tbl th { background: #F3F4F6; color: var(--grey-dark); font-weight: 700; }
     .modal-bg {
       position: fixed;
       inset: 0;
-      background: rgba(11, 31, 58, .68);
+      background: rgba(31, 41, 55, .72);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -273,13 +276,13 @@
 </head>
 <body>
 
-  <!-- Branded Splash Screen -->
+  <!-- Branded Splash Screen (Grey & Orange) -->
   <div id="splash">
     <svg width="260" height="125" viewBox="0 0 320 155" xmlns="http://www.w3.org/2000/svg" aria-label="AUNG Gas Solutions">
-      <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#0B1F3A">AUNG</text>
-      <text x="160" y="135" text-anchor="middle" font-family="'Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="-0.5" fill="#E86A12">Gas Solutions</text>
+      <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#374151">AUNG</text>
+      <text x="160" y="135" text-anchor="middle" font-family="'Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="-0.5" fill="#EA580C">Gas Solutions</text>
     </svg>
-    <small style="margin-top:6px;font-weight:700;color:#0B1F3A">POS v24 · feature/aung-pos-v24</small>
+    <small style="margin-top:6px;font-weight:700;color:#374151">POS v24 · feature/aung-pos-v24</small>
   </div>
 
   <!-- Top Navigation & Language Switcher -->
@@ -296,16 +299,16 @@
 
   <main id="app"></main>
 
-  <!-- 8-Tab Bottom Bar Preserving v23 Flow + P&L + Test Suite -->
+  <!-- 8-Tab Bottom Navigation Preserving v23 Flow + Temporary Loans + P&L -->
   <nav>
     <button id="t1">ရောင်းချမှု</button>
     <button id="t2">ပစ္စည်းများ</button>
     <button id="t3">Gas စာရင်း</button>
     <button id="t6">Oxygen</button>
     <button id="t4">ဖောက်သည်</button>
-    <button id="t7">စရိတ်/ငွေဝင်</button>
+    <button id="t7">စရိတ်/ချေးငွေ</button>
     <button id="t8">စာရင်းချုပ်</button>
-    <button id="t5">ဒေတာ & Test</button>
+    <button id="t5">ဒေတာ</button>
   </nav>
 
   <div id="rcpt"></div>
@@ -319,7 +322,7 @@
     // =========================================================================
     // 1. CONSTANTS, LANGUAGE DICTIONARY & DOMAIN CONFIGURATION
     // =========================================================================
-    const APP_VER = 'v24.1.0-feature/aung-pos-v24';
+    const APP_VER = 'POS v24 (feature/aung-pos-v24)';
     const DEVICE_ID = (() => {
       try {
         let id = localStorage.getItem('aung_pos_dev_id');
@@ -334,14 +337,14 @@
     let lang = 'my';
     const I18N = {
       my: {
-        tabs: ['ရောင်းချမှု', 'ပစ္စည်းများ', 'Gas စာရင်း', 'Oxygen', 'ဖောက်သည်', 'စရိတ်/ငွေဝင်', 'စာရင်းချုပ်', 'ဒေတာ & Test'],
+        tabs: ['ရောင်းချမှု', 'ပစ္စည်းများ', 'Gas စာရင်း', 'Oxygen', 'ဖောက်သည်', 'စရိတ်/ချေးငွေ', 'စာရင်းချုပ်', 'ဒေတာ'],
         online: 'အွန်လိုင်း',
         offline: 'အော့ဖ်လိုင်း',
         lastBackup: 'နောက်ဆုံး Backup အချိန်',
         neverBackup: 'မရှိသေးပါ (Backup ဖိုင်ထုတ်ရန် လိုအပ်ပါသည်)'
       },
       en: {
-        tabs: ['Sales', 'Products', 'Gas Ledger', 'Oxygen', 'Customers', 'Cash & Exp', 'Summary & P&L', 'Data & Tests'],
+        tabs: ['Sales', 'Products', 'Gas Ledger', 'Oxygen', 'Customers', 'Exp / Loans', 'Summary & P&L', 'Data & Update'],
         online: 'Online',
         offline: 'Offline',
         lastBackup: 'Last Backup Time',
@@ -518,6 +521,7 @@
     let restoreConflicts = [];
     let products = [], sales = [], lines = [], saleId = uuid(), saving = false, tab = 1;
     let repTab = 1; // 1=ငွေစာရင်းချုပ် (v23), 2=အရောင်း, 3=စရိတ်, 4=ကြွေး, 5=စာရင်းပိတ် (v23), 6=P&L (v24)
+    let expSubTab = 1; // 1=စရိတ်များ (Expenses), 2=ယာယီချေးငွေ (Temporary Loans)
 
     const getMeta = k => {
       const found = metaList.find(x => x.k === k);
@@ -1110,6 +1114,27 @@
       return { pruned: oldArcs.length, blockedReason: null };
     }
 
+    // Get Latest Version (Unregisters Service Workers, Clears Caches, Reloads App while keeping IndexedDB intact)
+    async function getLatestVersion() {
+      const ok = await uiConfirm(
+        '🔄 နောက်ဆုံး version ကိုယူရန် (Get Latest Version)\n\nService Worker နှင့် Browser Cache အဟောင်းများကို ရှင်းလင်းပြီး App ကို နောက်ဆုံး Version ဖြင့် ပြန်လည်ဖွင့်ပေးပါမည်။\n\n(စာရင်းဇယား Data များ လုံးဝ မပျောက်ပါ)',
+        'နောက်ဆုံး Version ယူမည်',
+        'မလုပ်ပါ'
+      );
+      if (!ok) return;
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) await r.unregister();
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          for (const k of keys) await caches.delete(k);
+        }
+      } catch (e) {}
+      location.reload();
+    }
+
     // =========================================================================
     // 6. RELOAD & IDEMPOTENT V24 MIGRATION
     // =========================================================================
@@ -1258,7 +1283,6 @@
       });
     }
 
-    // Supplier-specific latest purchase price, applied date, weight variance & buy-back cost basis
     function gasInventorySummary() {
       const suppliers = {};
       Object.keys(AGENTS).forEach(ag => {
@@ -1313,7 +1337,7 @@
     }
 
     // =========================================================================
-    // 8. OXYGEN 4-TYPE MATRIX, CUSTOMERS, RENT & P&L CALCULATIONS
+    // 8. OXYGEN 4-TYPE MATRIX, CUSTOMERS, RENT, LOANS & P&L CALCULATIONS
     // =========================================================================
     const payOf = s => s.pay || 'cash';
     const lineGrossAmt = l => l.foc ? 0 : (Number(l.qty) || 0) * (Number(l.price) || 0);
@@ -1565,6 +1589,7 @@
       };
     }
 
+    // Cash Flow (v23 flows() preserved + Temporary Loans inflow/outflow + repayment)
     function flows(method, a, b) {
       let i = 0, o = 0;
       sales.forEach(s => {
@@ -1587,8 +1612,14 @@
         i += (Number(e.amt) || 0);
       });
       cf.filter(e => e.type === 'loan' && !e.voided).forEach(e => {
-        if (e.m === method && e.at >= a && e.at <= b) i += (Number(e.amt) || 0);
-        if (e.repaid && e.repaidMethod === method && e.repaidAt >= a && e.repaidAt <= b) o += (Number(e.amt) || 0);
+        const dir = e.dir || 'borrow';
+        if (dir === 'borrow') {
+          if (e.m === method && e.at >= a && e.at <= b) i += (Number(e.amt) || 0);
+          if (e.repaid && e.repaidMethod === method && e.repaidAt >= a && e.repaidAt <= b) o += (Number(e.amt) || 0);
+        } else {
+          if (e.m === method && e.at >= a && e.at <= b) o += (Number(e.amt) || 0);
+          if (e.repaid && e.repaidMethod === method && e.repaidAt >= a && e.repaidAt <= b) i += (Number(e.amt) || 0);
+        }
       });
       cf.filter(e => e.type === 'xfer' && !e.voided).forEach(e => {
         if (e.to === method && e.at >= a && e.at <= b) i += (Number(e.amt) || 0);
@@ -1617,8 +1648,35 @@
     }
 
     // =========================================================================
-    // 9. VIEW 1: OWNER DASHBOARD & SINGLE-SCREEN CHECKOUT (V23 WORKFLOW)
+    // 9. VIEW 1: OWNER DASHBOARD, LOAN BANNER & SINGLE-SCREEN CHECKOUT
     // =========================================================================
+    function loanBanner() {
+      const activeLoans = cf.filter(e => e.type === 'loan' && !e.voided && !e.repaid);
+      if (!activeLoans.length) return '';
+      const todayKey = dkey(Date.now());
+      const dueOrOver = activeLoans.filter(e => e.dueDate && e.dueDate <= todayKey);
+      const borrowSum = activeLoans.filter(e => (e.dir || 'borrow') === 'borrow').reduce((a, e) => a + (Number(e.amt) || 0), 0);
+      const lendSum = activeLoans.filter(e => e.dir === 'lend').reduce((a, e) => a + (Number(e.amt) || 0), 0);
+
+      return h('div', { class: 'card', style: 'border:2px solid ' + (dueOrOver.length ? 'var(--red)' : 'var(--org)') + ';background:' + (dueOrOver.length ? '#FFF8F7' : '#FFFDF9') },
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px' },
+          h('div', {},
+            h('b', { style: 'color:' + (dueOrOver.length ? 'var(--red)' : '#9A3412') },
+              '💰 ယာယီချေးငွေ လက်ကျန် (' + activeLoans.length + ' ခု)' + (dueOrOver.length ? ' · ⚠ ရက်စေ့/ကျော်လွန် ' + dueOrOver.length + ' ခု' : '')
+            ),
+            h('div', { style: 'font-size:13px' },
+              (borrowSum > 0 ? 'ချေးယူထားငွေ: ' + money(borrowSum) + '  ' : '') +
+              (lendSum > 0 ? 'ထုတ်ချေးထားငွေ: ' + money(lendSum) : '')
+            )
+          ),
+          h('button', {
+            class: 'n',
+            onclick: () => { expSubTab = 2; show(7); }
+          }, 'ကြည့်ရန် / ပြန်ဆပ်မည်')
+        )
+      );
+    }
+
     function buildOwnerDashboard() {
       const todayKey = dkey(Date.now());
       const pnlToday = calcPnL(todayKey, false);
@@ -1630,7 +1688,7 @@
       const lastAuto = getMeta('last_auto_backup_at');
       const w = cfg.dashWidgets || {};
 
-      return h('div', { class: 'card', style: 'border:2px solid var(--navy)' },
+      return h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
         h('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px' },
           h('b', { style: 'font-size:15.5px' }, 'Owner Dashboard — ' + todayKey),
           h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
@@ -1903,7 +1961,7 @@
 
       const awaitingPickup = sales.filter(isO2DropoffAwaitingPickup);
       const dropCard = awaitingPickup.length ? h('div', { class: 'card', style: 'border:2px solid var(--org);background:#FFFDF9' },
-        h('b', { style: 'color:#9A4308' }, 'Filled – Awaiting Pickup (' + awaitingPickup.length + ')'),
+        h('b', { style: 'color:#9A3412' }, 'Filled – Awaiting Pickup (' + awaitingPickup.length + ')'),
         h('small', {}, 'ဖောက်သည် လာယူချိန်မှသာ Revenue & COGS အသိအမှတ်ပြုမည်။ ငွေချေမှုကို သီးခြားမှတ်တမ်းတင်မည်။'),
         ...awaitingPickup.map(s => h('div', { class: 'li', style: 'flex-wrap:wrap' },
           h('span', {}, (s.cust || s.tag || 'Drop-off') + ' · ' + s.lines.map(l => l.name + '×' + l.qty).join(', ') + ' · ' + money(s.total)),
@@ -1979,6 +2037,7 @@
       app.append(
         dl, cl,
         buildOwnerDashboard(),
+        loanBanner(),
         dropCard,
         h('div', { class: 'card' },
           h('label', {}, 'ပစ္စည်း (Product)'), pn,
@@ -1989,7 +2048,7 @@
           ),
           h('label', {}, 'ဈေးနှုန်း (Price)'), pr,
           h('label', { style: 'display:flex;align-items:center' }, foc, 'FOC (Revenue = 0, COGS တွက်မည်)'),
-          h('button', { class: 'o', style: 'background:var(--navy)', onclick: addLine }, 'စာရင်းထဲ ထည့်မည် (Add)')
+          h('button', { class: 'o', style: 'background:var(--grey)', onclick: addLine }, 'စာရင်းထဲ ထည့်မည် (Add)')
         ),
         msg,
         h('div', { class: 'card' },
@@ -2088,7 +2147,6 @@
       const todayKey = dkey(Date.now());
       const [t0, t1] = dbounds(todayKey);
 
-      // 1. Familiar v23 Gas စာရင်းချုပ် (Book vs. Ground Viss Reconciliation Card)
       const prevClose = gasEv.filter(e => e.type === 'gas_close' && e.date < todayKey).sort((a, b) => b.date.localeCompare(a.date))[0];
       const todayOb = gasEv.filter(e => e.type === 'gas_ob' && e.date === todayKey).sort((a, b) => b.at - a.at)[0];
       const openViss = todayOb ? Number(todayOb.viss) : (prevClose ? Number(prevClose.groundViss) : 0);
@@ -2110,7 +2168,7 @@
       const groundViss = gStock.totalGroundV;
       const diffViss = groundViss - bookViss;
 
-      const reconcileCard = h('div', { class: 'card', style: 'border:2px solid var(--navy)' },
+      const reconcileCard = h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
         h('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px' },
           h('b', { style: 'font-size:16px' }, 'Gas စာရင်းချုပ် (' + todayKey + ')'),
           h('button', {
@@ -2130,9 +2188,9 @@
         h('div', { class: 'li' }, h('span', {}, '+ ယနေ့ အဝင် (Actual Received)'), h('span', { style: 'color:var(--ok)' }, '+' + r2(inTodayViss) + ' viss')),
         buyBackTodayViss > 0 ? h('div', { class: 'li' }, h('span', {}, '+ ယနေ့ Buy-Back ပြန်ဝယ်'), h('span', { style: 'color:var(--ok)' }, '+' + r2(buyBackTodayViss) + ' viss')) : '',
         h('div', { class: 'li' }, h('span', {}, '− ယနေ့ အရောင်းထွက် (Sales)'), h('span', { style: 'color:var(--red)' }, '−' + r2(soldTodayViss) + ' viss')),
-        h('div', { class: 'li', style: 'background:#F4F6F9;padding:6px' }, h('b', {}, '= စာရင်းကျန် (Book Stock)'), h('b', {}, r2(bookViss) + ' viss')),
-        h('div', { class: 'li' }, h('span', {}, 'ဆိုင်ရှိ အမှန်လက်ကျန် (Ground Stock: Full ' + r2(gStock.fullV) + ' + Open ' + r2(gStock.partV) + (gStock.buyBackV > 0 ? ' + BuyBack ' + r2(gStock.buyBackV) : '') + ')'), h('b', {}, r2(groundViss) + ' viss')),
-        h('div', { class: 'li', style: 'border-top:2px solid var(--navy)' },
+        h('div', { class: 'li', style: 'background:#F3F4F6;padding:6px' }, h('b', {}, '= စာရင်းကျန် (Book Stock)'), h('b', {}, r2(bookViss) + ' viss')),
+        h('div', { class: 'li' }, h('span', {}, 'ဆိုင်ရှိ အမှန်လက်ကျန် (Ground: Full ' + r2(gStock.fullV) + ' + Open ' + r2(gStock.partV) + (gStock.buyBackV > 0 ? ' + BuyBack ' + r2(gStock.buyBackV) : '') + ')'), h('b', {}, r2(groundViss) + ' viss')),
+        h('div', { class: 'li', style: 'border-top:2px solid var(--grey-dark)' },
           h('b', {}, 'ကွာဟချက် (Ground − Book)'),
           h('b', { style: 'color:' + (Math.abs(diffViss) > 0.2 ? 'var(--red)' : 'var(--ok)') }, (diffViss >= 0 ? '+' : '') + r2(diffViss) + ' viss')
         ),
@@ -2152,7 +2210,6 @@
         }, '📋 Viber / SMS အော်ဒါစာသား Copy ကူးမည်')
       );
 
-      // 2. Familiar v23 Dual Active Slots (ပိဿာဖြည့်အိုး vs ဗူးဖြည့်အိုး)
       const slotCard = (role, title) => {
         const c = liveRole(role);
         const rem = c ? cylBal(c) : 0;
@@ -2197,7 +2254,6 @@
         );
       };
 
-      // 3. Supplier Cylinder Inventory & Intake with Actual Weight & Buy-Back
       const agSel = h('select', {}, Object.keys(AGENTS).map(k => h('option', { value: k }, k + ' (Nominal ' + AGENTS[k].viss + ' viss)')));
       const evTypeSel = h('select', {},
         h('option', { value: 'recv' }, 'အပြည့်အိုး အဝင် (Full Received)'),
@@ -2235,7 +2291,7 @@
 
       const buyBackBtn = h('button', {
         class: 'n',
-        style: 'width:100%;margin-top:8px;border-color:var(--org);color:#9A4308',
+        style: 'width:100%;margin-top:8px;border-color:var(--org);color:#9A3412',
         onclick: async () => {
           if (!(await guardMonthUnlocked(todayKey, 'Gas Buy-Back'))) return;
           const v = parseFloat(await uiPrompt('ပြန်ဝယ်/ပြန်လက်ခံရရှိသော Gas ပိဿာ (viss)', '', 'number'));
@@ -2296,7 +2352,7 @@
       const mat = o2StockMatrix();
       const mStat = motherCylStatus();
 
-      const matrixCard = h('div', { class: 'card', style: 'border:2px solid var(--navy)' },
+      const matrixCard = h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
         h('b', { style: 'font-size:16px' }, 'Oxygen 4-Type Ownership & Stock Matrix'),
         h('div', { class: 'tbl-wrap' },
           h('table', { class: 'st-tbl' },
@@ -2697,55 +2753,192 @@
     }
 
     // =========================================================================
-    // 14. VIEW 7: EXPENSES & TRANSFERS
+    // 14. VIEW 7: စရိတ် & ယာယီချေးငွေ (RESTORED V23 TEMPORARY LOANS + EXPENSES)
     // =========================================================================
     function viewExp() {
       const app = $('#app');
       app.replaceChildren();
       const msg = h('div');
-      const cs = h('select', {}, Object.entries(ECAT).map(([k, v]) => h('option', { value: k }, v)));
-      const ds = h('input', { placeholder: 'အကြောင်းအရာ (Description)' });
-      const am = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'ငွေပမာဏ (Amount)' });
-      const ms = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
-      const dIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
 
-      const saveBtn = h('button', {
-        class: 'o',
-        onclick: async () => {
-          const dk = dIn.value || dkey(Date.now());
-          if (!(await guardMonthUnlocked(dk, 'Expense Entry'))) return;
-          const desc = ds.value.trim(), val = parseFloat(am.value);
-          if (!desc || !(val > 0)) return note(msg, 'အကြောင်းအရာနှင့် ပမာဏ ထည့်ပါ။');
-          const isRent = cs.value === 'rent';
-          if (isRent) {
-            const ym = dk.slice(0, 7);
-            const exists = cf.some(e => e.type === 'exp' && !e.voided && e.isRentPayment && dkey(e.at).startsWith(ym));
-            if (exists && !(await uiConfirm(ym + ' လအတွက် Cash Rent မှတ်တမ်း ရှိပြီးသားဖြစ်သည်။ ထပ်ထည့်မလား?'))) return;
+      const subTabs = h('div', { class: 'sub-tabs' },
+        h('button', { class: expSubTab === 1 ? 'on' : '', onclick: () => { expSubTab = 1; viewExp(); } }, 'စရိတ်များ (Expenses)'),
+        h('button', { class: expSubTab === 2 ? 'on' : '', onclick: () => { expSubTab = 2; viewExp(); } }, '💰 ယာယီချေးငွေ (Temporary Loans)')
+      );
+
+      if (expSubTab === 1) {
+        const cs = h('select', {}, Object.entries(ECAT).map(([k, v]) => h('option', { value: k }, v)));
+        const ds = h('input', { placeholder: 'အကြောင်းအရာ (Description)' });
+        const am = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'ငွေပမာဏ (Amount)' });
+        const ms = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
+        const dIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
+
+        const saveBtn = h('button', {
+          class: 'o',
+          onclick: async () => {
+            const dk = dIn.value || dkey(Date.now());
+            if (!(await guardMonthUnlocked(dk, 'Expense Entry'))) return;
+            const desc = ds.value.trim(), val = parseFloat(am.value);
+            if (!desc || !(val > 0)) return note(msg, 'အကြောင်းအရာနှင့် ပမာဏ ထည့်ပါ။');
+            const isRent = cs.value === 'rent';
+            if (isRent) {
+              const ym = dk.slice(0, 7);
+              const exists = cf.some(e => e.type === 'exp' && !e.voided && e.isRentPayment && dkey(e.at).startsWith(ym));
+              if (exists && !(await uiConfirm(ym + ' လအတွက် Cash Rent မှတ်တမ်း ရှိပြီးသားဖြစ်သည်။ ထပ်ထည့်မလား?'))) return;
+            }
+            const now = Date.now();
+            const ts = dk === dkey(now) ? now : dbounds(dk)[0] + 43200000;
+            await add('cf', { id: uuid(), at: ts, type: 'exp', cat: cs.value, desc, amt: val, m: ms.value, isRentPayment: isRent, voided: false });
+            await reload();
+            viewExp();
           }
-          const now = Date.now();
-          const ts = dk === dkey(now) ? now : dbounds(dk)[0] + 43200000;
-          await add('cf', { id: uuid(), at: ts, type: 'exp', cat: cs.value, desc, amt: val, m: ms.value, isRentPayment: isRent, voided: false });
-          await reload();
-          viewExp();
-        }
-      }, 'စရိတ် သိမ်းမည်');
+        }, 'စရိတ် သိမ်းမည်');
 
-      const xferBtn = h('button', {
-        class: 'n',
-        style: 'width:100%;margin-top:8px',
-        onclick: async () => {
-          const dk = dkey(Date.now());
-          if (!(await guardMonthUnlocked(dk, 'Internal Transfer'))) return;
-          const a = parseFloat(await uiPrompt('KPay -> Cash လွှဲမည့် ပမာဏ (ကျပ်)', '', 'number'));
-          if (!(a > 0)) return;
-          await add('cf', { id: uuid(), at: Date.now(), type: 'xfer', from: 'kpay', to: 'cash', amt: a, note: 'KPay -> Cash' });
-          await reload();
-          viewExp();
-          note(msg, 'KPay -> Cash ' + money(a) + ' လွှဲပြီးပါပြီ (Revenue/Expense မထိပါ)။', true);
-        }
-      }, '⇄ KPay → Cash Transfer');
+        const xferBtn = h('button', {
+          class: 'n',
+          style: 'width:100%;margin-top:8px',
+          onclick: async () => {
+            const dk = dkey(Date.now());
+            if (!(await guardMonthUnlocked(dk, 'Internal Transfer'))) return;
+            const a = parseFloat(await uiPrompt('KPay -> Cash လွှဲမည့် ပမာဏ (ကျပ်)', '', 'number'));
+            if (!(a > 0)) return;
+            await add('cf', { id: uuid(), at: Date.now(), type: 'xfer', from: 'kpay', to: 'cash', amt: a, note: 'KPay -> Cash' });
+            await reload();
+            viewExp();
+            note(msg, 'KPay -> Cash ' + money(a) + ' လွှဲပြီးပါပြီ (Revenue/Expense မထိပါ)။', true);
+          }
+        }, '⇄ KPay → Cash Transfer');
 
-      app.append(h('div', { class: 'card' }, h('b', {}, 'Expenses & Internal Transfers'), cs, ds, am, ms, dIn, saveBtn, xferBtn), msg);
+        const recentExps = cf.filter(e => e.type === 'exp').sort((a, b) => b.at - a.at).slice(0, 15);
+        app.append(
+          subTabs,
+          h('div', { class: 'card' }, h('b', {}, 'ဆိုင်အသုံးစရိတ် & ငွေလွှဲ'), cs, ds, am, ms, dIn, saveBtn, xferBtn),
+          msg,
+          h('div', { class: 'card' },
+            h('b', {}, 'နောက်ဆုံး စရိတ်မှတ်တမ်းများ'),
+            ...(recentExps.length ? recentExps.map(e => h('div', { class: 'li' },
+              h('span', { class: e.voided ? 'void' : '' }, dkey(e.at) + ' · ' + (ECAT[e.cat] || e.cat) + ' · ' + e.desc + ' (' + (PAY[e.m] || e.m) + ')'),
+              h('span', {},
+                h('b', { class: e.voided ? 'void' : '', style: 'color:var(--red)' }, money(e.amt)), ' ',
+                !e.voided ? h('button', {
+                  class: 'g',
+                  onclick: async () => {
+                    if (!(await guardMonthUnlocked(dkey(e.at), 'Void Expense'))) return;
+                    if (!(await requireOwnerPin('Void Expense: ' + e.desc))) return;
+                    await put('cf', { ...e, voided: true, voidedAt: Date.now() });
+                    await reload();
+                    viewExp();
+                  }
+                }, 'Void') : ''
+              )
+            )) : [h('div', {}, h('small', {}, 'စရိတ်မှတ်တမ်း မရှိသေးပါ။'))])
+          )
+        );
+      } else {
+        // Sub-tab 2: ယာယီချေးငွေ (Temporary Loans — Borrow & Lend, Repay, Due Date, Void)
+        const dirSel = h('select', {},
+          h('option', { value: 'borrow' }, 'ယာယီချေးယူ (ငွေဝင် · Cash/Wallet Inflow)'),
+          h('option', { value: 'lend' }, 'ယာယီထုတ်ချေး (ငွေထွက် · Cash/Wallet Outflow)')
+        );
+        const personIn = h('input', { placeholder: 'လူအမည် / အဖွဲ့အစည်း (Person / Source Name)' });
+        const amtIn = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'ချေးငွေ ပမာဏ (Amount)' });
+        const chSel = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
+        const dIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
+        const dueIn = h('input', { type: 'date', value: dkey(Date.now() + 7 * 86400000) });
+        const noteIn = h('input', { placeholder: 'မှတ်ချက် (Optional Note)' });
+
+        const addLoanBtn = h('button', {
+          class: 'o',
+          onclick: async () => {
+            const dk = dIn.value || dkey(Date.now());
+            if (!(await guardMonthUnlocked(dk, 'Temporary Loan Entry'))) return;
+            const person = personIn.value.trim();
+            const val = parseFloat(amtIn.value);
+            if (!person || !(val > 0)) return note(msg, 'အမည်နှင့် ချေးငွေပမာဏ ထည့်ပါ။');
+            const now = Date.now();
+            const ts = dk === dkey(now) ? now : dbounds(dk)[0] + 43200000;
+            await add('cf', {
+              id: uuid(), at: ts, type: 'loan',
+              dir: dirSel.value, person, amt: val, m: chSel.value,
+              dueDate: dueIn.value || null, note: noteIn.value.trim(),
+              repaid: false, repaidAt: null, repaidMethod: null, voided: false
+            });
+            await reload();
+            viewExp();
+            note(msg, 'ယာယီချေးငွေ မှတ်တမ်းတင်ပြီးပါပြီ (Cash Flow ထဲသာ ထည့်တွက်ပြီး P&L Revenue/Expense ထဲ မထည့်ပါ)။', true);
+          }
+        }, 'ယာယီချေးငွေ သိမ်းမည်');
+
+        const allLoans = cf.filter(e => e.type === 'loan').sort((a, b) => (a.repaid === b.repaid ? b.at - a.at : (a.repaid ? 1 : -1)));
+        const todayKey = dkey(Date.now());
+
+        app.append(
+          subTabs,
+          h('div', { class: 'card' },
+            h('b', {}, 'ယာယီချေးငွေ အသစ်မှတ်ရန်'),
+            h('label', {}, 'အမျိုးအစား (Direction)'), dirSel,
+            h('label', {}, 'အမည် (Person / Source)'), personIn,
+            h('div', { class: 'row' },
+              h('div', {}, h('label', {}, 'ပမာဏ (Amount)'), amtIn),
+              h('div', {}, h('label', {}, 'ငွေလမ်းကြောင်း (Channel)'), chSel)
+            ),
+            h('div', { class: 'row' },
+              h('div', {}, h('label', {}, 'ရက်စွဲ (Date)'), dIn),
+              h('div', {}, h('label', {}, 'ပြန်ဆပ်ရမည့်ရက် (Due Date)'), dueIn)
+            ),
+            h('label', {}, 'မှတ်ချက် (Note)'), noteIn,
+            addLoanBtn
+          ),
+          msg,
+          h('div', { class: 'card' },
+            h('b', {}, 'ယာယီချေးငွေ စာရင်းများ (' + allLoans.length + ')'),
+            ...(allLoans.length ? allLoans.map(ln => {
+              const isBorrow = (ln.dir || 'borrow') === 'borrow';
+              const isOverdue = !ln.repaid && !ln.voided && ln.dueDate && ln.dueDate < todayKey;
+              return h('div', { class: 'li', style: 'flex-wrap:wrap' },
+                h('span', { class: ln.voided ? 'void' : '' },
+                  h('b', {}, ln.person),
+                  h('span', { class: 'tag ' + (isBorrow ? 'b' : '') }, isBorrow ? 'ချေးယူ (In)' : 'ထုတ်ချေး (Out)'),
+                  ln.repaid ? h('span', { class: 'tag g' }, 'ပြန်ဆပ်ပြီး') : (isOverdue ? h('span', { class: 'tag r' }, 'ရက်ကျော်') : ''),
+                  h('br'),
+                  h('small', {},
+                    dkey(ln.at) + ' · ' + money(ln.amt) + ' (' + (PAY[ln.m] || ln.m) + ')' +
+                    (ln.dueDate ? ' · Due: ' + ln.dueDate : '') +
+                    (ln.repaid ? ' · Repaid: ' + dkey(ln.repaidAt) + ' (' + (PAY[ln.repaidMethod] || ln.repaidMethod) + ')' : '') +
+                    (ln.note ? ' · ' + ln.note : '')
+                  )
+                ),
+                !ln.voided ? h('span', { style: 'display:flex;gap:4px' },
+                  !ln.repaid ? h('button', {
+                    class: 'n',
+                    onclick: async () => {
+                      const rDate = await uiPrompt('ပြန်ဆပ်သည့် ရက်စွဲ (YYYY-MM-DD)', todayKey);
+                      if (!rDate) return;
+                      if (!(await guardMonthUnlocked(rDate, 'Repay Temporary Loan'))) return;
+                      const ch = await uiPrompt('ပြန်ဆပ်သည့် Channel 1=Cash 2=KPay 3=Wave 4=AyA', '1', 'number');
+                      const pm = { '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' }[String(ch || '').trim()] || 'cash';
+                      const now = Date.now();
+                      const rTs = rDate === dkey(now) ? now : dbounds(rDate)[0] + 43200000;
+                      await put('cf', { ...ln, repaid: true, repaidAt: rTs, repaidMethod: pm });
+                      await reload();
+                      viewExp();
+                    }
+                  }, 'ပြန်ဆပ်ပြီး (Mark Repaid)') : '',
+                  h('button', {
+                    class: 'g',
+                    onclick: async () => {
+                      if (!(await guardMonthUnlocked(dkey(ln.at), 'Void Loan'))) return;
+                      if (!(await requireOwnerPin('Void Temporary Loan: ' + ln.person))) return;
+                      await put('cf', { ...ln, voided: true, voidedAt: Date.now() });
+                      await reload();
+                      viewExp();
+                    }
+                  }, 'Void')
+                ) : ''
+              );
+            }) : [h('div', {}, h('small', {}, 'ယာယီချေးငွေ မှတ်တမ်း မရှိသေးပါ။'))])
+          )
+        );
+      }
     }
 
     // =========================================================================
@@ -2771,7 +2964,6 @@
         }
       }, locked ? ('🔓 Reopen ' + ym) : ('🔒 Hard Lock ' + ym));
 
-      // Sub-tab bar restoring v23 tabs + v24 P&L
       const subBar = h('div', { class: 'sub-tabs' },
         ...[
           [1, 'ငွေစာရင်းချုပ်'],
@@ -2789,7 +2981,6 @@
       let bodyCard = h('div');
 
       if (repTab === 1) {
-        // 1. Familiar v23 ငွေစာရင်းချုပ် (Cash / KPay / Wave / AyA Opening + Inflow - Outflow = Expected Close)
         let totOpen = 0, totIn = 0, totOut = 0, totExpClose = 0;
         const rows = MTH.map(m => {
           const op = opening(m, k) || 0;
@@ -2805,7 +2996,7 @@
           );
         });
 
-        bodyCard = h('div', { class: 'card', style: 'border:2px solid var(--navy)' },
+        bodyCard = h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
           h('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px' },
             h('b', { style: 'font-size:16px' }, 'ငွေစာရင်းချုပ် (' + k + ')'),
             h('button', {
@@ -2835,7 +3026,7 @@
               )),
               h('tbody', {},
                 ...rows,
-                h('tr', { style: 'background:#F4F6F9;font-weight:700' },
+                h('tr', { style: 'background:#F3F4F6;font-weight:700' },
                   h('td', {}, 'စုစုပေါင်း (Total)'),
                   h('td', {}, totOpen.toLocaleString()),
                   h('td', { style: 'color:var(--ok)' }, '+' + totIn.toLocaleString()),
@@ -2876,7 +3067,6 @@
           )) : [h('div', {}, h('small', {}, 'ကြွေးကျန် မရှိပါ။'))])
         );
       } else if (repTab === 5) {
-        // 5. Familiar v23 နေ့စဉ် စာရင်းပိတ် (Day Close: Physical Cash + Physical Gas Weight)
         const inputs = {};
         MTH.forEach(m => {
           const expCl = (opening(m, k) || 0) + flows(m, a, b).i - flows(m, a, b).o;
@@ -2913,7 +3103,6 @@
           closeBtn
         );
       } else {
-        // 6. V24 Daily & Monthly P&L with Rent Proration & Separate Variance Line
         const pnl = calcPnL(repMonthly ? ym : k, repMonthly);
         const setRentBtn = h('button', {
           class: 'n',
@@ -2934,7 +3123,7 @@
           }
         }, 'Rent Schedule');
 
-        bodyCard = h('div', { class: 'card', style: 'border:2px solid var(--navy)' },
+        bodyCard = h('div', { class: 'card', style: 'border:2px solid var(--grey-dark)' },
           h('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px' },
             h('b', { style: 'font-size:16px' }, 'Profit & Loss (' + (repMonthly ? 'Monthly: ' + ym : 'Daily: ' + k) + ')'),
             h('div', { style: 'display:flex;gap:4px' },
@@ -2952,14 +3141,14 @@
           h('div', { class: 'li' }, h('span', {}, '− Oxygen COGS (4-Type / Mother Cyl)'), h('span', {}, money(pnl.o2Cogs))),
           h('div', { class: 'li' }, h('span', {}, '− Products COGS (costAtSale)'), h('span', {}, money(pnl.prodCogs))),
           h('div', { class: 'li' }, h('span', {}, '− FOC COGS'), h('span', {}, money(pnl.focCogs))),
-          h('div', { class: 'li', style: 'background:#F4F6F9;padding:6px' }, h('b', {}, '= Gross Profit'), h('b', {}, money(pnl.grossProfit))),
+          h('div', { class: 'li', style: 'background:#F3F4F6;padding:6px' }, h('b', {}, '= Gross Profit'), h('b', {}, money(pnl.grossProfit))),
           h('div', { class: 'li' }, h('span', {}, '− Operating Expenses (Excl. Savings, Cash Rent & O2 Settlement)'), h('span', {}, money(pnl.opEx))),
           h('div', { class: 'li' }, h('span', {}, '− Supplier Weight Variance Expense'), h('span', { style: 'color:var(--red)' }, money(pnl.weightVarianceExpense))),
           h('div', { class: 'li' },
             h('span', {}, '− Allocated Rent (' + (repMonthly ? 'Full Month' : (pnl.rentInfo.daysInMonth ? (money(pnl.rentInfo.monthlyRent) + ' ÷ ' + pnl.rentInfo.daysInMonth + 'd') : 'Unconfirmed')) + ')'),
             h('span', {}, money(pnl.rentInfo.allocatedRent))
           ),
-          h('div', { class: 'li', style: 'border-top:2px solid var(--navy);padding-top:8px' },
+          h('div', { class: 'li', style: 'border-top:2px solid var(--grey-dark);padding-top:8px' },
             h('b', { style: 'font-size:16px' }, '= Net Profit / (Loss)'),
             h('b', { style: 'font-size:19px;color:' + (pnl.netProfit < 0 ? 'var(--red)' : 'var(--ok)') }, money(pnl.netProfit))
           )
@@ -2978,7 +3167,7 @@
     let repMonthly = false;
 
     // =========================================================================
-    // 16. VIEW 5: DATA, BACKUP/CONFLICTS, CSV/PDF EXPORT & GOLDEN DATASET
+    // 16. VIEW 5: DATA, BACKUP/CONFLICTS, GET LATEST VERSION & GOLDEN DATASET
     // =========================================================================
     function csvDebts() {
       const rows = [['Customer', 'Phone', 'Trade Balance', 'Cyl Comp Balance']];
@@ -3011,6 +3200,12 @@
           )
         ))
       ) : '';
+
+      const latestVerBtn = h('button', {
+        class: 'o',
+        style: 'background:var(--grey-dark);margin-top:6px',
+        onclick: getLatestVersion
+      }, '🔄 နောက်ဆုံး version ကိုယူရန် (Get Latest Version)');
 
       const expBtn = h('button', {
         class: 'o',
@@ -3048,7 +3243,7 @@
       const gdOut = h('div');
       const runGdBtn = h('button', {
         class: 'o',
-        style: 'background:var(--navy)',
+        style: 'background:var(--grey)',
         onclick: async () => {
           runGdBtn.disabled = true;
           const prevDb = db, prevName = activeDbName;
@@ -3080,8 +3275,9 @@
       app.append(
         conflictCard,
         h('div', { class: 'card' },
-          h('b', {}, 'Backup, Restore & Reports (' + APP_VER + ')'), h('br'),
+          h('b', {}, 'App Version & Backup (' + APP_VER + ')'), h('br'),
           h('small', {}, 'DB: ' + activeDbName + ' (Schema v4) · Last Backup: ' + (bk ? sd_(bk) : 'None')),
+          latestVerBtn,
           expBtn,
           h('label', {}, 'Restore JSON Backup'), fi,
           h('div', { class: 'row', style: 'margin-top:8px' },
