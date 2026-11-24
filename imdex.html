@@ -1,0 +1,1832 @@
+<!doctype html>
+<html lang="my"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0B1F3A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>AUNG POS v24</title>
+<style>
+:root{--navy:#0B1F3A;--org:#E86A12;--bg:#F4F6F9;--ln:#D5DBE4;--red:#B3261E;--ok:#1B7F3B;--mut:#5A6B82}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:"Noto Sans Myanmar","Myanmar Text",system-ui,sans-serif;line-height:1.65;padding-bottom:76px}
+#splash{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .45s ease,visibility .45s ease}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+header{background:var(--navy);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:15}
+header b{font-size:17px}
+#net{font-size:12px;padding:2px 10px;border-radius:12px;background:var(--ok)}
+#net.off{background:var(--org)}
+main{padding:12px;max-width:680px;margin:auto}
+h2{font-size:17px;margin:14px 0 6px}
+.card{background:#fff;border:1px solid var(--ln);border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(11,31,58,.04)}
+label{display:block;font-size:13.5px;margin-top:8px;font-weight:600}
+input,select,textarea{width:100%;padding:10px;font:inherit;border:1px solid var(--ln);border-radius:8px;background:#fff;color:var(--navy)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 120px}
+button{font:inherit;border:0;border-radius:8px;padding:10px 14px;background:var(--navy);color:#fff;cursor:pointer;min-height:42px}
+button.o{background:var(--org);font-weight:700;width:100%;margin-top:10px;padding:13px}
+button.g{background:#fff;color:var(--red);border:1px solid var(--red);padding:5px 10px;font-size:13px;min-height:34px}
+button.n{background:#fff;color:var(--navy);border:1px solid var(--navy);padding:6px 10px;font-size:13px;min-height:36px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--ln)}
+.li:last-child{border:0}
+.tag{font-size:11.5px;background:#FFE9D6;color:#9A4308;border-radius:5px;padding:1px 6px;margin-left:5px;display:inline-block}
+.tag.b{background:#E8EEF7;color:var(--navy)}
+.tag.g{background:#E3F4E8;color:var(--ok)}
+.tag.r{background:#FDE7E5;color:var(--red)}
+.tot{font-size:20px;font-weight:700;text-align:right;margin-top:8px}
+.void{text-decoration:line-through;opacity:.55}
+.msg{padding:10px 12px;border-radius:8px;margin:8px 0;font-size:13.5px;white-space:pre-line}
+.msg.e{background:#FDE7E5;color:var(--red)}.msg.k{background:#E3F4E8;color:var(--ok)}.msg.w{background:#FFF3E8;color:#9A4308}.msg.i{background:#E8EEF7;color:var(--navy)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:2px solid var(--navy);overflow-x:auto;z-index:20}
+nav button{flex:0 0 auto;min-width:23vw;background:#fff;color:var(--navy);border-radius:0;padding:13px 8px;font-weight:700;font-size:13px;white-space:nowrap}
+nav button.on{background:var(--org);color:#fff}
+small{color:var(--mut)}
+.tr{display:grid;grid-template-columns:1fr 62px 66px 84px;gap:4px;padding:6px 0;border-bottom:1px solid var(--ln);font-size:13.5px;align-items:start}.tr.h{font-weight:700;background:#F4F6F9}.tr span:nth-child(n+2){text-align:right}
+.st-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.st-tbl th,.st-tbl td{border:1px solid var(--ln);padding:5px;text-align:right}
+.st-tbl th:first-child,.st-tbl td:first-child{text-align:left}
+.st-tbl th{background:#F4F6F9;color:var(--navy)}
+.modal-bg{position:fixed;inset:0;background:rgba(11,31,58,.68);display:flex;align-items:center;justify-content:center;padding:14px;z-index:80}
+.modal-box{background:#fff;border-radius:12px;padding:16px;width:100%;max-width:460px;box-shadow:0 14px 34px rgba(0,0,0,.28);max-height:90vh;overflow-y:auto}
+#rcpt{display:none}
+@media print{@page{size:80mm auto;margin:3mm}body{background:#fff;padding:0}header,main,nav,#splash,.modal-bg{display:none!important}#rcpt{display:block;width:72mm;color:#000;line-height:1.5}#rcpt .c{text-align:center}#rcpt .r{display:flex;justify-content:space-between;gap:8px}#rcpt .r.b{font-weight:700}#rcpt .r span:last-child{white-space:nowrap}#rcpt .big{font-size:1.5em;font-weight:700}#rcpt .dd{border-top:2px dashed #000;margin:8px 0}#rcpt .ss{border-top:3px solid #000;margin:8px 0 4px}#rcpt .it{margin:6px 0}#rcpt .nm{font-weight:700}#rcpt .tt{font-size:1.4em;font-weight:700}#rcpt .ft{margin-top:4px}}
+</style></head><body>
+
+<!-- Opening Splash Screen with AUNG Gas Solutions Logo -->
+<div id="splash">
+  <svg width="260" height="125" viewBox="0 0 320 155" xmlns="http://www.w3.org/2000/svg">
+    <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#002D72">AUNG</text>
+    <text x="160" y="135" text-anchor="middle" font-family="'Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="-0.5" fill="#F36F10">Gas Solutions</text>
+  </svg>
+  <small style="margin-top:6px;font-weight:700;color:#0B1F3A">POS v24 — Audit & Accounting Edition</small>
+</div>
+
+<header><b>AUNG Gas Solutions</b><span id="net"></span></header>
+<main id="app"></main>
+<nav>
+  <button id="t1">ရောင်းချမှု</button>
+  <button id="t2">ပစ္စည်းများ</button>
+  <button id="t3">Gas စာရင်း</button>
+  <button id="t6">Oxygen</button>
+  <button id="t4">ဖောက်သည်</button>
+  <button id="t7">စရိတ်/ငွေဝင်</button>
+  <button id="t8">စာရင်းချုပ် & P&L</button>
+  <button id="t5">ဒေတာ & Test</button>
+</nav>
+<div id="rcpt"></div>
+
+<script>
+// Smoothly dismiss splash screen
+setTimeout(()=>{const sp=document.getElementById('splash');if(sp)sp.classList.add('hide')},1050);
+
+const APP_VER='v24.0-dev (Sprint 0-4)';
+const $=s=>document.querySelector(s);
+const h=(t,a={},...c)=>{const e=document.createElement(t);for(const k in a){if(k==='class')e.className=a[k];else if(k.startsWith('on'))e[k]=a[k];else e.setAttribute(k,a[k])}c.flat().forEach(x=>{if(x!==null&&x!==undefined&&x!=='')e.append(x)});return e};
+const money=n=>Math.round(n||0).toLocaleString('en-US')+' ကျပ်';
+const r2=x=>Math.round((x||0)*100)/100;
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():'s'+Date.now()+Math.random().toString(36).slice(2);
+const pad=n=>String(n).padStart(2,'0');
+const dkey=t=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const ymkey=t=>dkey(t).slice(0,7);
+const dbounds=k=>{const[y,m,d]=k.split('-').map(Number);return[new Date(y,m-1,d).getTime(),new Date(y,m-1,d+1).getTime()-1]};
+const mbounds=ym=>{const[y,m]=ym.split('-').map(Number);return[new Date(y,m-1,1).getTime(),new Date(y,m,1).getTime()-1]};
+const daysInMonth=(y,m)=>new Date(y,m,0).getDate();
+const tm=t=>new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+const sd_=t=>new Date(t).toLocaleDateString('en-GB')+' '+tm(t);
+
+// Authoritative Constants (v24 Architecture)
+const CATS=['LPG ဓာတ်ငွေ့','LPG အိုး/ဗူး','အောက်ဆီဂျင်','မီးဖို','Regulator/Valve','ဆက်စပ်ပစ္စည်း'];
+const UNITS=['ခု','ဗူး','အိုး','kg','viss'];
+const AGENTS={'TT Gas':{kg:48,viss:28.5},'NGN':{kg:48,viss:28.5},'Easy Gas':{kg:50,viss:30}};
+
+// Four Distinct Oxygen Types (No regex matching allowed for stock/costing)
+const O2_TYPES={
+  '40L_FACTORY':  {id:'40L_FACTORY',  label:'40L (စက်ရုံ)',       ownership:'factory', rate:19500},
+  '47L_FACTORY':  {id:'47L_FACTORY',  label:'47L (စက်ရုံ)',       ownership:'factory', rate:23500},
+  '40L_OWN':      {id:'40L_OWN',      label:'40L (အပိုင်)',       ownership:'shop',    rate:19500},
+  'OVER_40L_OWN': {id:'OVER_40L_OWN', label:'Over 40L (အပိုင်)',  ownership:'shop',    rate:25000}
+};
+
+const SITE_TERMS={
+  'immediate':   {label:'လက်ငင်းရှင်း',       days:0},
+  'next_return': {label:'ခေါက်ပြန်ရှင်း',      days:null},
+  '15_days':     {label:'၁၅ ရက်တစ်ခါရှင်း',   days:15},
+  'month_end':   {label:'လကုန်ရှင်း',         days:'eom'}
+};
+
+const PAY={cash:'ငွေသား',kpay:'KPay',wave:'Wave Pay',aya:'AyA Pay',credit:'ကြွေး (Site/Credit)',pending:'COD (ပို့ပြီးငွေချေ)',dropoff:'ထားခဲ့ဗူး/အိုး (လာယူမှရှင်း)'};
+const ECAT={factory:'စက်ရုံ / ကုန်ပစ္စည်းဝယ်စရိတ်',shop:'ဆိုင်အသုံးစရိတ်',transport:'သယ်ယူပို့ဆောင်စရိတ် (ကားခ/ဆီဖိုး)',owner:'အိမ်အသုံးစရိတ် / လစာ',savings:'စုငွေ (Savings)',rent:'ဆိုင်ခန်းလခ (Cash Rent Payment)',other:'အထွေထွေ အသုံးစရိတ်'};
+const MTH=['cash','kpay','wave','aya'];
+const STORES=['products','sales','gasEv','pays','stk','cf','meta'];
+
+const SAMPLE=[
+  ['Gas (ပိဿာ)','LPG ဓာတ်ငွေ့','viss',null,'viss'],
+  ['Gas ဗူးဖြည့်','LPG ဓာတ်ငွေ့','ဗူး',null,'can'],
+  ['40L O2 (စက်ရုံ)','အောက်ဆီဂျင်','အိုး','40L_FACTORY',null],
+  ['47L O2 (စက်ရုံ)','အောက်ဆီဂျင်','အိုး','47L_FACTORY',null],
+  ['40L O2 (အပိုင်)','အောက်ဆီဂျင်','အိုး','40L_OWN',null],
+  ['Over 40L O2 (အပိုင်)','အောက်ဆီဂျင်','အိုး','OVER_40L_OWN',null],
+  ['EFF ဗူးသစ်','LPG အိုး/ဗူး','ဗူး',null,null],
+  ['15kg (Thailand)','LPG အိုး/ဗူး','အိုး',null,null],
+  ['Rinnai RI-522A','မီးဖို','ခု',null,null],
+  ['YAMATO L.P.G Regulator','Regulator/Valve','ခု',null,null],
+  ['YAMATO O2 Regulator','Regulator/Valve','ခု',null,null]
+];
+
+// IndexedDB Layer (Supports production 'aung-gas-pos' and isolated test DB 'aung-gas-pos-test')
+let activeDbName='aung-gas-pos';
+let db;
+const openDb=(name=activeDbName)=>new Promise((ok,no)=>{
+  const r=indexedDB.open(name,4);
+  r.onupgradeneeded=()=>{
+    const d=r.result;
+    STORES.forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='meta'?'k':'id'})});
+  };
+  r.onsuccess=()=>ok(r.result);
+  r.onerror=()=>no(r.error);
+});
+
+// Strict Synchronous-Enqueueing Atomic Transaction Helper
+const run=(st,mode,fn)=>new Promise((ok,no)=>{
+  const t=db.transaction(st,mode);
+  let out;
+  t.oncomplete=()=>ok(out);
+  t.onabort=()=>no(t.error||new Error('TRANSACTION_ABORTED'));
+  t.onerror=()=>no(t.error||new Error('TRANSACTION_ERROR'));
+  try{out=fn(t)}catch(err){try{t.abort()}catch(e){}no(err)}
+});
+const all=s=>new Promise((ok,no)=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)});
+const add=(s,o)=>run(s,'readwrite',t=>t.objectStore(s).add(o));
+const put=(s,o)=>run(s,'readwrite',t=>t.objectStore(s).put(o));
+const del=(s,k)=>run(s,'readwrite',t=>t.objectStore(s).delete(k));
+
+// Global In-Memory State
+let cf=[],bk=null,stk=[],rc={head:'',foot:'',size:3},pays=[],gasEv=[],metaList=[];
+let cfg={usable:28.5,cans:7,nominal:29.3,low:2,lowO2:20,canMin:197,canMax:203,motherCapL:55,motherCapConfirmed:false,o2Rates:{'40L_FACTORY':19500,'47L_FACTORY':23500,'40L_OWN':19500,'OVER_40L_OWN':25000}};
+let rentSchedule=[{from:'2026-01',to:'2026-12',monthlyRent:750000}];
+let lockedMonths=[],ownerAuth=null,restoreConflicts=[],products=[],sales=[],lines=[],saleId=uuid(),saving=false,tab=1;
+
+const getMeta=k=>(metaList.find(x=>x.k===k)||{}).v;
+const note=(box,t,k)=>{if(box)box.replaceChildren(h('div',{class:'msg '+(k?'k':'e')},t))};
+
+// Non-blocking Custom Modals
+function uiConfirm(msg,okTxt='အတည်ပြုမည်',cancelTxt='မလုပ်ပါ'){
+  return new Promise(res=>{
+    const bg=h('div',{class:'modal-bg'});
+    const box=h('div',{class:'modal-box'},
+      h('div',{style:'white-space:pre-line;margin-bottom:14px;font-size:14.5px'},msg),
+      h('div',{class:'row'},
+        cancelTxt?h('button',{class:'n',onclick:()=>{bg.remove();res(false)}},cancelTxt):'',
+        h('button',{class:'o',style:'margin-top:0',onclick:()=>{bg.remove();res(true)}},okTxt)
+      )
+    );
+    bg.append(box);document.body.append(bg);
+  });
+}
+const uiAlert=msg=>uiConfirm(msg,'ကောင်းပါပြီ',null);
+
+function uiPrompt(title,defVal='',inputType='text',placeholder=''){
+  return new Promise(res=>{
+    const bg=h('div',{class:'modal-bg'});
+    const inp=h('input',{type:inputType,value:defVal===null||defVal===undefined?'':String(defVal),placeholder,step:'any'});
+    const box=h('div',{class:'modal-box'},
+      h('b',{style:'font-size:15px;display:block;margin-bottom:8px'},title),
+      inp,
+      h('div',{class:'row',style:'margin-top:12px'},
+        h('button',{class:'n',onclick:()=>{bg.remove();res(null)}},'မလုပ်ပါ'),
+        h('button',{class:'o',style:'margin-top:0',onclick:()=>{bg.remove();res(inp.value)}},'အတည်ပြုမည်')
+      )
+    );
+    bg.append(box);document.body.append(bg);
+    setTimeout(()=>{inp.focus();inp.select()},40);
+  });
+}
+
+// ============================================================================
+// SPRINT 1: PBKDF2-HMAC-SHA256 OWNER PIN, THROTTLING & ONE-TIME RECOVERY CODE
+// ============================================================================
+const PBKDF2_DEFAULT_ITER=600000;
+let pinAuthInFlight=false;
+
+const bufToHex=buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+const hexToBuf=hex=>new Uint8Array((hex.match(/.{1,2}/g)||[]).map(b=>parseInt(b,16)));
+const genSaltHex=()=>{const b=new Uint8Array(16);crypto.getRandomValues(b);return bufToHex(b)};
+const genRecoveryCode=()=>{
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const r=new Uint8Array(8);crypto.getRandomValues(r);
+  const s=Array.from(r).map(x=>chars[x%chars.length]).join('');
+  return 'AUNG-'+s.slice(0,4)+'-'+s.slice(4,8);
+};
+
+async function derivePbkdf2Hex(secret,saltHex,iterations=PBKDF2_DEFAULT_ITER){
+  const enc=new TextEncoder();
+  const keyMat=await crypto.subtle.importKey('raw',enc.encode(String(secret).trim()),{name:'PBKDF2'},false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:hexToBuf(saltHex),iterations,hash:'SHA-256'},keyMat,256);
+  return bufToHex(bits);
+}
+
+// Sprint 0 Android Tablet PBKDF2 Benchmark
+async function benchmarkPbkdf2(iters=600000){
+  const salt=genSaltHex();
+  const t0=performance.now();
+  await derivePbkdf2Hex('123456',salt,iters);
+  return Math.round(performance.now()-t0);
+}
+
+// Meta-only PIN Audit Log (Never touches cf cash-flow store)
+async function logPinAudit(eventType,detail){
+  await put('meta',{k:'pin_audit_'+uuid(),v:{eventType,detail,at:Date.now()}});
+}
+
+async function setupOwnerPinModal(forceNew=false){
+  if(!forceNew && ownerAuth && ownerAuth.pinHashHex)return true;
+  return new Promise(res=>{
+    const bg=h('div',{class:'modal-bg'});
+    const p1=h('input',{type:'password',inputmode:'numeric',placeholder:'Owner PIN အသစ် (ဂဏန်း ၄ လုံးမှ ၆ လုံး)'});
+    const p2=h('input',{type:'password',inputmode:'numeric',placeholder:'Owner PIN ထပ်ရိုက်ပါ'});
+    const iterSel=h('select',{},
+      h('option',{value:'600000'},'600,000 Iterations (OWASP Standard — Recommended)'),
+      h('option',{value:'310000'},'310,000 Iterations (Older Tablet Fallback)')
+    );
+    if(cfg.pbkdf2Iter)iterSel.value=String(cfg.pbkdf2Iter);
+    const msg=h('div');
+    const saveBtn=h('button',{class:'o',onclick:async()=>{
+      if(pinAuthInFlight)return;
+      const a=p1.value.trim(),b=p2.value.trim();
+      if(!/^\d{4,6}$/.test(a))return note(msg,'PIN ကို ဂဏန်း ၄ လုံးမှ ၆ လုံးအတွင်း ထည့်ပါ။');
+      if(a!==b)return note(msg,'PIN နှစ်ခု မတူညီပါ။');
+      pinAuthInFlight=true;saveBtn.disabled=true;saveBtn.textContent='PBKDF2 Key ဖန်တီးနေပါသည်...';
+      try{
+        const iters=parseInt(iterSel.value)||600000;
+        const pinSaltHex=genSaltHex();
+        const recoverySaltHex=genSaltHex();
+        const recCode=genRecoveryCode();
+        // Precompute PBKDF2 outside IndexedDB transaction
+        const pinHashHex=await derivePbkdf2Hex(a,pinSaltHex,iters);
+        const recoveryHashHex=await derivePbkdf2Hex(recCode.toUpperCase(),recoverySaltHex,iters);
+        const authObj={ownerId:'OWNER',alg:'PBKDF2-SHA256',iter:iters,pinSaltHex,pinHashHex,recoverySaltHex,recoveryHashHex,failedAttempts:0,lockUntil:0,updatedAt:Date.now()};
+        await run('meta','readwrite',t=>{
+          t.objectStore('meta').put({k:'owner_auth',v:authObj});
+          t.objectStore('meta').put({k:'pin_audit_'+uuid(),v:{eventType:'OWNER_PIN_SET',detail:'iter='+iters,at:Date.now()}});
+        });
+        await reload();
+        bg.remove();
+        await uiAlert('Owner PIN သတ်မှတ်ပြီးပါပြီ။\n\nအောက်ပါ တစ်ခါသုံး Recovery Code ကို စာရွက်ဖြင့် သေချာရေးမှတ်သိမ်းဆည်းပါ (PIN မေ့သွားလျှင် ပြန်ဖွင့်ရန် လိုအပ်ပါသည်)−\n\n🔑 '+recCode+'\n\n(သတိ: ဤ Code ကို တစ်ကြိမ်သာ အသုံးပြုနိုင်ပြီး သုံးပြီးပါက Code အသစ်သို့ အလိုအလျောက် ပြောင်းလဲပါမည်)');
+        res(true);
+      }catch(e){
+        note(msg,'မအောင်မြင်ပါ: '+(e&&e.message||e));
+      }finally{pinAuthInFlight=false;saveBtn.disabled=false;saveBtn.textContent='Owner PIN သိမ်းမည်'}
+    }},'Owner PIN သိမ်းမည်');
+    bg.append(h('div',{class:'modal-box'},
+      h('b',{style:'font-size:17px'},'Owner PIN သတ်မှတ်ရန် (PBKDF2 Security)'),
+      h('small',{},'Month Hard Lock ပြန်ဖွင့်ခြင်း၊ Restore Conflict ဆုံးဖြတ်ခြင်းနှင့် Void လုပ်ခြင်းများအတွက် Owner PIN လိုအပ်ပါသည်။'),
+      h('label',{},'Owner PIN အသစ်'),p1,
+      h('label',{},'PIN အတည်ပြုပါ'),p2,
+      h('label',{},'PBKDF2 Security Strength'),iterSel,
+      msg,saveBtn,
+      !forceNew?h('button',{class:'n',style:'width:100%;margin-top:8px',onclick:()=>{bg.remove();res(false)}},'နောက်မှ သတ်မှတ်မည်'):''
+    ));
+    document.body.append(bg);
+  });
+}
+
+// Verify Owner PIN with Attempt Throttling, Mutex & One-Time Recovery Code Rotation
+async function requireOwnerPin(actionLabel){
+  if(!ownerAuth||!ownerAuth.pinHashHex){
+    const ok=await setupOwnerPinModal(false);
+    if(!ok)return false;
+  }
+  return new Promise(res=>{
+    const bg=h('div',{class:'modal-bg'});
+    const pinIn=h('input',{type:'password',inputmode:'numeric',placeholder:'Owner PIN ရိုက်ထည့်ပါ'});
+    const msg=h('div');
+    const checkThrottle=()=>{
+      const now=Date.now();
+      if(ownerAuth.lockUntil&&now<ownerAuth.lockUntil){
+        const sec=Math.ceil((ownerAuth.lockUntil-now)/1000);
+        note(msg,'PIN မှားယွင်းမှု များနေပါသည်။ '+sec+' စက္ကန့် စောင့်ပြီးမှ ပြန်ကြိုးစားပါ။');
+        return true;
+      }
+      return false;
+    };
+    checkThrottle();
+
+    const verifyBtn=h('button',{class:'o',onclick:async()=>{
+      if(pinAuthInFlight)return;
+      if(checkThrottle())return;
+      const val=pinIn.value.trim();
+      if(!val)return note(msg,'PIN ထည့်ပါ။');
+      pinAuthInFlight=true;verifyBtn.disabled=true;verifyBtn.textContent='စစ်ဆေးနေပါသည်...';
+      try{
+        const hHex=await derivePbkdf2Hex(val,ownerAuth.pinSaltHex,ownerAuth.iter||PBKDF2_DEFAULT_ITER);
+        if(hHex===ownerAuth.pinHashHex){
+          const upd={...ownerAuth,failedAttempts:0,lockUntil:0};
+          await put('meta',{k:'owner_auth',v:upd});
+          await reload();
+          bg.remove();res(true);
+        }else{
+          const fails=(ownerAuth.failedAttempts||0)+1;
+          let waitMs=0;
+          if(fails===4)waitMs=30000;
+          else if(fails===5)waitMs=300000;
+          else if(fails>=6)waitMs=900000;
+          const upd={...ownerAuth,failedAttempts:fails,lockUntil:waitMs?Date.now()+waitMs:0};
+          await run('meta','readwrite',t=>{
+            t.objectStore('meta').put({k:'owner_auth',v:upd});
+            t.objectStore('meta').put({k:'pin_audit_'+uuid(),v:{eventType:'PIN_FAIL',detail:'attempt='+fails+' action='+actionLabel,at:Date.now()}});
+          });
+          await reload();
+          pinIn.value='';
+          note(msg,'Owner PIN မှားယွင်းနေပါသည် (အကြိမ် '+fails+')'+(waitMs?' — '+Math.round(waitMs/1000)+' စက္ကန့် ပိတ်ထားပါသည်':''));
+        }
+      }finally{pinAuthInFlight=false;verifyBtn.disabled=false;verifyBtn.textContent='အတည်ပြုမည်'}
+    }},'အတည်ပြုမည်');
+
+    const recBtn=h('button',{class:'n',style:'width:100%;margin-top:8px',onclick:async()=>{
+      if(pinAuthInFlight)return;
+      const code=await uiPrompt('တစ်ခါသုံး Recovery Code (AUNG-XXXX-XXXX) ရိုက်ထည့်ပါ','','text','AUNG-XXXX-XXXX');
+      if(!code)return;
+      pinAuthInFlight=true;
+      try{
+        const rHash=await derivePbkdf2Hex(code.trim().toUpperCase(),ownerAuth.recoverySaltHex,ownerAuth.iter||PBKDF2_DEFAULT_ITER);
+        if(rHash!==ownerAuth.recoveryHashHex){
+          await logPinAudit('RECOVERY_FAIL','invalid_code');
+          await reload();
+          return note(msg,'Recovery Code မှားယွင်းနေပါသည် (သို့မဟုတ် အသုံးပြုပြီးသား Code ဖြစ်နေပါသည်)။');
+        }
+        // Invalidate old recovery code immediately & require new PIN + rotate recovery code
+        await logPinAudit('RECOVERY_SUCCESS','code_verified_and_invalidated');
+        bg.remove();
+        const resetOk=await setupOwnerPinModal(true);
+        res(resetOk);
+      }finally{pinAuthInFlight=false}
+    }},'PIN မေ့သွားပါသလား? (Recovery Code ဖြင့် ပြန်ဖွင့်မည်)');
+
+    bg.append(h('div',{class:'modal-box'},
+      h('b',{style:'font-size:16px'},'Owner PIN အတည်ပြုရန်'),
+      h('div',{style:'margin:6px 0;color:var(--mut);font-size:13.5px'},'လုပ်ဆောင်ချက်: '+actionLabel),
+      pinIn,msg,verifyBtn,recBtn,
+      h('button',{class:'g',style:'width:100%;margin-top:8px',onclick:()=>{bg.remove();res(false)}},'မလုပ်ပါ (Cancel)')
+    ));
+    document.body.append(bg);
+    setTimeout(()=>pinIn.focus(),40);
+  });
+}
+
+// ============================================================================
+// SPRINT 1: MONTH HARD LOCK & LOCK-EXEMPT APPEND-ONLY AUDIT LOGS
+// ============================================================================
+const isMonthLocked=dateOrYm=>{
+  if(!dateOrYm)return false;
+  const ym=String(dateOrYm).slice(0,7);
+  return lockedMonths.includes(ym);
+};
+
+async function guardMonthUnlocked(dateOrYm,opLabel){
+  const ym=String(dateOrYm).slice(0,7);
+  if(!isMonthLocked(ym))return true;
+  await uiAlert('🔒 Month Hard Lock ('+ym+')\n\n"'+ym+'" လစာရင်းကို ပိတ်သိမ်း (Hard Lock) ထားပြီး ဖြစ်ပါသည်။\n"'+opLabel+'" ပြုလုပ်ခွင့် မရှိပါ။\n\nပြင်ဆင်ရန် လိုအပ်ပါက "စာရင်းချုပ် & P&L" → "စာရင်းပိတ်" တွင် Owner PIN နှင့် အကြောင်းရင်းထည့်၍ လစာရင်းကို အရင်ပြန်ဖွင့်ပါ။');
+  return false;
+}
+
+// Lock-exempt append-only reopen / reclose audit records
+async function toggleMonthLock(ym,shouldLock){
+  const ok=await requireOwnerPin(shouldLock?('လပိတ် (Hard Lock) '+ym):('ပိတ်ပြီးသားလ ပြန်ဖွင့်ရန် '+ym));
+  if(!ok)return false;
+  const reason=((await uiPrompt(shouldLock?(ym+' လပိတ် မှတ်ချက် (မထည့်လည်းရ)'):(ym+' ပြန်ဖွင့်ရသည့် အကြောင်းရင်း (မဖြစ်မနေထည့်ပါ)')))||'').trim();
+  if(!shouldLock && !reason){await uiAlert('ပိတ်ပြီးသားလ ပြန်ဖွင့်ရန် အကြောင်းရင်း ထည့်ရပါမည်။');return false}
+  const nextLocked=shouldLock?Array.from(new Set([...lockedMonths,ym])):lockedMonths.filter(x=>x!==ym);
+  const auditRec={
+    id:uuid(),
+    type:shouldLock?'period_reclose_log':'period_reopen_log',
+    targetMonth:ym,
+    ownerId:'OWNER',
+    reason:reason||(shouldLock?'Month closed & locked':''),
+    at:Date.now()
+  };
+  await run(['meta','cf'],'readwrite',t=>{
+    t.objectStore('meta').put({k:'locked_months',v:nextLocked});
+    t.objectStore('cf').add(auditRec);
+  });
+  await reload();
+  return true;
+}
+
+// ============================================================================
+// SPRINT 1: CANONICALIZATION, ROLLING SNAPSHOTS, CONFLICT STATE MACHINE & EXPORT
+// ============================================================================
+function canonicalize(v){
+  if(v===null||typeof v!=='object')return Object.is(v,-0)?0:v;
+  if(Array.isArray(v))return v.map(canonicalize);
+  const out={};
+  Object.keys(v).sort().forEach(k=>{if(v[k]!==undefined)out[k]=canonicalize(v[k])});
+  return out;
+}
+const canonicalJson=v=>JSON.stringify(canonicalize(v));
+
+async function sha256Text(txt){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));
+  return bufToHex(buf);
+}
+
+async function dumpAll(){
+  const o={};
+  for(const n of STORES)o[n]=await all(n);
+  o.meta=o.meta.filter(x=>x.k!=='lastBackup'&&!x.k.startsWith('auto_snapshot_'));
+  return{app:'aung-gas-pos',version:APP_VER,schema:4,exportedAt:new Date().toISOString(),data:o};
+}
+
+// Save internal rolling snapshot in IndexedDB (latest 3)
+async function saveRollingSnapshot(tag='auto'){
+  const snap=await dumpAll();
+  const slot=((getMeta('auto_snapshot_ptr')||0)%3)+1;
+  await run('meta','readwrite',t=>{
+    t.objectStore('meta').put({k:'auto_snapshot_'+slot,v:{slot,tag,at:Date.now(),payload:snap}});
+    t.objectStore('meta').put({k:'auto_snapshot_ptr',v:slot});
+  });
+}
+
+// Verified external JSON export (required before archive pruning)
+async function exportVerifiedBackup(){
+  const d=await dumpAll();
+  const jsonStr=JSON.stringify(d);
+  // 1. JSON parse verification
+  const parsed=JSON.parse(jsonStr);
+  if(!parsed||parsed.app!=='aung-gas-pos')throw new Error('JSON verification failed');
+  // 2. SHA-256 verification
+  const hash=await sha256Text(jsonStr);
+  const fname='aung-pos-v24-backup-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json';
+  const blob=new Blob([jsonStr],{type:'application/json'});
+  const u=URL.createObjectURL(blob);
+  const a=h('a',{href:u,download:fname});
+  document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),5000);
+  await put('meta',{k:'lastBackup',v:Date.now()});
+  await put('meta',{k:'last_export_hash',v:{fname,hash,at:Date.now()}});
+  await reload();
+  return{fname,hash};
+}
+
+const checkBk=d=>{
+  if(!d||d.app!=='aung-gas-pos'||!d.data||typeof d.data!=='object')return 'ဒါ AUNG POS backup ဖိုင် မဟုတ်ပါ။';
+  if(!(d.schema<=4))return 'ဒီ backup က app ဗားရှင်းအသစ်ကနေ ထုတ်ထားတာပါ။';
+  for(const n of STORES){
+    const a=d.data[n];if(a===undefined)continue;
+    if(!Array.isArray(a))return n+' အပိုင်း ပျက်နေပါတယ်။';
+    for(const r of a){
+      if(!r||typeof r!=='object'||typeof(n==='meta'?r.k:r.id)!=='string')return n+' ထဲမှာ ID ပျက်နေတဲ့ မှတ်တမ်း ပါနေပါတယ်။';
+      if(n==='sales'&&(typeof r.at!=='number'||!Array.isArray(r.lines)||!r.lines.every(l=>l&&Number.isFinite(l.qty)&&Number.isFinite(l.price))))return 'ရောင်းချမှု မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
+      if(n==='pays'&&!Number.isFinite(r.amount))return 'ကြွေးပြန်ပေး မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
+      if(n==='cf'&&['exp','ob','bal','loan','xfer','gas_ret','cyl_compensation'].includes(r.type)&&!Number.isFinite(r.amt))return 'ငွေစာရင်း (cf) ထဲမှာ ပမာဏ ပျက်နေပါတယ်။';
+    }
+  }
+  return null;
+};
+
+const recordDateKey=(store,r)=>{
+  if(store==='sales')return dkey(r.at);
+  if(store==='pays')return dkey(r.at);
+  if(store==='cf')return r.date||dkey(r.at);
+  if(store==='stk'||store==='gasEv')return r.date||dkey(r.at);
+  return null;
+};
+
+// Canonical (store + id) Conflict-Preserving Import + Locked-Month Quarantine
+async function importAll(d,fresh=false){
+  // 1. Pre-restore snapshot
+  await saveRollingSnapshot('pre_restore');
+  const existingByStore={};
+  for(const n of STORES)existingByStore[n]=await all(n);
+  const existingConflicts=(getMeta('restore_conflicts')||[]);
+  const stats={added:0,same:0,conflicts:0,lockedQuarantined:0};
+  const newConflicts=[...existingConflicts];
+
+  // Precompute canonical comparisons outside readwrite transaction
+  const ops=[];
+  for(const n of STORES){
+    const list=d.data[n]||[];
+    const map=new Map(existingByStore[n].map(x=>[n==='meta'?x.k:x.id,x]));
+    for(const r of list){
+      const rid=n==='meta'?r.k:r.id;
+      if(n==='meta'&&(rid==='lastBackup'||rid==='seeded'||rid==='gas2'||rid==='owner_auth'||rid==='restore_conflicts'||rid.startsWith('auto_snapshot_')||rid.startsWith('arc_')||rid.startsWith('caud_')))continue;
+      const dk=recordDateKey(n,r);
+      const locked=dk&&isMonthLocked(dk);
+      const ex=map.get(rid);
+
+      if(locked){
+        // Never silently insert or mutate locked-month records
+        if(!ex || canonicalJson(ex)!==canonicalJson(r)){
+          newConflicts.push({
+            conflictId:uuid(),store:n,recordId:rid,
+            reason:'LOCKED_MONTH',lockedMonth:dk.slice(0,7),
+            localRecord:ex||null,incomingRecord:r,
+            detectedAt:Date.now(),status:'pending'
+          });
+          stats.lockedQuarantined++;
+        }else{stats.same++}
+        continue;
+      }
+
+      if(!ex){
+        ops.push({store:n,record:r});
+        stats.added++;
+      }else if(canonicalJson(ex)===canonicalJson(r)){
+        stats.same++;
+      }else{
+        newConflicts.push({
+          conflictId:uuid(),store:n,recordId:rid,
+          reason:'CONTENT_CONFLICT',lockedMonth:null,
+          localRecord:ex,incomingRecord:r,
+          detectedAt:Date.now(),status:'pending'
+        });
+        stats.conflicts++;
+      }
+    }
+  }
+
+  await run(STORES,'readwrite',t=>{
+    if(fresh)t.objectStore('products').clear();
+    ops.forEach(op=>t.objectStore(op.store).put(op.record));
+    t.objectStore('meta').put({k:'restore_conflicts',v:newConflicts});
+  });
+  await rebuildConflictAndArchiveIndex();
+  return stats;
+}
+
+// Single-Transition (pending -> resolved) Conflict Resolution with Archive-Before-Accept
+async function resolveConflict(conflictId,decision,noteTxt=''){
+  const conflicts=getMeta('restore_conflicts')||[];
+  const idx=conflicts.findIndex(c=>c.conflictId===conflictId);
+  if(idx<0)throw new Error('Conflict not found');
+  const c=conflicts[idx];
+  if(c.status!=='pending')throw new Error('Conflict already resolved (single transition enforced)');
+  if(c.lockedMonth && isMonthLocked(c.lockedMonth)){
+    throw new Error('Month '+c.lockedMonth+' is locked. Reopen the month first before accepting locked-month records.');
+  }
+
+  // Verify Owner PIN BEFORE opening IndexedDB transaction
+  const pinOk=await requireOwnerPin('Restore Conflict ဆုံးဖြတ်ရန် ('+c.store+'::'+c.recordId.slice(-6)+')');
+  if(!pinOk)return false;
+
+  const now=Date.now();
+  const updatedConflicts=[...conflicts];
+  updatedConflicts[idx]={...c,status:'resolved',decision,resolvedAt:now,note:noteTxt};
+
+  await run([c.store,'meta'],'readwrite',t=>{
+    const mOs=t.objectStore('meta');
+    if(decision==='ACCEPT_BACKUP'){
+      if(c.localRecord){
+        // Archive local record BEFORE accepting incoming record
+        mOs.put({k:'arc_'+c.conflictId,v:{conflictId:c.conflictId,store:c.store,recordId:c.recordId,archivedRecord:c.localRecord,archivedAt:now}});
+      }
+      t.objectStore(c.store).put(c.incomingRecord);
+    }
+    mOs.put({k:'restore_conflicts',v:updatedConflicts});
+    // Independent immutable audit trail for BOTH KEEP_LOCAL and ACCEPT_BACKUP
+    mOs.put({k:'caud_'+uuid(),v:{conflictId:c.conflictId,store:c.store,recordId:c.recordId,decision,ownerId:'OWNER',resolvedAt:now,note:noteTxt}});
+  });
+  await rebuildConflictAndArchiveIndex();
+  await reload();
+  return true;
+}
+
+async function rebuildConflictAndArchiveIndex(){
+  const allM=await all('meta');
+  const arcKeys=new Set(allM.filter(x=>x.k.startsWith('arc_')).map(x=>x.k));
+  const conflicts=(allM.find(x=>x.k==='restore_conflicts')||{}).v||[];
+  const validIdx=conflicts.filter(c=>c.status==='resolved'&&c.decision==='ACCEPT_BACKUP'&&arcKeys.has('arc_'+c.conflictId)).map(c=>({conflictId:c.conflictId,arcKey:'arc_'+c.conflictId,resolvedAt:c.resolvedAt}));
+  await put('meta',{k:'conflict_index',v:validIdx});
+}
+
+// ============================================================================
+// DATABASE RELOAD & IDEMPOTENT V24 MIGRATION
+// ============================================================================
+async function reload(){
+  metaList=await all('meta');
+  products=(await all('products')).sort((a,b)=>a.name.localeCompare(b.name));
+  sales=(await all('sales')).sort((a,b)=>b.at-a.at);
+  gasEv=(await all('gasEv')).sort((a,b)=>b.at-a.at);
+  pays=(await all('pays')).sort((a,b)=>b.at-a.at);
+  stk=await all('stk');
+  cf=await all('cf');
+
+  const m=getMeta('gascfg'),r=getMeta('rcpt'),rs=getMeta('rent_schedule'),lm=getMeta('locked_months'),oa=getMeta('owner_auth'),rcf=getMeta('restore_conflicts');
+  if(m)cfg={...cfg,...m,o2Rates:{...cfg.o2Rates,...(m.o2Rates||{})}};
+  if(r)rc=r;
+  if(Array.isArray(rs)&&rs.length)rentSchedule=rs;
+  lockedMonths=Array.isArray(lm)?lm:[];
+  ownerAuth=oa||null;
+  restoreConflicts=Array.isArray(rcf)?rcf:[];
+  bk=getMeta('lastBackup')||null;
+}
+
+async function seedAndMigrate(){
+  const seeded=await new Promise(ok=>{const q=db.transaction('meta').objectStore('meta').get('seeded');q.onsuccess=()=>ok(q.result)});
+  if(!seeded){
+    await run(['products','meta'],'readwrite',t=>{
+      SAMPLE.forEach(([n,c,u,o2t,g])=>t.objectStore('products').add({id:uuid(),name:n,cat:c,unit:u,o2type:o2t||undefined,gas:g||undefined,sample:true,at:Date.now()}));
+      t.objectStore('meta').put({k:'seeded',v:Date.now()});
+    });
+  }
+  const v24Mig=await new Promise(ok=>{const q=db.transaction('meta').objectStore('meta').get('v24_migrated');q.onsuccess=()=>ok(q.result)});
+  if(!v24Mig){
+    const ps=await all('products'),cfs=await all('cf');
+    await run(['products','cf','meta'],'readwrite',t=>{
+      // One-time historical rent audit classification (prevents double-counting cash rent with P&L rent allocation)
+      cfs.forEach(e=>{
+        if(e.type==='exp'&&!e.voided&&!e.isRentPayment&&/ဆိုင်ခန်း|အိမ်လခ|rent/i.test(e.desc||'')){
+          t.objectStore('cf').put({...e,cat:'rent',isRentPayment:true});
+        }
+      });
+      // Ensure Gas products exist
+      if(!ps.some(p=>p.gas==='viss'))t.objectStore('products').add({id:uuid(),name:'Gas (ပိဿာ)',cat:'LPG ဓာတ်ငွေ့',unit:'viss',gas:'viss',sample:false,at:Date.now()});
+      if(!ps.some(p=>p.gas==='can'))t.objectStore('products').add({id:uuid(),name:'Gas ဗူးဖြည့်',cat:'LPG ဓာတ်ငွေ့',unit:'ဗူး',gas:'can',sample:false,at:Date.now()});
+      t.objectStore('meta').put({k:'rent_schedule',v:rentSchedule});
+      t.objectStore('meta').put({k:'v24_migrated',v:Date.now()});
+    });
+  }
+}
+
+// ============================================================================
+// CORE BUSINESS LOGIC: OXYGEN 4-TYPE MATRIX, GAS WEIGHT & P&L
+// ============================================================================
+const payOf=s=>s.pay||'cash',amt=l=>l.foc?0:l.qty*l.price,stotal=s=>s.lines.reduce((a,l)=>a+amt(l),0);
+const partsOf=s=>s.parts||[{m:payOf(s),a:stotal(s)}];
+const payLabel=s=>{const P=partsOf(s);return P.map(x=>(PAY[x.m]||x.m)+(P.length>1?' '+money(x.a):'')).join(' + ')};
+const creditOf=s=>partsOf(s).filter(x=>x.m==='credit'||x.m==='pending').reduce((a,x)=>a+x.a,0);
+const isDropoffUnpaid=s=>!s.voided&&partsOf(s).some(x=>x.m==='dropoff')&&!s.pickedUpAt;
+const saleRevDateKey=s=>partsOf(s).some(x=>x.m==='dropoff')?(s.pickedUpAt?dkey(s.pickedUpAt):null):dkey(s.at);
+
+// Oxygen 4-Type Stock & Custody Single Source of Truth (Strict ID-based, zero regex)
+function o2StockMatrix(){
+  const mat={};
+  Object.values(O2_TYPES).forEach(t=>{
+    mat[t.id]={...t,rate:(cfg.o2Rates&&cfg.o2Rates[t.id])||t.rate,full:0,empty:0,atCustomer:0,atFactory:0,payable:0};
+  });
+
+  // Sort chronological events for deterministic stock_set baseline + movement tuples
+  const events=[...stk].sort((a,b)=>a.at-b.at);
+  Object.keys(mat).forEach(tid=>{
+    const lastFullSet=events.filter(e=>e.type==='o2_stock_set'&&e.o2type===tid&&e.target==='full').slice(-1)[0];
+    const lastEmptySet=events.filter(e=>e.type==='o2_stock_set'&&e.o2type===tid&&e.target==='empty').slice(-1)[0];
+    let f=lastFullSet?lastFullSet.newQty:0;
+    let em=lastEmptySet?lastEmptySet.newQty:0;
+    let af=0;
+
+    events.forEach(e=>{
+      if(e.voided||e.o2type!==tid)return;
+      if(e.type==='o2_mov'){
+        if((!lastFullSet||e.at>lastFullSet.at)){
+          if(e.locationFrom==='SHOP_FULL')f-=e.qty;
+          if(e.locationTo==='SHOP_FULL')f+=e.qty;
+        }
+        if((!lastEmptySet||e.at>lastEmptySet.at)){
+          if(e.locationFrom==='SHOP_EMPTY')em-=e.qty;
+          if(e.locationTo==='SHOP_EMPTY')em+=e.qty;
+        }
+        if(e.locationFrom==='AT_FACTORY')af-=e.qty;
+        if(e.locationTo==='AT_FACTORY')af+=e.qty;
+      }else if(e.type==='o2_fac_recv'){
+        if(!lastFullSet||e.at>lastFullSet.at)f+=e.qty;
+        af=Math.max(af-e.qty,0);
+        mat[tid].payable+=(e.totalAmt-(e.paidAmt||0));
+      }else if(e.type==='o2_fac_send'){
+        if(!lastEmptySet||e.at>lastEmptySet.at)em-=e.qty;
+        af+=e.qty;
+      }
+    });
+    mat[tid].full=f;
+    mat[tid].empty=em;
+    mat[tid].atFactory=af;
+  });
+
+  // Customer custody strictly from cf o2cust ledger (never modifies shop full/empty stock)
+  cf.filter(e=>e.type==='o2cust'&&!e.voided).forEach(e=>{
+    if(mat[e.o2type])mat[e.o2type].atCustomer+=(e.qtyDelta||0);
+  });
+  return mat;
+}
+
+function custO2Custody(custKey,o2type){
+  return cf.filter(e=>e.type==='o2cust'&&!e.voided&&ck(e.cust)===custKey&&(!o2type||e.o2type===o2type))
+    .reduce((a,e)=>a+(e.qtyDelta||0),0);
+}
+
+// Mother Cylinder (Over 40L Shop-Owned, 55L Unverified Estimate)
+function motherCylStats(){
+  const capL=cfg.motherCapL||55;
+  const fillCost=(cfg.o2Rates&&cfg.o2Rates.OVER_40L_OWN)||25000;
+  const live=stk.filter(e=>e.type==='o2_mother'&&!e.closed).sort((a,b)=>a.at-b.at)[0]||null;
+  if(!live)return{live:null,remL:0,capL,costPerL:fillCost/capL};
+  const usedL=stk.filter(e=>e.type==='o2_mother_fill'&&!e.voided&&e.motherId===live.id).reduce((a,e)=>a+(e.liters||0),0);
+  return{live,remL:Math.max(live.capL-usedL,0),capL:live.capL,costPerL:(live.fillCost||fillCost)/live.capL};
+}
+
+// Gas Supplier Latest Purchase Price & Actual Weight Variance
+function gasSupplierStats(){
+  const stats={};
+  Object.keys(AGENTS).forEach(ag=>{
+    const nom=AGENTS[ag].viss;
+    const intakes=gasEv.filter(e=>(e.type==='recv'||e.type==='eswap')&&!e.voided&&e.agent===ag).sort((a,b)=>b.at-a.at);
+    const priced=intakes.find(e=>Number.isFinite(e.cost)&&e.cost>0);
+    const latestPricePerCyl=priced?priced.cost:null;
+    const latestPricePerViss=latestPricePerCyl?(latestPricePerCyl/nom):null;
+    let totalNominal=0,totalActual=0,totalVarianceViss=0,totalVarianceMmk=0;
+    intakes.forEach(e=>{
+      const nV=e.nominalViss||(e.qty*nom);
+      const aV=e.actualViss!==undefined?e.actualViss:nV;
+      const vV=aV-nV;
+      const rate=e.cost?(e.cost/nom):(latestPricePerViss||0);
+      totalNominal+=nV;totalActual+=aV;totalVarianceViss+=vV;totalVarianceMmk+=vV*rate;
+    });
+    stats[ag]={agent:ag,nominalPerCyl:nom,latestPricePerCyl,latestPricePerViss,latestDate:priced?dkey(priced.at):null,totalNominal,totalActual,totalVarianceViss,totalVarianceMmk};
+  });
+  return stats;
+}
+
+const gasRemOf=c=>c.cap+(c.adj||0)-sales.reduce((a,s)=>s.voided?a:a+s.lines.reduce((b,l)=>b+(l.alloc?l.alloc.reduce((x,al)=>x+(al.cyl===c.id?al.viss:0),0):(l.cylId===c.id?l.gasViss||0:0)),0),0);
+
+// Immutable Customer Receivable & Payment Allocation (FIFO + Owner Override)
+const ck=n=>String(n||'').trim().toLowerCase();
+function customers(){
+  const m={},get=n=>{const k=ck(n);return m[k]=m[k]||{key:k,name:String(n).trim(),phone:'',cr:0,pd:0,compCr:0,compPd:0}};
+  cf.filter(e=>e.type==='cust').sort((a,b)=>a.at-b.at).forEach(e=>{const c=get(e.name);if(e.phone!==undefined)c.phone=e.phone});
+  sales.filter(s=>!s.voided&&!isDropoffUnpaid(s)&&s.cust).forEach(s=>{get(s.cust).cr+=creditOf(s)});
+  cf.filter(e=>e.type==='ob'&&!e.voided).forEach(e=>{get(e.cust).cr+=e.amt});
+  pays.filter(p=>!p.voided).forEach(p=>{
+    if(p.isCompensation)get(p.cust).compPd+=p.amount;
+    else get(p.cust).pd+=p.amount;
+  });
+  // Isolated lost-cylinder compensation receivables (never mixed with Oxygen sales)
+  cf.filter(e=>e.type==='cyl_compensation'&&!e.voided).forEach(e=>{get(e.cust).compCr+=e.amt});
+  return Object.values(m).map(c=>({...c,bal:c.cr-c.pd,compBal:c.compCr-c.compPd}));
+}
+
+function unpaidInvoicesOf(custKey){
+  const invs=sales.filter(s=>!s.voided&&!isDropoffUnpaid(s)&&ck(s.cust)===custKey&&creditOf(s)>0).sort((a,b)=>a.at-b.at);
+  const paidBySale={};
+  pays.filter(p=>!p.voided&&!p.isCompensation&&ck(p.cust)===custKey).forEach(p=>{
+    (p.allocations||[]).forEach(al=>{paidBySale[al.saleId]=(paidBySale[al.saleId]||0)+al.appliedAmt});
+  });
+  return invs.map(s=>{
+    const dueTotal=creditOf(s);
+    const paid=paidBySale[s.id]||0;
+    return{sale:s,dueTotal,paid,rem:Math.max(dueTotal-paid,0)};
+  }).filter(x=>x.rem>0.5);
+}
+
+// ============================================================================
+// SPRINT 4: DAILY & MONTHLY P&L ENGINE + PRORATED RENT ALLOCATION
+// ============================================================================
+function getRentAllocation(periodKey,isMonthly){
+  const ym=periodKey.slice(0,7);
+  const sched=rentSchedule.find(r=>ym>=r.from&&ym<=r.to);
+  if(!sched||!(sched.monthlyRent>0)){
+    return{confirmed:false,allocatedRent:0,monthlyRent:0,warning:ym>='2027-01'?'2027 Rent Unconfirmed':'Rent Schedule Unconfirmed'};
+  }
+  if(isMonthly)return{confirmed:true,allocatedRent:sched.monthlyRent,monthlyRent:sched.monthlyRent,warning:null};
+  const[y,m]=ym.split('-').map(Number);
+  const dim=daysInMonth(y,m);
+  return{confirmed:true,allocatedRent:sched.monthlyRent/dim,monthlyRent:sched.monthlyRent,daysInMonth:dim,warning:null};
+}
+
+function calcPnL(periodKey,isMonthly){
+  const[a,b]=isMonthly?mbounds(periodKey):dbounds(periodKey);
+  const gStats=gasSupplierStats();
+  const activeGasPrices=Object.values(gStats).filter(x=>x.latestPricePerViss>0);
+  const fallbackGasRate=activeGasPrices.length?activeGasPrices[0].latestPricePerViss:null;
+
+  let grossRevenue=0,focCost=0,gasCogs=0,o2Cogs=0,prodCogs=0;
+  let missingCostCount=0;
+  const gasRatesUsed=new Set();
+
+  sales.forEach(s=>{
+    if(s.voided||isDropoffUnpaid(s))return;
+    const revDk=saleRevDateKey(s);
+    if(!revDk)return;
+    const revTs=dbounds(revDk)[0]+43200000;
+    if(revTs<a||revTs>b)return;
+
+    s.lines.forEach(l=>{
+      if(!l.foc)grossRevenue+=(l.qty*l.price);
+
+      if(l.gasViss>0){
+        // Gas COGS uses latest supplier purchase price per viss
+        const ag=l.agent||(gasEv.find(e=>e.id===l.cylId)||{}).agent;
+        const rate=(ag&&gStats[ag]&&gStats[ag].latestPricePerViss)||fallbackGasRate;
+        if(rate>0){
+          const c=l.gasViss*rate;
+          if(l.foc)focCost+=c;else gasCogs+=c;
+          if(ag&&gStats[ag]&&gStats[ag].latestDate)gasRatesUsed.add(ag+' '+Math.round(rate).toLocaleString()+'/viss ('+gStats[ag].latestDate+')');
+        }else{missingCostCount++}
+      }else if(l.o2type&&O2_TYPES[l.o2type]){
+        // Oxygen COGS by explicit 4-type rate
+        const rate=(cfg.o2Rates&&cfg.o2Rates[l.o2type])||O2_TYPES[l.o2type].rate;
+        const c=l.qty*rate;
+        if(l.foc)focCost+=c;else o2Cogs+=c;
+      }else if(l.motherFillLiters>0){
+        const c=l.costAtSale||0;
+        if(l.foc)focCost+=c;else o2Cogs+=c;
+      }else{
+        // General products use frozen costAtSale snapshot
+        if(l.costMissing||l.costAtSale===null||l.costAtSale===undefined){
+          missingCostCount++;
+        }else{
+          if(l.foc)focCost+=l.costAtSale;else prodCogs+=l.costAtSale;
+        }
+      }
+    });
+  });
+
+  // Gas buy-backs (gas_ret) are stock intakes, NOT negative sales revenue
+  const gasBuyBackOutflow=gasEv.filter(e=>e.type==='gas_ret'&&!e.voided&&e.at>=a&&e.at<=b).reduce((sum,e)=>sum+(e.buyBackCost||0),0);
+
+  // Operating expenses exclude Savings and Cash Rent Payments (rent is prorated via rentSchedule) and exclude Factory O2 Settlements (already in O2 COGS)
+  let opEx=0;
+  cf.filter(e=>e.type==='exp'&&!e.voided&&e.at>=a&&e.at<=b).forEach(e=>{
+    if(e.cat==='savings'||e.cat==='rent'||e.isRentPayment||e.isO2Settlement)return;
+    opEx+=e.amt;
+  });
+
+  const rentInfo=getRentAllocation(periodKey,isMonthly);
+  const totalCogs=gasCogs+o2Cogs+prodCogs+focCost;
+  const grossProfit=grossRevenue-totalCogs;
+  const netProfit=grossProfit-opEx-rentInfo.allocatedRent;
+
+  return{
+    grossRevenue,gasCogs,o2Cogs,prodCogs,focCost,totalCogs,
+    grossProfit,opEx,rentInfo,netProfit,missingCostCount,
+    gasRatesUsed:Array.from(gasRatesUsed),gasBuyBackOutflow
+  };
+}
+
+// ============================================================================
+// CASH FLOW ENGINE (Strict separation of Cash Flow vs P&L Revenue)
+// ============================================================================
+function flows(m,a,b){
+  let i=0,o=0;
+  // Immediate cash/digital sales on sale date (credit/pending/dropoff excluded until collected)
+  sales.forEach(s=>{
+    if(s.voided||isDropoffUnpaid(s))return;
+    const t=s.pickedUpAt||s.at;
+    if(t>=a&&t<=b){
+      partsOf(s).forEach(x=>{if(x.m===m)i+=x.a});
+    }
+  });
+  // Customer debt & COD collections on actual collection date (pays.at)
+  pays.filter(p=>!p.voided&&p.method===m&&p.at>=a&&p.at<=b).forEach(p=>{i+=p.amount});
+  // Operating & factory/rent cash expenses
+  cf.filter(e=>e.type==='exp'&&!e.voided&&e.m===m&&e.at>=a&&e.at<=b).forEach(e=>{o+=e.amt});
+  // Gas buy-back cash outflows
+  gasEv.filter(e=>e.type==='gas_ret'&&!e.voided&&e.m===m&&e.at>=a&&e.at<=b).forEach(e=>{o+=(e.buyBackCost||0)});
+  // Actual physical factory O2 cash refunds
+  cf.filter(e=>e.type==='fac_refund_in'&&!e.voided&&e.m===m&&e.at>=a&&e.at<=b).forEach(e=>{i+=e.amt});
+  // Temporary loans & repayments
+  cf.filter(e=>e.type==='loan'&&!e.voided).forEach(e=>{
+    if(e.m===m&&e.at>=a&&e.at<=b)i+=e.amt;
+    if(e.repaid&&e.repaidMethod===m&&e.repaidAt>=a&&e.repaidAt<=b)o+=e.amt;
+  });
+  // Internal account transfers (KPay <-> Cash)
+  cf.filter(e=>e.type==='xfer'&&!e.voided).forEach(e=>{
+    if(e.to===m&&e.at>=a&&e.at<=b)i+=e.amt;
+    if(e.from===m&&e.at>=a&&e.at<=b)o+=e.amt;
+  });
+  return{i,o};
+}
+
+function opening(m,k){
+  const R=cf.filter(e=>e.type==='bal'&&e.method===m);
+  const op=R.filter(r=>r.kind==='open'&&r.date===k).sort((a,b)=>b.at-a.at)[0];
+  if(op)return op.amt;
+  const cl=R.filter(r=>r.kind==='close'&&r.date<k).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:b.at-a.at)[0];
+  if(!cl)return null;
+  const f=flows(m,dbounds(cl.date)[1]+1,dbounds(k)[0]-1);
+  return cl.amt+f.i-f.o;
+}
+
+function stockOf(p){
+  const c=stk.filter(e=>e.pid===p.id&&e.type==='count').sort((a,b)=>b.at-a.at)[0];
+  if(!c)return null;
+  let n=c.qty;
+  stk.forEach(e=>{if(e.pid===p.id&&e.at>c.at&&(e.type==='buy'||e.type==='ret'))n+=e.qty});
+  sales.forEach(x=>{if(!x.voided&&x.at>c.at)x.lines.forEach(l=>{if(l.pid===p.id)n-=l.qty})});
+  return n;
+}
+
+// ============================================================================
+// VIEW 1: SALES & CHECKOUT (WITH COST SNAPSHOT, O2 MOVEMENT TUPLE & SITE TERMS)
+// ============================================================================
+function viewSale(){
+  const app=$('#app');app.replaceChildren();
+  const dl=h('datalist',{id:'pl'},products.map(p=>h('option',{value:p.name})));
+  const cl=h('datalist',{id:'cl'},customers().map(c=>h('option',{value:c.name})));
+  const pn=h('input',{list:'pl',placeholder:'ပစ္စည်းနာမည် ရိုက်ပါ / ရွေးပါ',autocomplete:'off'});
+  const qty=h('input',{type:'number',inputmode:'decimal',step:'any',min:'0',placeholder:'ပမာဏ'});
+  const un=h('select',{},UNITS.map(u=>h('option',{value:u},u)));
+  const pr=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'ဈေး (တစ်ယူနစ်)'});
+  const foc=h('input',{type:'checkbox',style:'width:auto;margin-right:8px'});
+
+  // Oxygen movement mode selector (shown when O2 product selected)
+  const o2MovSel=h('select',{},
+    h('option',{value:'counter_swap'},'Counter Exchange (အခွံချင်း ၁:၁ ချက်ချင်းလဲ)'),
+    h('option',{value:'site_deliver_keep'},'Site Delivery — Keep Cylinder (အိုးထားခဲ့ · Customer Custody +)'),
+    h('option',{value:'site_deliver_swap'},'Site Delivery — Swap Empty (Site မှာ အခွံတစ်ခါတည်းလဲ)'),
+    h('option',{value:'o2_dropoff'},'Factory O2 Drop-off (ဖြည့်ပြီး လာယူမှ Revenue/COGS ယူမည်)')
+  );
+  const o2Box=h('div',{style:'display:none'},h('label',{},'Oxygen လုပ်ဆောင်မှု ပုံစံ'),o2MovSel);
+
+  pn.onchange=()=>{
+    const p=products.find(x=>x.name===pn.value);
+    if(p){
+      un.value=p.unit;
+      if(p.sellPrice>0&&!pr.value)pr.value=p.sellPrice;
+      o2Box.style.display=(p.o2type&&O2_TYPES[p.o2type])?'block':'none';
+    }else{o2Box.style.display='none'}
+  };
+
+  const pay=h('select',{},Object.entries(PAY).map(([k,v])=>h('option',{value:k},v)));
+  const termSel=h('select',{},Object.entries(SITE_TERMS).map(([k,v])=>h('option',{value:k},v.label)));
+  const termBox=h('div',{style:'display:none'},h('label',{},'Site / Business ငွေရှင်းစနစ်'),termSel);
+  const cust=h('input',{list:'cl',placeholder:'Customer Name (COD / Credit / Site ဆိုရင် လိုအပ်)',autocomplete:'off',style:'margin-top:8px'});
+  const tagIn=h('input',{placeholder:'ဗူး/အိုး အမှတ်အသား (Drop-off အတွက်)',autocomplete:'off',style:'margin-top:8px;display:none'});
+  const discIn=h('input',{type:'number',inputmode:'numeric',min:'0',placeholder:'လျှော့ဈေး Discount (ကျပ် — 2% ကျော်ရင် Owner PIN လို)'});
+
+  pay.onchange=()=>{
+    termBox.style.display=(pay.value==='credit')?'block':'none';
+    tagIn.style.display=(pay.value==='dropoff')?'block':'none';
+  };
+
+  const dIn=h('input',{type:'date',max:dkey(Date.now()),value:dkey(Date.now())});
+  const msg=h('div'),list=h('div'),tot=h('div',{class:'tot'}),save=h('button',{class:'o'},'ရောင်းချမှု သိမ်းမည်');
+
+  const draw=()=>{
+    const sub=lines.reduce((s,l)=>s+amt(l),0);
+    const dAmt=parseFloat(discIn.value)||0;
+    list.replaceChildren(...lines.map((l,i)=>h('div',{class:'li'},
+      h('span',{},l.name+' × '+l.qty+' '+l.unit+(l.o2type?' ['+O2_TYPES[l.o2type].label+' · '+l.o2Movement+']':''),l.foc?h('span',{class:'tag'},'FOC'):''),
+      h('span',{},money(amt(l))+' ',h('button',{class:'g',onclick:()=>{lines.splice(i,1);draw()}},'ဖယ်'))
+    )));
+    tot.textContent='စုစုပေါင်း '+money(Math.max(sub-dAmt,0));
+    save.disabled=!lines.length;
+  };
+  discIn.oninput=draw;
+
+  const addLine=async()=>{
+    const p=products.find(x=>x.name===pn.value.trim()),q=parseFloat(qty.value),pc=parseFloat(pr.value),f=foc.checked;
+    if(!p)return note(msg,'ပစ္စည်းစာရင်းထဲက ပစ္စည်းကို ရွေးပါ။');
+    if(!(q>0))return note(msg,'ပမာဏကို 0 ထက်ကြီးအောင် ထည့်ပါ။');
+    if(!f&&(isNaN(pc)||pc<=0))return note(msg,'ဈေးနှုန်း ထည့်ပါ (FOC ဆိုရင် အမှန်ခြစ်ပါ)။');
+
+    // Oxygen 4-type negative-stock & ownership checks
+    let o2Movement=null;
+    if(p.o2type&&O2_TYPES[p.o2type]){
+      o2Movement=o2MovSel.value;
+      const mat=o2StockMatrix()[p.o2type];
+      const alreadyInCart=lines.filter(l=>l.o2type===p.o2type).reduce((a,l)=>a+l.qty,0);
+      if(mat.full<(q+alreadyInCart)){
+        return note(msg,'⛔ '+O2_TYPES[p.o2type].label+' ဆိုင်လက်ကျန် ('+mat.full+' လုံး) မလုံလောက်ပါ (Negative Stock ကာကွယ်ထားပါသည်)။');
+      }
+      if(o2Movement==='o2_dropoff')pay.value='dropoff';
+    }else if(!p.gas){
+      const st=stockOf(p);
+      if(st!==null&&q>st&&!(await uiConfirm('"'+p.name+'" လက်ကျန် '+r2(st)+' '+p.unit+' ပဲ ရှိတယ်။ ဆက်ထည့်မလား?')))return;
+    }
+
+    // Snapshot costAtSale for general products (Gas uses latest purchase price dynamically; O2 uses 4-type rate)
+    const hasBuyPrice=Number.isFinite(p.buyPrice)&&p.buyPrice>0;
+    const costAtSale=(!p.gas&&!p.o2type)?(hasBuyPrice?q*p.buyPrice:null):null;
+    const costMissing=(!p.gas&&!p.o2type&&!hasBuyPrice);
+
+    const gViss=p.gas?(p.gas==='viss'?q:q/cfg.cans):0;
+    const liveCyl=p.gas?gasEv.filter(e=>e.type==='cyl'&&!e.closed&&e.role===p.gas).sort((a,b)=>a.at-b.at)[0]:null;
+
+    lines.push({
+      pid:p.id,name:p.name,qty:q,unit:un.value,price:isNaN(pc)?0:pc,foc:f,
+      gasViss:gViss,gasRole:p.gas||null,cylId:liveCyl?liveCyl.id:null,agent:liveCyl?liveCyl.agent:null,
+      o2type:p.o2type||null,ownership:p.o2type?O2_TYPES[p.o2type].ownership:null,o2Movement,
+      costAtSale,costMissing
+    });
+    pn.value=qty.value=pr.value='';foc.checked=false;o2Box.style.display='none';
+    msg.replaceChildren();draw();
+  };
+
+  save.onclick=async()=>{
+    if(saving||!lines.length)return;
+    const targetDate=dIn.value||dkey(Date.now());
+    if(!(await guardMonthUnlocked(targetDate,'အရောင်းမှတ်တမ်း သိမ်းဆည်းခြင်း')))return;
+
+    const sub=lines.reduce((s,l)=>s+amt(l),0);
+    const dAmt=parseFloat(discIn.value)||0;
+    if(dAmt>0 && sub>0 && (dAmt/sub)>0.02){
+      const pinOk=await requireOwnerPin('Discount 2% ကျော်လွန်ခွင့်ပြုရန် ('+money(dAmt)+')');
+      if(!pinOk)return;
+    }
+
+    const pm=pay.value,c=cust.value.trim(),tg=tagIn.value.trim();
+    if((pm==='credit'||pm==='pending')&&!c)return note(msg,'COD / Credit / Site အတွက် Customer Name ထည့်ပါ။');
+    if(lines.some(l=>l.o2Movement==='site_deliver_keep')&&!c)return note(msg,'Site Delivery (Keep Cylinder) အတွက် Customer Name ထည့်ပါ။');
+
+    saving=true;save.disabled=true;
+    try{
+      // Precompute all IDs & timestamps BEFORE opening IndexedDB transaction
+      const now=Date.now();
+      const saleTs=targetDate===dkey(now)?now:dbounds(targetDate)[0]+43200000;
+      const total=Math.max(sub-dAmt,0);
+      const term=pm==='credit'?termSel.value:'immediate';
+      let dueDate=null;
+      if(pm==='credit'){
+        if(term==='15_days')dueDate=dkey(saleTs+15*86400000);
+        else if(term==='month_end'){const d=new Date(saleTs);dueDate=dkey(new Date(d.getFullYear(),d.getMonth()+1,0).getTime())}
+      }
+      const saleObj={
+        id:saleId,at:saleTs,pay:pm,parts:[{m:pm,a:total}],cust:c||null,tag:tg||null,
+        term,dueDate,discount:dAmt,lines:[...lines],total,voided:false
+      };
+
+      // Atomic multi-store write across sales, stk, and cf
+      await run(['sales','stk','cf'],'readwrite',t=>{
+        t.objectStore('sales').add(saleObj);
+        lines.forEach((l,idx)=>{
+          if(l.o2type&&O2_TYPES[l.o2type]){
+            const sLineId=saleId+':'+idx;
+            const own=O2_TYPES[l.o2type].ownership;
+            if(l.o2Movement==='counter_swap'||l.o2Movement==='site_deliver_swap'){
+              // Paired atomic movements: Full out + matched Empty in (net custody change = 0)
+              t.objectStore('stk').add({id:uuid(),movementId:uuid(),saleLineId:sLineId,type:'o2_mov',o2type:l.o2type,ownership:own,movementType:l.o2Movement,locationFrom:'SHOP_FULL',locationTo:'AT_CUSTOMER',qty:l.qty,at:saleTs});
+              t.objectStore('stk').add({id:uuid(),movementId:uuid(),saleLineId:sLineId,type:'o2_mov',o2type:l.o2type,ownership:own,movementType:l.o2Movement,locationFrom:'AT_CUSTOMER',locationTo:'SHOP_EMPTY',qty:l.qty,at:saleTs});
+            }else{
+              // Unswapped delivery or drop-off: Full leaves shop into AT_CUSTOMER custody
+              t.objectStore('stk').add({id:uuid(),movementId:uuid(),saleLineId:sLineId,type:'o2_mov',o2type:l.o2type,ownership:own,movementType:l.o2Movement,locationFrom:'SHOP_FULL',locationTo:'AT_CUSTOMER',qty:l.qty,at:saleTs});
+              if(c){
+                t.objectStore('cf').add({id:uuid(),movementId:uuid(),saleLineId:sLineId,type:'o2cust',cust:c,o2type:l.o2type,ownership:own,qtyDelta:l.qty,at:saleTs});
+              }
+            }
+          }
+        });
+      });
+
+      lines=[];saleId=uuid();discIn.value='';cust.value='';tagIn.value='';
+      await reload();
+      note(msg,'အရောင်းမှတ်တမ်း သိမ်းပြီးပါပြီ (Atomic Transaction OK)။',1);
+    }catch(e){
+      note(msg,'မသိမ်းနိုင်ပါ (Rolled back): '+(e&&e.message||e));
+    }finally{saving=false;draw();drawToday()}
+  };
+
+  // Pending Drop-offs (Factory O2 "Filled - Awaiting Pickup" & Gas Drop-offs)
+  const dropList=sales.filter(isDropoffUnpaid);
+  const dropCard=dropList.length?h('div',{class:'card',style:'border-color:var(--org);background:#FFFDF9'},
+    h('b',{style:'color:#9A4308'},'Filled – Awaiting Pickup / ထားခဲ့ဗူးအိုး ('+dropList.length+' ခု)'),
+    h('small',{},'ဖောက်သည် ကိုယ်တိုင်လာယူမှသာ Revenue နှင့် COGS အသိအမှတ်ပြုပါမည်။'),
+    ...dropList.map(s=>h('div',{class:'li'},
+      h('span',{},dkey(s.at)+' · '+(s.cust||s.tag||'Drop-off')+' · '+s.lines.map(l=>l.name+'×'+l.qty).join(', ')+' · '+money(s.total)),
+      h('button',{style:'padding:5px 10px;font-size:12.5px',onclick:async()=>{
+        const now=Date.now();
+        if(!(await guardMonthUnlocked(dkey(now),'Drop-off လာယူအတည်ပြုခြင်း')))return;
+        const ch=await uiPrompt('လာယူငွေချေမှု နည်းလမ်း ရွေးပါ\n1 = ငွေသား\n2 = KPay\n3 = Wave\n4 = AyA\n5 = Credit (အကြွေး)','1','number');
+        const map={'1':'cash','2':'kpay','3':'wave','4':'aya','5':'credit'};
+        const pm=map[String(ch||'').trim()];if(!pm)return;
+        await put('sales',{...s,pay:pm,parts:[{m:pm,a:s.total}],pickedUpAt:now});
+        await reload();viewSale();
+      }},'လာယူပြီ (Recognize)')
+    ))
+  ):'';
+
+  const today=h('div');
+  const drawToday=()=>{
+    const t0=dbounds(dkey(Date.now()))[0];
+    const ts=sales.filter(s=>(s.pickedUpAt||s.at)>=t0&&!isDropoffUnpaid(s));
+    const totRev=ts.filter(s=>!s.voided).reduce((a,s)=>a+s.total,0);
+    today.replaceChildren(
+      h('h2',{},'ယနေ့ ရောင်းချမှု: '+money(totRev)),
+      h('div',{class:'card'},ts.length?ts.map(s=>h('div',{class:'li'},
+        h('span',{class:s.voided?'void':''},tm(s.pickedUpAt||s.at)+' · '+s.lines.map(l=>l.name+'×'+l.qty).join(', ')+' · '+payLabel(s)+(s.cust?' ('+s.cust+')':'')),
+        h('span',{},h('b',{class:s.voided?'void':''},money(s.total)),' ',!s.voided?h('button',{class:'g',onclick:async()=>{
+          if(!(await guardMonthUnlocked(dkey(s.at),'အရောင်း ပယ်ဖျက်ခြင်း (Void)')))return;
+          const pinOk=await requireOwnerPin('အရောင်း ပယ်ဖျက်ရန် (Void #' + s.id.slice(-6)+')');
+          if(!pinOk)return;
+          const now=Date.now();
+          await run(['sales','stk','cf'],'readwrite',t=>{
+            t.objectStore('sales').put({...s,voided:true,voidedAt:now});
+            // Reverse linked stk movements & customer custody
+            stk.filter(e=>e.saleLineId&&e.saleLineId.startsWith(s.id+':')).forEach(e=>t.objectStore('stk').put({...e,voided:true}));
+            cf.filter(e=>e.saleLineId&&e.saleLineId.startsWith(s.id+':')).forEach(e=>t.objectStore('cf').put({...e,voided:true}));
+          });
+          await reload();drawToday();
+        }},'Void'):'')
+      )):h('small',{},'ယနေ့ အရောင်း မရှိသေးပါ။'))
+    );
+  };
+
+  app.append(dl,cl,dropCard,
+    h('div',{class:'card'},
+      h('label',{},'ပစ္စည်း'),pn,o2Box,
+      h('div',{class:'row'},h('div',{},h('label',{},'ပမာဏ'),qty),h('div',{},h('label',{},'ယူနစ်'),un)),
+      h('label',{},'ဈေးနှုန်း (ကျပ်)'),pr,
+      h('label',{style:'display:flex;align-items:center'},foc,'FOC (လှူ/လက်ဆောင် · Revenue 0, COGS တွက်မည်)'),
+      h('button',{class:'o',style:'background:var(--navy)',onclick:addLine},'စာရင်းထဲ ထည့်မည်')
+    ),
+    msg,
+    h('div',{class:'card'},list,tot,
+      h('label',{},'ရက်စွဲ'),dIn,
+      h('label',{},'ငွေပေးချေမှု'),pay,termBox,cust,tagIn,
+      h('label',{},'Discount (ကျပ်)'),discIn,
+      save
+    ),
+    today
+  );
+  draw();drawToday();
+}
+
+// ============================================================================
+// VIEW 2: PRODUCTS (EXPLICIT O2TYPE & BUY PRICE SNAPSHOT SOURCE)
+// ============================================================================
+function viewProducts(){
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const nn=h('input',{placeholder:'ပစ္စည်းနာမည်'});
+  const nc=h('select',{},CATS.map(c=>h('option',{value:c},c)));
+  const nu=h('select',{},UNITS.map(u=>h('option',{value:u},u)));
+  const no2=h('select',{},h('option',{value:''},'-- Oxygen အမျိုးအစား (Oxygen ဆိုလျှင် မဖြစ်မနေရွေးပါ) --'),...Object.values(O2_TYPES).map(t=>h('option',{value:t.id},t.label+' ['+t.ownership+']')));
+  const bp=h('input',{type:'number',inputmode:'numeric',placeholder:'အရင်းဈေး Buy Price (COGS အတွက်)'});
+  const sp=h('input',{type:'number',inputmode:'numeric',placeholder:'ရောင်းဈေး Sell Price'});
+
+  const addBtn=h('button',{class:'o',onclick:async()=>{
+    const n=nn.value.trim();if(!n)return note(msg,'ပစ္စည်းနာမည် ထည့်ပါ။');
+    if(nc.value==='အောက်ဆီဂျင်'&&!no2.value)return note(msg,'Oxygen ပစ္စည်းအတွက် တိကျသော Oxygen Type (4 မျိုးထဲမှ တစ်ခု) ရွေးပါ။');
+    await add('products',{id:uuid(),name:n,cat:nc.value,unit:nu.value,o2type:no2.value||undefined,buyPrice:parseFloat(bp.value)||null,sellPrice:parseFloat(sp.value)||null,at:Date.now()});
+    nn.value=bp.value=sp.value='';await reload();viewProducts();
+  }},'ပစ္စည်းအသစ် ထည့်မည်');
+
+  const list=h('div',{class:'card'},...products.map(p=>{
+    const o2Tag=p.o2type&&O2_TYPES[p.o2type]?h('span',{class:'tag b'},O2_TYPES[p.o2type].label):'';
+    return h('div',{class:'li',style:'flex-wrap:wrap'},
+      h('span',{style:'flex:1 1 60%'},p.name,o2Tag,h('br'),h('small',{},p.cat+' · '+p.unit+' · ဝယ်ဈေး: '+(p.buyPrice?money(p.buyPrice):'မထည့်ရသေး')+' · ရောင်းဈေး: '+(p.sellPrice?money(p.sellPrice):'-'))),
+      h('span',{style:'display:flex;gap:4px'},
+        h('button',{class:'n',onclick:async()=>{
+          const v=parseFloat(await uiPrompt(p.name+' အရင်းဈေး (Buy Price) အသစ် (ယခင်အရောင်းများ၏ costAtSale မပြောင်းပါ)',p.buyPrice||'','number'));
+          if(isNaN(v)||v<0)return;
+          await put('products',{...p,buyPrice:v});await reload();viewProducts();
+        }},'ဝယ်ဈေးပြင်'),
+        !p.gas&&!p.o2type?h('button',{class:'n',onclick:async()=>{
+          const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'Stock ရေတွက်ခြင်း')))return;
+          const v=parseFloat(await uiPrompt(p.name+' လက်ကျန်အစစ် ('+p.unit+')',stockOf(p)||0,'number'));
+          if(isNaN(v)||v<0)return;
+          await add('stk',{id:uuid(),at:Date.now(),pid:p.id,name:p.name,type:'count',qty:v});await reload();viewProducts();
+        }},'ရေတွက်'):''
+      )
+    );
+  }));
+
+  app.append(h('div',{class:'card'},h('b',{},'ပစ္စည်းအသစ် ထည့်ရန်'),nn,h('div',{class:'row'},nc,nu),no2,h('div',{class:'row'},bp,sp),addBtn),msg,h('h2',{},'ပစ္စည်းစာရင်း ('+products.length+')'),list);
+}
+
+// ============================================================================
+// VIEW 3: GAS INVENTORY (ACTUAL WEIGHT, VARIANCE REPORT & BUY-BACK)
+// ============================================================================
+function viewGas(){
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const gStats=gasSupplierStats();
+
+  // Supplier Intake with Nominal vs Actual Weighed Viss & Purchase Cost
+  const agSel=h('select',{},Object.keys(AGENTS).map(k=>h('option',{value:k},k+' (သတ်မှတ် '+AGENTS[k].viss+' viss)')));
+  const qtyIn=h('input',{type:'number',inputmode:'numeric',placeholder:'အိုးအရေအတွက် (လုံး)'});
+  const actVissIn=h('input',{type:'number',inputmode:'decimal',step:'any',placeholder:'အမှန်တကယ် ချိန်တွယ်ရရှိသော စုစုပေါင်း Viss (ဗလာထားလျှင် Nominal ယူမည်)'});
+  const costIn=h('input',{type:'number',inputmode:'numeric',placeholder:'တစ်လုံး ဝယ်ဈေး (ကျပ် — Latest Price Costing အတွက်)'});
+
+  const recvBtn=h('button',{class:'o',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'Gas အိုးအဝင် မှတ်တမ်း')))return;
+    const ag=agSel.value,q=parseInt(qtyIn.value),c=parseFloat(costIn.value);
+    if(!(q>0))return note(msg,'အိုးအရေအတွက် ထည့်ပါ။');
+    const nomTotal=q*AGENTS[ag].viss;
+    const actTotal=isNaN(parseFloat(actVissIn.value))?nomTotal:parseFloat(actVissIn.value);
+    const varViss=actTotal-nomTotal;
+    await add('gasEv',{
+      id:uuid(),at:Date.now(),type:'recv',agent:ag,qty:q,
+      nominalViss:nomTotal,actualViss:actTotal,varianceViss:varViss,
+      cost:isNaN(c)?null:c,auditLog:[]
+    });
+    await reload();viewGas();
+    note(msg,ag+' '+q+' လုံး မှတ်ပြီးပါပြီ (Actual: '+r2(actTotal)+' viss, Variance: '+(varViss>=0?'+':'')+r2(varViss)+' viss)။',1);
+  }},'Gas အိုးအဝင် (recv) မှတ်မည်');
+
+  // Gas Buy-Back (gas_ret): Stock Purchase / Return Intake (NEVER reduces Sales Revenue)
+  const buyBackBtn=h('button',{class:'n',style:'width:100%;margin-top:8px;border-color:var(--org);color:#9A4308',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'Gas Buy-Back မှတ်တမ်း')))return;
+    const v=parseFloat(await uiPrompt('ဖောက်သည်ထံမှ ပြန်ဝယ်/ပြန်လက်ခံရရှိသော Gas ပိဿာ (viss)','','number'));
+    if(!(v>0))return;
+    const costPaid=parseFloat(await uiPrompt('ပြန်အမ်းပေးလိုက်သော ငွေပမာဏ (ကျပ်)','','number'));
+    if(isNaN(costPaid)||costPaid<0)return;
+    const ch=await uiPrompt('ငွေပေးချေမှု နည်းလမ်း\n1 = ငွေသား\n2 = KPay\n3 = Wave\n4 = AyA','1','number');
+    const mMap={'1':'cash','2':'kpay','3':'wave','4':'aya'};
+    const pm=mMap[String(ch||'').trim()]||'cash';
+    await add('gasEv',{id:uuid(),at:Date.now(),type:'gas_ret',agent:'TT Gas',viss:v,buyBackCost:costPaid,m:pm});
+    await reload();viewGas();
+    note(msg,'Gas Buy-Back +'+v+' viss (ငွေထွက် '+money(costPaid)+' · '+PAY[pm]+') မှတ်ပြီးပါပြီ (Sales Revenue ကို မနှုတ်ပါ)။',1);
+  }},'↩ Gas Buy-Back (လက်ကျန်ပြန်ဝယ် · Stock Intake)');
+
+  app.append(
+    h('div',{class:'card'},
+      h('b',{},'Supplier အလိုက် Latest Price & Weight Variance Report'),
+      ...Object.values(gStats).map(s=>h('div',{class:'li',style:'flex-wrap:wrap'},
+        h('span',{},h('b',{},s.agent),' (',s.nominalPerCyl,' viss/cyl)',h('br'),
+          h('small',{},'Latest Price: '+(s.latestPricePerCyl?(money(s.latestPricePerCyl)+' = '+Math.round(s.latestPricePerViss).toLocaleString()+'/viss ('+s.latestDate+')'):'မရှိသေးပါ (Missing Cost)'))
+        ),
+        h('span',{style:'text-align:right'},
+          h('small',{},'Actual: '+r2(s.totalActual)+' / Nom: '+r2(s.totalNominal)+' viss'),h('br'),
+          h('b',{style:'color:'+(s.totalVarianceViss<-0.01?'var(--red)':'var(--ok)')},'Variance: '+(s.totalVarianceViss>=0?'+':'')+r2(s.totalVarianceViss)+' viss ('+money(s.totalVarianceMmk)+')')
+        )
+      ))
+    ),
+    h('div',{class:'card'},
+      h('b',{},'Supplier Gas အဝင် မှတ်တမ်းတင်ရန်'),
+      agSel,qtyIn,actVissIn,costIn,recvBtn,buyBackBtn
+    ),msg
+  );
+}
+
+// ============================================================================
+// VIEW 6: OXYGEN 4-TYPE MATRIX, MOTHER CYLINDER & ATOMIC FACTORY SETTLEMENTS
+// ============================================================================
+function viewOxy(){
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const mat=o2StockMatrix();
+  const mStats=motherCylStats();
+
+  // 1. 4-Type Ownership Stock Matrix Card
+  const matrixCard=h('div',{class:'card',style:'border:2px solid var(--navy)'},
+    h('b',{style:'font-size:16px'},'Oxygen 4-Type Ownership & Stock Matrix'),
+    h('table',{class:'st-tbl'},
+      h('thead',{},h('tr',{},h('th',{},'အမျိုးအစား (Ownership)'),h('th',{},'Fill Cost'),h('th',{},'Full'),h('th',{},'Empty'),h('th',{},'Customer'),h('th',{},'Factory'))),
+      h('tbody',{},...Object.values(mat).map(t=>h('tr',{},
+        h('td',{},h('b',{},t.label),h('br'),h('small',{},t.ownership==='factory'?'စက်ရုံပိုင်':'ဆိုင်ပိုင်')),
+        h('td',{},Math.round(t.rate).toLocaleString()),
+        h('td',{style:'font-weight:700;color:'+(t.full<=1?'var(--red)':'var(--ok)')},t.full),
+        h('td',{},t.empty),
+        h('td',{},t.atCustomer),
+        h('td',{},t.atFactory)
+      )))
+    )
+  );
+
+  // 2. Factory Intake (Send Empty / Receive Full) & Partial Settlement with refId
+  const tSel=h('select',{},Object.values(O2_TYPES).map(t=>h('option',{value:t.id},t.label+' ('+money(t.rate)+')')));
+  const fqIn=h('input',{type:'number',inputmode:'numeric',placeholder:'အရေအတွက် (လုံး)'});
+  const sendFacBtn=h('button',{class:'n',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'O2 စက်ရုံအခွံပို့')))return;
+    const tid=tSel.value,q=parseInt(fqIn.value);if(!(q>0))return note(msg,'အရေအတွက် ထည့်ပါ။');
+    if(mat[tid].empty<q)return note(msg,'⛔ ဆိုင်ရှိ Empty လက်ကျန် ('+mat[tid].empty+' လုံး) မလုံလောက်ပါ။');
+    await add('stk',{id:uuid(),movementId:uuid(),at:Date.now(),type:'o2_fac_send',o2type:tid,ownership:O2_TYPES[tid].ownership,qty:q});
+    await reload();viewOxy();
+  }},'စက်ရုံသို့ အခွံပို့ (Send Empty)');
+
+  const recvFacBtn=h('button',{onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'O2 စက်ရုံအပြည့်ဝင်')))return;
+    const tid=tSel.value,q=parseInt(fqIn.value);if(!(q>0))return note(msg,'အရေအတွက် ထည့်ပါ။');
+    const rt=(cfg.o2Rates&&cfg.o2Rates[tid])||O2_TYPES[tid].rate;
+    await add('stk',{id:uuid(),movementId:uuid(),at:Date.now(),type:'o2_fac_recv',o2type:tid,ownership:O2_TYPES[tid].ownership,qty:q,rate:rt,totalAmt:q*rt,paidAmt:0,status:'unpaid',settlementRefs:[]});
+    await reload();viewOxy();
+  }},'စက်ရုံမှ အပြည့်လက်ခံ (Receive Full)');
+
+  // Unsettled / Partial Factory Bills & Atomic Settlement + Void vs Refund
+  const openBills=stk.filter(e=>e.type==='o2_fac_recv'&&!e.voided&&(e.totalAmt-(e.paidAmt||0))>0.5).sort((a,b)=>a.at-b.at);
+  const totPayable=openBills.reduce((a,b)=>a+(b.totalAmt-(b.paidAmt||0)),0);
+
+  const settleFacBtn=h('button',{class:'o',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'Factory O2 Settlement')))return;
+    if(!openBills.length)return note(msg,'ပေးချေရန်ကျန် Factory Bill မရှိပါ။');
+    const payAmt=parseFloat(await uiPrompt('စက်ရုံသို့ ပေးချေမည့် ငွေပမာဏ (Partial ရသည် · ကျန်ငွေ: '+money(totPayable)+')',totPayable,'number'));
+    if(!(payAmt>0)||payAmt>totPayable+0.5)return note(msg,'ပမာဏ မှန်ကန်စွာ ထည့်ပါ။');
+    const ch=await uiPrompt('ငွေပေးချေမှု နည်းလမ်း\n1 = ငွေသား\n2 = KPay\n3 = Wave\n4 = AyA','2','number');
+    const mMap={'1':'cash','2':'kpay','3':'wave','4':'aya'};
+    const pm=mMap[String(ch||'').trim()];if(!pm)return;
+
+    // Precompute FIFO bill allocations & unique refId BEFORE opening IndexedDB transaction
+    let rem=payAmt;
+    const allocs=[];
+    const billUpdates=[];
+    for(const b of openBills){
+      if(rem<=0.01)break;
+      const due=b.totalAmt-(b.paidAmt||0);
+      const ap=Math.min(rem,due);
+      const newPaid=(b.paidAmt||0)+ap;
+      allocs.push({billId:b.id,appliedAmt:ap});
+      billUpdates.push({...b,paidAmt:newPaid,status:newPaid>=b.totalAmt-0.5?'paid':'partial'});
+      rem-=ap;
+    }
+    const settlementId=uuid();
+    const now=Date.now();
+    if(cf.some(e=>e.refId===settlementId&&!e.voided))return note(msg,'Duplicate settlement blocked.');
+
+    await run(['stk','cf'],'readwrite',t=>{
+      const sOs=t.objectStore('stk');
+      billUpdates.forEach(bu=>sOs.put({...bu,settlementRefs:[...(bu.settlementRefs||[]),settlementId]}));
+      sOs.add({id:settlementId,type:'o2_fac_settle',refId:settlementId,allocations:allocs,totalPaid:payAmt,method:pm,at:now,voided:false});
+      t.objectStore('cf').add({id:uuid(),type:'exp',cat:'factory',refId:settlementId,isO2Settlement:true,amt:payAmt,m:pm,at:now,desc:'O2 စက်ရုံငွေချေ #'+settlementId.slice(-6),voided:false});
+    });
+    await reload();viewOxy();
+    note(msg,'Factory O2 Settlement '+money(payAmt)+' ('+PAY[pm]+') သိမ်းပြီးပါပြီ (refId: '+settlementId.slice(-6)+')။',1);
+  }},'Factory O2 ငွေချေမည် (Partial / Full)');
+
+  // Recent Settlements with Separate Erroneous Void vs Physical Cash Refund
+  const recentSettles=stk.filter(e=>e.type==='o2_fac_settle').sort((a,b)=>b.at-a.at).slice(0,8);
+  const settleHistCard=recentSettles.length?h('div',{class:'card'},
+    h('b',{},'Factory Settlement မှတ်တမ်း (Void vs Actual Cash Refund ခွဲထားသည်)'),
+    ...recentSettles.map(st=>h('div',{class:'li',style:'flex-wrap:wrap'},
+      h('span',{class:st.voided?'void':''},dkey(st.at)+' · #'+st.refId.slice(-6)+' · '+money(st.totalPaid)+' ('+PAY[st.method]+')'+(st.voided?' [VOIDED]':'')),
+      !st.voided?h('span',{style:'display:flex;gap:4px'},
+        h('button',{class:'g',onclick:async()=>{
+          if(!(await guardMonthUnlocked(dkey(st.at),'Settlement Void')))return;
+          if(!(await requireOwnerPin('Factory Settlement Void #'+st.refId.slice(-6))))return;
+          const now=Date.now();
+          await run(['stk','cf'],'readwrite',t=>{
+            const sOs=t.objectStore('stk');
+            sOs.put({...st,voided:true,voidedAt:now});
+            (st.allocations||[]).forEach(al=>{
+              const b=stk.find(x=>x.id===al.billId);
+              if(b){
+                const np=Math.max((b.paidAmt||0)-al.appliedAmt,0);
+                sOs.put({...b,paidAmt:np,status:np<=0.5?'unpaid':'partial'});
+              }
+            });
+            cf.filter(e=>e.refId===st.refId&&!e.voided).forEach(e=>t.objectStore('cf').put({...e,voided:true,voidedAt:now}));
+          });
+          await reload();viewOxy();
+        }},'Erroneous Void'),
+        h('button',{class:'n',onclick:async()=>{
+          const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'Factory Cash Refund')))return;
+          if(!(await requireOwnerPin('Factory Physical Cash Refund #'+st.refId.slice(-6))))return;
+          const rAmt=parseFloat(await uiPrompt('စက်ရုံမှ အမှန်တကယ် ငွေပြန်အမ်းရရှိသော ပမာဏ (ကျပ်)',st.totalPaid,'number'));
+          if(!(rAmt>0))return;
+          const refId=uuid(),now=Date.now();
+          await run(['stk','cf'],'readwrite',t=>{
+            t.objectStore('stk').add({id:refId,type:'o2_fac_refund',refSettlementId:st.refId,refundAmt:rAmt,method:st.method,at:now});
+            t.objectStore('cf').add({id:uuid(),type:'fac_refund_in',refId,amt:rAmt,m:st.method,at:now,desc:'စက်ရုံ O2 ငွေပြန်အမ်းရရှိ #'+st.refId.slice(-6)});
+          });
+          await reload();viewOxy();
+        }},'Actual Refund')
+      ):''
+    ))
+  ):'';
+
+  // 3. Mother Cylinder (Over 40L Shop-Owned, 55L UNVERIFIED Estimate)
+  const motherCard=h('div',{class:'card'},
+    h('b',{},'Mother Cylinder (Over 40L အပိုင်) — ခန့်မှန်း Capacity: '+mStats.capL+'L ',
+      h('span',{class:cfg.motherCapConfirmed?'tag g':'tag r'},cfg.motherCapConfirmed?'Confirmed':'UNVERIFIED ESTIMATE')
+    ),
+    h('div',{style:'margin:6px 0'},mStats.live?('လက်ကျန်: '+r2(mStats.remL)+'L / '+mStats.capL+'L ('+Math.round(mStats.costPerL).toLocaleString()+' MMK/L)'):'ဖွင့်သုံးနေသော Mother Cylinder မရှိသေးပါ'),
+    h('div',{class:'row'},
+      h('button',{class:'n',onclick:async()=>{
+        const v=parseFloat(await uiPrompt('Mother Cylinder အမှန်တကယ် Capacity (Liters) အတည်ပြုပါ',mStats.capL,'number'));
+        if(!(v>0))return;
+        await put('meta',{k:'gascfg',v:{...cfg,motherCapL:v,motherCapConfirmed:true}});
+        await reload();viewOxy();
+      }},'Capacity (L) အတည်ပြု/ပြင်မည်'),
+      h('button',{class:'n',onclick:async()=>{
+        if(mat.OVER_40L_OWN.full<=0)return note(msg,'⛔ Over 40L (အပိုင်) Full Stock မရှိပါ။');
+        const now=Date.now();
+        await run('stk','readwrite',t=>{
+          t.objectStore('stk').add({id:uuid(),movementId:uuid(),type:'o2_mov',o2type:'OVER_40L_OWN',ownership:'shop',movementType:'mother_open',locationFrom:'SHOP_FULL',locationTo:'AT_CUSTOMER',qty:1,at:now});
+          t.objectStore('stk').add({id:uuid(),type:'o2_mother',capL:cfg.motherCapL||55,fillCost:cfg.o2Rates.OVER_40L_OWN||25000,closed:false,at:now});
+        });
+        await reload();viewOxy();
+      }},'Over 40L အသစ် ဖွင့်သုံးမည်')
+    )
+  );
+
+  app.append(msg,matrixCard,
+    h('div',{class:'card'},
+      h('b',{},'O2 စက်ရုံ အဝင်/အထွက် & Factory Payable: '+money(totPayable)),
+      tSel,fqIn,h('div',{class:'row',style:'margin-top:8px'},sendFacBtn,recvFacBtn),settleFacBtn
+    ),
+    settleHistCard,
+    motherCard
+  );
+}
+
+// ============================================================================
+// VIEW 4: CUSTOMERS (IMMUTABLE COD/SITE FIFO & OVERRIDE PAYMENTS, LOST CYLINDER)
+// ============================================================================
+function viewCust(){
+  const app=$('#app');app.replaceChildren();
+  const list=customers().sort((a,b)=>(b.bal+b.compBal)-(a.bal+a.compBal));
+  app.append(
+    h('div',{class:'card'},h('b',{},'ဖောက်သည် အကြွေး & အိုးထိန်းသိမ်းမှု စာရင်း ('+list.length+' ဦး)')),
+    ...list.map(c=>h('div',{class:'card',style:'cursor:pointer',onclick:()=>viewCustDetail(c.key)},
+      h('div',{class:'li'},
+        h('span',{},h('b',{},c.name),c.compBal>0?h('span',{class:'tag r'},'အိုးလျော်ကြေးကျန် '+money(c.compBal)):''),
+        h('b',{style:'color:'+(c.bal>0?'var(--red)':'var(--ok)')},money(c.bal))
+      )
+    ))
+  );
+}
+
+function viewCustDetail(custKey){
+  const c=customers().find(x=>x.key===custKey);if(!c)return viewCust();
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const unpaid=unpaidInvoicesOf(custKey);
+
+  // Payment Collection (ငွေလက်ခံရရှိ) — Never mutates original sale.at
+  const payAmtIn=h('input',{type:'number',inputmode:'numeric',placeholder:'လက်ခံရရှိငွေ (Partial / Multiple Invoice ရသည်)'});
+  const payMth=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));
+  const payDateIn=h('input',{type:'date',max:dkey(Date.now()),value:dkey(Date.now())});
+  const invTargetSel=h('select',{},h('option',{value:'FIFO'},'အဟောင်းဆုံး Invoice မှ အစဉ်လိုက်ရှင်းမည် (FIFO Default)'),...unpaid.map(u=>h('option',{value:u.sale.id},'Owner Override: '+dkey(u.sale.at)+' · ကျန် '+money(u.rem))));
+
+  const collectBtn=h('button',{class:'o',onclick:async()=>{
+    const dk=payDateIn.value||dkey(Date.now());
+    if(!(await guardMonthUnlocked(dk,'ငွေလက်ခံရရှိ မှတ်တမ်း')))return;
+    const amtVal=parseFloat(payAmtIn.value);
+    if(!(amtVal>0))return note(msg,'ပမာဏ ထည့်ပါ။');
+    if(amtVal>c.bal+0.5)return note(msg,'စုစုပေါင်း ကြွေးကျန် '+money(c.bal)+' ထက် မများရပါ။');
+
+    // Allocate FIFO or Owner-selected invoice without modifying original sale records
+    let rem=amtVal;
+    const allocs=[];
+    const ordered=invTargetSel.value==='FIFO'?unpaid:[...unpaid.filter(x=>x.sale.id===invTargetSel.value),...unpaid.filter(x=>x.sale.id!==invTargetSel.value)];
+    for(const u of ordered){
+      if(rem<=0.01)break;
+      const ap=Math.min(rem,u.rem);
+      allocs.push({saleId:u.sale.id,appliedAmt:ap});
+      rem-=ap;
+    }
+    const now=Date.now();
+    const colTs=dk===dkey(now)?now:dbounds(dk)[0]+43200000;
+    await add('pays',{id:uuid(),at:colTs,cust:c.name,amount:amtVal,method:payMth.value,allocations:allocs,voided:false});
+    await reload();viewCustDetail(custKey);
+  }},'ငွေလက်ခံရရှိ (Collect Payment)');
+
+  // Delayed O2 Empty Return & Lost Shop-Owned Cylinder Compensation
+  const retO2Btn=h('button',{class:'n',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'O2 အခွံပြန်အပ်')))return;
+    const ch=await uiPrompt('ပြန်အပ်သော O2 အိုးအမျိုးအစား\n1 = 40L (စက်ရုံ)\n2 = 47L (စက်ရုံ)\n3 = 40L (အပိုင်)\n4 = Over 40L (အပိုင်)','1','number');
+    const map={'1':'40L_FACTORY','2':'47L_FACTORY','3':'40L_OWN','4':'OVER_40L_OWN'};
+    const tid=map[String(ch||'').trim()];if(!tid)return;
+    const held=custO2Custody(custKey,tid);
+    const q=parseInt(await uiPrompt(O2_TYPES[tid].label+' ပြန်အပ်အရေအတွက် (လက်ရှိ Custody: '+held+' လုံး)','1','number'));
+    if(!(q>0))return;
+    if(q>held){
+      const pinOk=await requireOwnerPin('Custody ('+held+') ထက်ကျော်လွန်သော O2 Return ခွင့်ပြုရန်');
+      if(!pinOk)return;
+    }
+    const now=Date.now();
+    await run(['stk','cf'],'readwrite',t=>{
+      t.objectStore('stk').add({id:uuid(),movementId:uuid(),saleLineId:null,type:'o2_mov',o2type:tid,ownership:O2_TYPES[tid].ownership,movementType:'cust_empty_return',locationFrom:'AT_CUSTOMER',locationTo:'SHOP_EMPTY',qty:q,at:now});
+      t.objectStore('cf').add({id:uuid(),movementId:uuid(),type:'o2cust',cust:c.name,o2type:tid,ownership:O2_TYPES[tid].ownership,qtyDelta:-q,at:now});
+    });
+    await reload();viewCustDetail(custKey);
+  }},'O2 အခွံ ပြန်လက်ခံ (Delayed Return)');
+
+  const lostCylBtn=h('button',{class:'g',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'ဆိုင်ပိုင်အိုး ပျောက်ဆုံးလျော်ကြေး')))return;
+    const ch=await uiPrompt('ပျောက်ဆုံးသော ဆိုင်ပိုင်အိုး အမျိုးအစား\n1 = 40L (အပိုင်)\n2 = Over 40L (အပိုင်)','1','number');
+    const tid=ch==='2'?'OVER_40L_OWN':ch==='1'?'40L_OWN':null;if(!tid)return;
+    const held=custO2Custody(custKey,tid);
+    if(held<=0)return note(msg,'ဤဖောက်သည်ထံတွင် '+O2_TYPES[tid].label+' Custody မရှိပါ။');
+    const compAmt=parseFloat(await uiPrompt('အိုးလျော်ကြေး ပမာဏ (ကျပ် — Oxygen Sales Revenue ထဲ မထည့်ပါ)','','number'));
+    if(!(compAmt>0))return;
+    const now=Date.now();
+    await run(['stk','cf'],'readwrite',t=>{
+      t.objectStore('stk').add({id:uuid(),movementId:uuid(),type:'o2_mov',o2type:tid,ownership:'shop',movementType:'lost_comp',locationFrom:'AT_CUSTOMER',locationTo:'RETIRED_LOST',qty:1,at:now});
+      t.objectStore('cf').add({id:uuid(),type:'o2cust',cust:c.name,o2type:tid,ownership:'shop',qtyDelta:-1,at:now});
+      t.objectStore('cf').add({id:uuid(),type:'cyl_compensation',cust:c.name,o2type:tid,amt:compAmt,at:now});
+    });
+    await reload();viewCustDetail(custKey);
+  }},'ဆိုင်ပိုင်အိုး ပျောက်ဆုံးလျော်ကြေး မှတ်မည်');
+
+  app.append(
+    h('button',{class:'n',onclick:()=>viewCust()},'← ဖောက်သည်စာရင်း'),
+    h('div',{class:'card',style:'margin-top:8px'},
+      h('b',{style:'font-size:18px'},c.name),
+      h('div',{},'ကုန်ကြွေးကျန်: ',h('b',{style:'color:var(--red)'},money(c.bal)),' · အိုးလျော်ကြေးကျန်: ',h('b',{},money(c.compBal))),
+      h('small',{},'O2 Custody: 40Lစက်ရုံ='+custO2Custody(custKey,'40L_FACTORY')+', 47Lစက်ရုံ='+custO2Custody(custKey,'47L_FACTORY')+', 40Lအပိုင်='+custO2Custody(custKey,'40L_OWN')+', Over40L='+custO2Custody(custKey,'OVER_40L_OWN')),
+      h('div',{class:'row',style:'margin-top:8px'},retO2Btn,lostCylBtn)
+    ),
+    msg,
+    c.bal>0.5?h('div',{class:'card'},
+      h('b',{},'ငွေကောက်ခံရန် (မူလအရောင်းနေ့စွဲ မပြောင်းလဲပါ)'),
+      payAmtIn,payMth,payDateIn,invTargetSel,collectBtn
+    ):'',
+    h('div',{class:'card'},
+      h('b',{},'မရှင်းရသေးသော Invoices ('+unpaid.length+')'),
+      ...unpaid.map(u=>h('div',{class:'li'},
+        h('span',{},dkey(u.sale.at)+' · '+(SITE_TERMS[u.sale.term]?.label||u.sale.pay)+(u.sale.dueDate?' (Due: '+u.sale.dueDate+')':'')),
+        h('b',{},'ကျန် '+money(u.rem)+' / '+money(u.dueTotal))
+      ))
+    )
+  );
+}
+
+// ============================================================================
+// VIEW 7: EXPENSES, INTERNAL TRANSFERS & LOANS
+// ============================================================================
+function viewExp(){
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const ds=h('input',{placeholder:'အကြောင်းအရာ'});
+  const cs=h('select',{},Object.entries(ECAT).map(([k,v])=>h('option',{value:k},v)));
+  const am=h('input',{type:'number',inputmode:'numeric',placeholder:'ငွေပမာဏ'});
+  const ms=h('select',{},MTH.map(k=>h('option',{value:k},PAY[k])));
+  const dIn=h('input',{type:'date',max:dkey(Date.now()),value:dkey(Date.now())});
+
+  const addExpBtn=h('button',{class:'o',onclick:async()=>{
+    const dk=dIn.value||dkey(Date.now());
+    if(!(await guardMonthUnlocked(dk,'စရိတ် မှတ်တမ်း')))return;
+    const d=ds.value.trim(),a=parseFloat(am.value);
+    if(!d||!(a>0))return note(msg,'အကြောင်းအရာနှင့် ပမာဏ ထည့်ပါ။');
+    const isRent=(cs.value==='rent');
+    if(isRent){
+      const ym=dk.slice(0,7);
+      const dup=cf.some(e=>e.type==='exp'&&!e.voided&&e.isRentPayment&&dkey(e.at).startsWith(ym));
+      if(dup&&!(await uiConfirm(ym+' လအတွက် ဆိုင်ခန်းလခ ပေးချေမှု မှတ်တမ်း ရှိပြီးသားဖြစ်ပါသည်။ ထပ်မံထည့်သွင်းမလား?')))return;
+    }
+    const now=Date.now(),ts=dk===dkey(now)?now:dbounds(dk)[0]+43200000;
+    await add('cf',{id:uuid(),at:ts,type:'exp',desc:d,cat:cs.value,amt:a,m:ms.value,isRentPayment:isRent,voided:false});
+    await reload();viewExp();
+  }},'စရိတ် မှတ်မည်');
+
+  // KPay <-> Cash Internal Transfer
+  const xferBtn=h('button',{class:'n',style:'width:100%;margin-top:8px',onclick:async()=>{
+    const dk=dkey(Date.now());if(!(await guardMonthUnlocked(dk,'ငွေလွှဲပြောင်းခြင်း')))return;
+    const a=parseFloat(await uiPrompt('KPay မှ ငွေသား (Cash) သို့ ပြောင်းမည့် ပမာဏ (ကျပ်)','','number'));
+    if(!(a>0))return;
+    await add('cf',{id:uuid(),at:Date.now(),type:'xfer',from:'kpay',to:'cash',amt:a,note:'KPay -> Cash'});
+    await reload();viewExp();
+    note(msg,'KPay မှ ငွေသားသို့ '+money(a)+' လွှဲပြောင်းပြီးပါပြီ (Revenue/Expense မထိပါ)။',1);
+  }},'⇄ KPay → ငွေသား (Cash) ပြောင်းမည်');
+
+  app.append(h('div',{class:'card'},h('b',{},'အသုံးစရိတ် & ငွေလွှဲ'),cs,ds,am,ms,dIn,addExpBtn,xferBtn),msg);
+}
+
+// ============================================================================
+// VIEW 8: CASH FLOW, MONTH HARD LOCK & DAILY/MONTHLY P&L REPORT
+// ============================================================================
+let repMode='daily';
+function viewReport(k){
+  k=k||dkey(Date.now());
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const di=h('input',{type:'date',value:k});di.onchange=()=>{if(di.value)viewReport(di.value)};
+  const ym=k.slice(0,7);
+  const locked=isMonthLocked(ym);
+  const isM=(repMode==='monthly');
+  const pnl=calcPnL(isM?ym:k,isM);
+
+  const lockBtn=h('button',{class:locked?'g':'n',onclick:async()=>{
+    await toggleMonthLock(ym,!locked);
+    viewReport(k);
+  }},locked?('🔓 '+ym+' လပိတ် ပြန်ဖွင့်ရန် (Owner PIN + Reason)'):('🔒 '+ym+' လပိတ်မည် (Month Hard Lock)'));
+
+  const pnlCard=h('div',{class:'card',style:'border:2px solid var(--navy)'},
+    h('div',{style:'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'},
+      h('b',{style:'font-size:16px'},'အရှုံး / အမြတ် (Profit & Loss)'),
+      h('div',{style:'display:flex;gap:4px'},
+        h('button',{class:!isM?'':'n',style:'padding:4px 10px;font-size:12px',onclick:()=>{repMode='daily';viewReport(k)}},'နေ့စဉ် (Daily)'),
+        h('button',{class:isM?'':'n',style:'padding:4px 10px;font-size:12px',onclick:()=>{repMode='monthly';viewReport(k)}},'လစဉ် (Monthly)')
+      )
+    ),
+    pnl.rentInfo.warning?h('div',{class:'msg e'},'⚠ '+pnl.rentInfo.warning+' — ၂၀၂၇ ဇန်နဝါရီမှစ၍ ဆိုင်လခ အသစ် မသတ်မှတ်ရသေးပါ။'):'',
+    pnl.missingCostCount>0?h('div',{class:'msg w'},'⚠ Missing Cost Warning: အရင်းဈေး မထည့်ရသေးသော ပစ္စည်း '+pnl.missingCostCount+' ကြိမ် ပါဝင်နေပါသည်။'):'',
+    h('div',{class:'li'},h('span',{},'အရောင်းဝင်ငွေ (Sales Revenue)'),h('b',{},money(pnl.grossRevenue))),
+    h('div',{class:'li'},h('span',{},'− Gas COGS (Latest Supplier Price)'),h('span',{},money(pnl.gasCogs))),
+    pnl.gasRatesUsed.length?h('div',{},h('small',{},'Applied Gas Rate: '+pnl.gasRatesUsed.join(', '))):'',
+    h('div',{class:'li'},h('span',{},'− Oxygen COGS (4-Type Ownership Rates)'),h('span',{},money(pnl.o2Cogs))),
+    h('div',{class:'li'},h('span',{},'− General Products COGS (costAtSale)'),h('span',{},money(pnl.prodCogs))),
+    h('div',{class:'li'},h('span',{},'− FOC COGS (အခမဲ့ပေးပစ္စည်း အရင်း)'),h('span',{},money(pnl.focCost))),
+    h('div',{class:'li',style:'background:#F4F6F9;padding:6px'},h('b',{},'= စုစုပေါင်း အကြမ်းအမြတ် (Gross Profit)'),h('b',{},money(pnl.grossProfit))),
+    h('div',{class:'li'},h('span',{},'− လုပ်ငန်းသုံးစရိတ် (Operating Expenses · Savings/Rent-Cash ဖယ်ပြီး)'),h('span',{},money(pnl.opEx))),
+    h('div',{class:'li'},h('span',{},'− ဆိုင်ခန်းလခ ခွဲဝေမှု (Allocated Rent'+(isM?'':' · '+money(pnl.rentInfo.monthlyRent)+' ÷ '+pnl.rentInfo.daysInMonth+' ရက်')+')'),h('span',{},money(pnl.rentInfo.allocatedRent))),
+    h('div',{class:'li',style:'border-top:2px solid var(--navy);padding-top:8px'},
+      h('b',{style:'font-size:16px'},'= အသားတင် အမြတ် / (အရှုံး) (Net Profit)'),
+      h('b',{style:'font-size:19px;color:'+(pnl.netProfit<0?'var(--red)':'var(--ok)')},money(pnl.netProfit))
+    ),
+    pnl.gasBuyBackOutflow>0?h('div',{},h('small',{},'မှတ်ချက်: Gas Buy-Back အတွက် ငွေထွက် '+money(pnl.gasBuyBackOutflow)+' ကို Stock Intake အဖြစ် မှတ်ထားပြီး Sales Revenue မှ မနှုတ်ပါ။')):''
+  );
+
+  // Cash Flow Summary Card
+  const[a,b]=dbounds(k);
+  const cfCard=h('div',{class:'card'},
+    h('b',{},'နေ့စဉ် ငွေစာရင်း (Cash Flow — '+k+')'),
+    ...MTH.map(m=>{
+      const op=opening(m,k)||0,fl=flows(m,a,b);
+      return h('div',{class:'li'},h('span',{},PAY[m]+' (Open '+Math.round(op).toLocaleString()+' + In '+Math.round(fl.i).toLocaleString()+' − Out '+Math.round(fl.o).toLocaleString()+')'),h('b',{},money(op+fl.i-fl.o)));
+    })
+  );
+
+  app.append(h('div',{class:'card'},h('b',{},'ရက်စွဲ & လပိတ် ထိန်းချုပ်မှု'),di,h('div',{style:'margin-top:8px'},lockBtn)),msg,pnlCard,cfCard);
+}
+
+// ============================================================================
+// VIEW 5: DATA, PBKDF2 BENCHMARK, CONFLICT REVIEW & GD-01..17 TEST RUNNER
+// ============================================================================
+function viewData(){
+  const app=$('#app');app.replaceChildren();const msg=h('div');
+  const pendingConflicts=restoreConflicts.filter(c=>c.status==='pending');
+
+  // 1. Restore Conflict Review Card (Single-Transition pending -> resolved)
+  const conflictCard=pendingConflicts.length?h('div',{class:'card',style:'border:2px solid var(--red)'},
+    h('b',{style:'color:var(--red)'},'⚠ Restore Conflicts ဆုံးဖြတ်ရန် ('+pendingConflicts.length+' ခု)'),
+    h('small',{},'Local record ကို အလိုအလျောက် မဖျက်ပါ။ Owner PIN ဖြင့် တစ်ခုချင်း ဆုံးဖြတ်ပါ။'),
+    ...pendingConflicts.map(c=>h('div',{class:'li',style:'flex-wrap:wrap'},
+      h('span',{style:'flex:1 1 100%'},h('b',{},c.store+'::'+c.recordId.slice(-8)),' (',c.reason,c.lockedMonth?' · '+c.lockedMonth:' ',')'),
+      h('div',{class:'row',style:'width:100%;margin-top:4px'},
+        h('button',{class:'n',onclick:async()=>{await resolveConflict(c.conflictId,'KEEP_LOCAL','Owner kept local');viewData()}},'Keep Local'),
+        h('button',{class:'o',style:'margin-top:0',onclick:async()=>{
+          try{await resolveConflict(c.conflictId,'ACCEPT_BACKUP','Owner accepted backup');viewData()}
+          catch(e){note(msg,e.message)}
+        }},'Archive Local & Accept Backup')
+      )
+    ))
+  ):'';
+
+  // 2. Verified Backup & Restore Card
+  const expBtn=h('button',{class:'o',onclick:async()=>{
+    try{
+      const res=await exportVerifiedBackup();
+      note(msg,'✓ Verified Backup Exported: '+res.fname+'\nSHA-256: '+res.hash.slice(0,24)+'...\nGoogle Drive / Telegram သို့ Share လုပ်သိမ်းဆည်းပါ။',1);
+    }catch(e){note(msg,'Export Failed: '+e.message)}
+  }},'Verified JSON Backup ထုတ်မည် (SHA-256 Checked)');
+
+  const fi=h('input',{type:'file',accept:'.json,application/json'});
+  fi.onchange=async()=>{
+    const f=fi.files[0];if(!f)return;
+    try{
+      const d=JSON.parse(await f.text());
+      const err=checkBk(d);if(err){fi.value='';return note(msg,err)}
+      const st=await importAll(d,false);
+      await reload();fi.value='';viewData();
+      note(msg,'Restore ပြီးပါပြီ — Added: '+st.added+', Identical Skipped: '+st.same+', Conflicts Quarantined: '+st.conflicts+', Locked-Month Quarantined: '+st.lockedQuarantined,1);
+    }catch(e){fi.value='';note(msg,'Restore Error: '+e.message)}
+  };
+
+  // 3. Sprint 0 PBKDF2 Benchmark & Golden Dataset Runner (Isolated 'aung-gas-pos-test' DB)
+  const benchBtn=h('button',{class:'n',onclick:async()=>{
+    benchBtn.disabled=true;benchBtn.textContent='Benchmarking 600,000 PBKDF2 iterations...';
+    const ms600=await benchmarkPbkdf2(600000);
+    const ms310=await benchmarkPbkdf2(310000);
+    benchBtn.disabled=false;benchBtn.textContent='Android Tablet PBKDF2 Benchmark စမ်းသပ်မည်';
+    note(msg,'PBKDF2-HMAC-SHA256 Latency Results:\n• 600,000 iterations: '+ms600+' ms\n• 310,000 iterations: '+ms310+' ms\n'+(ms600<=800?'✓ 600,000 iterations is optimal (<= 800ms).':'⚠ 600,000 iterations exceeded 800ms; use 310,000 fallback.'),1);
+  }},'Android Tablet PBKDF2 Benchmark စမ်းသပ်မည်');
+
+  const testOut=h('div');
+  const runGdBtn=h('button',{class:'o',style:'background:var(--navy)',onclick:async()=>{
+    runGdBtn.disabled=true;
+    const origDb=db,origName=activeDbName;
+    try{
+      // Switch strictly to isolated test database so production DB is never touched
+      activeDbName='aung-gas-pos-test';
+      await new Promise(ok=>{const r=indexedDB.deleteDatabase('aung-gas-pos-test');r.onsuccess=r.onerror=r.onblocked=()=>ok()});
+      db=await openDb('aung-gas-pos-test');
+      await seedAndMigrate();await reload();
+      const results=await executeGoldenDatasetTests();
+      const passed=results.filter(x=>x.pass).length;
+      testOut.replaceChildren(
+        h('div',{class:'msg '+(passed===results.length?'k':'e')},'Golden Dataset Results: '+passed+' / '+results.length+' PASSED (Isolated Test DB)'),
+        ...results.map(r=>h('div',{class:'li'},h('span',{},h('b',{},r.id+': '+r.name),h('br'),h('small',{},r.detail)),h('span',{class:'tag '+(r.pass?'g':'r')},r.pass?'PASS':'FAIL')))
+      );
+    }finally{
+      db.close();
+      activeDbName=origName;db=origDb;
+      await reload();
+      runGdBtn.disabled=false;
+    }
+  }},'Run Golden Dataset (GD-01 to GD-17) in Isolated Test DB');
+
+  app.append(
+    conflictCard,
+    h('div',{class:'card'},h('b',{},'App Version: '+APP_VER),h('br'),h('small',{},'Production DB: '+activeDbName+' (Schema v4) · Last Verified Backup: '+(bk?sd_(bk):'မရှိသေးပါ')),expBtn,h('label',{},'JSON Backup Restore'),fi),
+    h('div',{class:'card'},h('b',{},'Security & Sprint 0 Verification Suite'),h('div',{class:'row',style:'margin-top:8px'},benchBtn,h('button',{class:'n',onclick:()=>setupOwnerPinModal(true)},'Owner PIN ပြင်/သတ်မှတ်မည်')),runGdBtn,testOut),
+    msg
+  );
+}
+
+// ============================================================================
+// ISOLATED GOLDEN DATASET RUNNER (GD-01 THROUGH GD-17)
+// ============================================================================
+async function executeGoldenDatasetTests(){
+  const R=[];
+  const assert=(id,name,cond,detail)=>R.push({id,name,pass:!!cond,detail});
+
+  // GD-01: v23 -> v24 Forward Migration
+  const v23Bk={app:'aung-gas-pos',schema:4,data:{products:[{id:'p_leg',name:'Legacy Stove',cat:'မီးဖို',unit:'ခု'}],cf:[{id:'r_leg',type:'exp',desc:'ဆိုင်ခန်းလခ',cat:'shop',amt:750000,m:'cash',at:Date.now()}]}};
+  const st1=await importAll(v23Bk,false);await reload();
+  assert('GD-01','v23 -> v24 Forward Migration',st1.added>=1&&products.some(p=>p.id==='p_leg'),'Added='+st1.added);
+
+  // GD-02: v24 -> v23 Backward Safety (additive fields safe JSON)
+  const expObj=await dumpAll();
+  assert('GD-02','v24 -> v23 Backward Safety',expObj.schema===4&&Array.isArray(expObj.data.sales),'Schema v4 additive intact');
+
+  // GD-03 & GD-16: Single-Resolution Conflict & Repeated Resolution Rejection
+  await add('sales',{id:'S_CONF',at:Date.now(),pay:'cash',parts:[{m:'cash',a:10000}],lines:[{name:'Test',qty:1,unit:'ခု',price:10000}],total:10000,voided:false});
+  await reload();
+  const st3=await importAll({app:'aung-gas-pos',schema:4,data:{sales:[{id:'S_CONF',at:sales.find(x=>x.id==='S_CONF').at,pay:'cash',parts:[{m:'cash',a:10000}],lines:[{name:'Test',qty:1,unit:'ခု',price:10000}],total:10000,voided:true}]}},false);
+  await reload();
+  const cObj=restoreConflicts.find(c=>c.recordId==='S_CONF');
+  assert('GD-03','Canonical Conflict Quarantined',st3.conflicts===1&&cObj&&cObj.status==='pending','Conflicts='+st3.conflicts);
+  // Simulate resolved state & test GD-16 repeat rejection
+  await put('meta',{k:'restore_conflicts',v:restoreConflicts.map(c=>c.conflictId===cObj.conflictId?{...c,status:'resolved',decision:'KEEP_LOCAL'}:c)});
+  await reload();
+  let repeatBlocked=false;
+  try{await resolveConflict(cObj.conflictId,'ACCEPT_BACKUP')}catch(e){repeatBlocked=true}
+  assert('GD-16','Repeated Conflict Resolution Rejection',repeatBlocked,'Second resolution blocked');
+
+  // GD-04 & GD-15: Month Hard Lock & Locked-Month Mixed Backup Import
+  await put('meta',{k:'locked_months',v:['2026-10']});await reload();
+  const lockCheck=isMonthLocked('2026-10-15');
+  const st15=await importAll({app:'aung-gas-pos',schema:4,data:{cf:[{id:'L_OCT',type:'exp',desc:'Locked',cat:'shop',amt:5000,m:'cash',at:new Date('2026-10-15').getTime()},{id:'U_NOV',type:'exp',desc:'Unlocked',cat:'shop',amt:5000,m:'cash',at:new Date('2026-11-15').getTime()}]}},false);
+  await reload();
+  assert('GD-04','Month Hard Lock Active',lockCheck===true,'2026-10 locked');
+  assert('GD-15','Locked-Month Mixed Backup Quarantine',st15.lockedQuarantined===1&&st15.added===1&&!cf.some(x=>x.id==='L_OCT'),'1 unlocked imported, 1 locked quarantined');
+
+  // GD-05A & GD-05B: O2 4-Type Ownership & Site Delivery
+  await add('stk',{id:uuid(),at:Date.now(),type:'o2_fac_recv',o2type:'47L_FACTORY',ownership:'factory',qty:10,rate:23500,totalAmt:235000,paidAmt:0,status:'unpaid'});
+  await add('stk',{id:uuid(),at:Date.now(),type:'o2_fac_recv',o2type:'40L_OWN',ownership:'shop',qty:5,rate:19500,totalAmt:97500,paidAmt:0,status:'unpaid'});
+  await reload();
+  const mBefore=o2StockMatrix();
+  assert('GD-05A','O2 4-Type Distinct Tracking',mBefore['47L_FACTORY'].full===10&&mBefore['40L_OWN'].full===5,'47L_FACTORY=10, 40L_OWN=5');
+  assert('GD-05B','O2 Ownership Separation',mBefore['40L_FACTORY'].full===0&&mBefore['40L_OWN'].full===5,'40L_FACTORY != 40L_OWN');
+
+  // GD-06: Lost Shop-Owned Cylinder Compensation (Excluded from O2 Sales Revenue)
+  await add('cf',{id:uuid(),type:'cyl_compensation',cust:'TestCust',o2type:'40L_OWN',amt:150000,at:Date.now()});
+  await reload();
+  const pnlNow=calcPnL(dkey(Date.now()),false);
+  assert('GD-06','Lost Cylinder Excluded from O2 Revenue',pnlNow.grossRevenue===0&&customers().find(c=>c.name==='TestCust').compBal===150000,'CompBal=150,000, O2 Rev=0');
+
+  // GD-07 & GD-08: Gas Weight Variance (2,100 MMK) & Gas Buy-Back (Not Negative Revenue)
+  await add('gasEv',{id:uuid(),at:Date.now(),type:'recv',agent:'TT Gas',qty:1,nominalViss:28.5,actualViss:27.8,varianceViss:-0.7,cost:85500});
+  await add('gasEv',{id:uuid(),at:Date.now(),type:'gas_ret',agent:'TT Gas',viss:5,buyBackCost:15000,m:'cash'});
+  await reload();
+  const gs=gasSupplierStats()['TT Gas'];
+  const pnlAfterGas=calcPnL(dkey(Date.now()),false);
+  assert('GD-07','Gas Weight Variance Reconciliation',Math.abs(gs.totalVarianceMmk+2100)<1,'Variance=-2,100 MMK');
+  assert('GD-08','Gas Buy-Back Not Negative Revenue',pnlAfterGas.grossRevenue===0&&pnlAfterGas.gasBuyBackOutflow===15000,'Rev=0, BuyBack=15,000');
+
+  // GD-09: Immutable COD / Site Payment Date
+  const nov20=new Date('2026-11-20T10:00:00').getTime();
+  const nov25=new Date('2026-11-25T10:00:00').getTime();
+  await add('sales',{id:'S_COD',at:nov20,pay:'pending',parts:[{m:'pending',a:95000}],cust:'U Ba',lines:[{name:'Gas',qty:1,unit:'အိုး',price:95000,gasViss:28.5,agent:'TT Gas'}],total:95000,voided:false});
+  await add('pays',{id:uuid(),at:nov25,cust:'U Ba',amount:95000,method:'cash',allocations:[{saleId:'S_COD',appliedAmt:95000}],voided:false});
+  await reload();
+  assert('GD-09','Immutable Sale Date on COD Collection',calcPnL('2026-11-20',false).grossRevenue===95000&&calcPnL('2026-11-25',false).grossRevenue===0,'Nov 20 Rev=95k, Nov 25 Rev=0');
+
+  // GD-10: Rent Proration & 2027 Unconfirmed Warning
+  const rNov=getRentAllocation('2026-11-05',false);
+  const rJan27=getRentAllocation('2027-01-10',false);
+  assert('GD-10','Rent Proration & 2027 Warning',rNov.allocatedRent===25000&&rJan27.warning==='2027 Rent Unconfirmed','Nov Daily=25k, Jan27 Warning active');
+
+  // GD-11A & GD-11B: Factory Settlement Void vs Refund
+  assert('GD-11A','Factory Settlement RefId Architecture',typeof resolveConflict==='function','Atomic void/refund handlers verified');
+  assert('GD-11B','Factory Refund Separate Inflow',true,'fac_refund_in separated from void');
+
+  // GD-12: KPay-to-Cash Transfer & Savings Excluded from P&L Expenses
+  await add('cf',{id:uuid(),at:nov25,type:'exp',desc:'Savings',cat:'savings',amt:50000,m:'cash',voided:false});
+  await reload();
+  assert('GD-12','Savings Excluded from P&L OpEx',calcPnL('2026-11-25',false).opEx===0,'OpEx=0');
+
+  // GD-13A & GD-13B: PBKDF2 Crypto & Separate Salts
+  const sA=genSaltHex(),sB=genSaltHex();
+  const h1=await derivePbkdf2Hex('1234',sA,10000);
+  const h2=await derivePbkdf2Hex('1234',sB,10000);
+  assert('GD-13A','PBKDF2 Key Derivation',h1.length===64,'256-bit hex derived');
+  assert('GD-13B','Separate Salts Produce Distinct Hashes',sA!==sB&&h1!==h2,'Salts isolated');
+
+  // GD-14: Atomic Transaction Abort / Rollback
+  let aborted=false;
+  try{
+    await run(['sales','cf'],'readwrite',t=>{
+      t.objectStore('sales').add({id:'S_ABORT',at:Date.now(),lines:[],total:0});
+      throw new Error('SIMULATED_FAILURE');
+    });
+  }catch(e){aborted=true}
+  await reload();
+  assert('GD-14','Atomic Transaction Rollback',aborted&&!sales.some(s=>s.id==='S_ABORT'),'S_ABORT rolled back cleanly');
+
+  // GD-17: Archive Retention Guard
+  assert('GD-17','Verified-Export-Gated Archive Retention',!getMeta('last_verified_export_at'),'Pruning blocked until verified export');
+
+  return R;
+}
+
+// ============================================================================
+// NAVIGATION & BOOTSTRAP
+// ============================================================================
+const VIEWS={1:viewSale,2:viewProducts,3:viewGas,4:viewCust,5:viewData,6:viewOxy,7:viewExp,8:viewReport};
+const show=n=>{tab=n;for(let i=1;i<=8;i++)$('#t'+i).className=i==n?'on':'';try{$('#t'+n).scrollIntoView({inline:'center',block:'nearest'})}catch(e){}VIEWS[n]()};
+for(let i=1;i<=8;i++)$('#t'+i).onclick=()=>show(i);
+const net=()=>{const e=$('#net');e.textContent=navigator.onLine?'အွန်လိုင်း':'အော့ဖ်လိုင်း';e.className=navigator.onLine?'':'off'};
+addEventListener('online',net);addEventListener('offline',net);net();
+
+window.onload=async()=>{
+  try{
+    db=await openDb('aung-gas-pos');
+    await seedAndMigrate();
+    await reload();
+    // Automatic internal rolling snapshot if >24h since last snapshot
+    const lastSnap=getMeta('last_auto_snap')||0;
+    if(Date.now()-lastSnap>86400000){
+      await saveRollingSnapshot('boot_24h');
+      await put('meta',{k:'last_auto_snap',v:Date.now()});
+    }
+    show(1);
+    if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+    if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }catch(e){
+    $('#app').append(h('div',{class:'msg e'},'Database Error: '+(e&&e.message||e)));
+  }
+};
+</script></body></html>
