@@ -1,52 +1,19 @@
-// AUNG Gas Solutions POS v24-s13 Service Worker
-// Cache version identifier for offline-first PWA updates
-const CACHE_NAME = 'aung-gas-pos-v24-s13';
+const SECRET_KEY = 'AUNG2026SECRET'; // App ထဲက Sync Secret Key နဲ့ တူရပါမယ်
 
-// Core application shell assets to pre-cache on install
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icon-192.png'
-];
-
-// Install event: activate immediately and pre-cache core assets
-self.addEventListener('install', event => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).catch(() => {})
-  );
-});
-
-// Activate event: delete outdated caches and take control of all open clients
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
-});
-
-// Message event: allow immediate update trigger from the UI
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+function doGet(e) {
+  const reqSecret = (e && e.parameter && e.parameter.secret) || '';
+  if (SECRET_KEY && reqSecret !== SECRET_KEY) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Unauthorized: Invalid Secret Key' }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
-});
+  // ... existing doGet logic ...
+}
 
-// Fetch event: bypass Google Apps Script Cloud Sync URLs, network-first with cache fallback for app assets
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  if (event.request.url.includes('script.google.com') || event.request.url.includes('script.googleusercontent.com')) return;
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        if (response && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone)).catch(() => {});
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
-  );
-});
+function doPost(e) {
+  const payload = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+  if (SECRET_KEY && (payload.secret || '') !== SECRET_KEY) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Unauthorized: Invalid Secret Key' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  // ... existing doPost logic (use payload.data) ...
+}
