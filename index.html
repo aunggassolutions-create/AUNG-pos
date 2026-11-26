@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0B1F3A">
+  <meta name="theme-color" content="#0B192C">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
-  <title>AUNG Gas Solutions POS v24</title>
+  <title>AUNG Gas Solutions POS v24-s13</title>
   <style>
     :root {
-      --navy: #0B1F3A;
+      --navy: #0B192C;
       --navy-mid: #16325B;
       --org: #E86A12;
       --org-soft: #FFE9D6;
@@ -38,7 +38,7 @@
       align-items: center;
       justify-content: center;
       z-index: 999;
-      transition: opacity .45s ease, visibility .45s ease;
+      transition: opacity .35s ease, visibility .35s ease;
     }
     #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
     header {
@@ -80,7 +80,7 @@
       border-radius: 9px;
       padding: 11px;
       margin-bottom: 10px;
-      box-shadow: 0 1px 2px rgba(11, 31, 58, .05);
+      box-shadow: 0 1px 2px rgba(11, 25, 44, .05);
     }
     label { display: block; font-size: 13.5px; margin-top: 8px; font-weight: 600; color: var(--navy); }
     input, select, textarea {
@@ -188,7 +188,7 @@
     .modal-bg {
       position: fixed;
       inset: 0;
-      background: rgba(11, 31, 58, .68);
+      background: rgba(11, 25, 44, .68);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -258,7 +258,28 @@
   <div id="rcpt"></div>
 
   <script>
-    setTimeout(() => { const sp = document.getElementById('splash'); if (sp) sp.classList.add('hide'); }, 900);
+    // Guaranteed splash dismissal so screen never stays white
+    const hideSplash = () => {
+      const sp = document.getElementById('splash');
+      if (sp) sp.classList.add('hide');
+    };
+    setTimeout(hideSplash, 700);
+
+    // Global error boundary for immediate diagnostics instead of blank screen
+    window.addEventListener('error', e => {
+      hideSplash();
+      const appEl = document.getElementById('app');
+      if (appEl && !appEl.innerHTML.trim()) {
+        appEl.innerHTML = '<div class="msg e">App Error: ' + String(e && e.message || e) + '</div>';
+      }
+    });
+    window.addEventListener('unhandledrejection', e => {
+      hideSplash();
+      const appEl = document.getElementById('app');
+      if (appEl && !appEl.innerHTML.trim()) {
+        appEl.innerHTML = '<div class="msg e">Async Error: ' + String(e && e.reason && e.reason.message || e.reason || e) + '</div>';
+      }
+    });
 
     const $ = s => document.querySelector(s);
     const h = (t, a = {}, ...c) => {
@@ -272,7 +293,7 @@
       return e;
     };
     const money = n => Math.round(n).toLocaleString('en-US') + ' ကျပ်';
-    const uuid = () => crypto.randomUUID ? crypto.randomUUID() : 's' + Date.now() + Math.random().toString(36).slice(2);
+    const uuid = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 's' + Date.now() + Math.random().toString(36).slice(2);
     const AUTO_EXP_EFFECTIVE_DATE = '2026-11-26';
 
     const CATS = ['LPG ဓာတ်ငွေ့', 'LPG အိုး/ဗူး', 'အောက်ဆီဂျင်', 'မီးဖို', 'Regulator/Valve', 'ဆက်စပ်ပစ္စည်း'];
@@ -325,44 +346,57 @@
     };
 
     // =========================================================================
-    // 1. VERSION-SAFE INDEXEDDB OPENER & CLOUD SYNC ENGINE
+    // 1. VERSION-SAFE INDEXEDDB OPENER (WITH IN-MEMORY SANDBOX FALLBACK)
     // =========================================================================
     const REQUIRED_STORES = ['products', 'sales', 'meta', 'gasEv', 'pays', 'stk', 'cf'];
     const LOCAL_ONLY_META = new Set(['lastBackup', 'seeded', 'gas2', 'rollingSnapshots', 'preRestoreSnap', 'syncUrl', 'lastSyncAt', 'autoSync']);
-    let db;
+    let db = null;
+    let useMemDb = false;
+    const memStore = {};
+    REQUIRED_STORES.forEach(n => { memStore[n] = new Map(); });
 
-    const open = () => new Promise((ok, no) => {
-      const probe = indexedDB.open('aung-gas-pos');
-      probe.onerror = () => no(probe.error);
-      probe.onupgradeneeded = () => {
-        const d = probe.result;
-        REQUIRED_STORES.forEach(n => {
-          if (!d.objectStoreNames.contains(n)) {
-            d.createObjectStore(n, { keyPath: n === 'meta' ? 'k' : 'id' });
-          }
-        });
-      };
-      probe.onsuccess = () => {
-        const d = probe.result;
-        const missing = REQUIRED_STORES.filter(n => !d.objectStoreNames.contains(n));
-        if (missing.length === 0) {
-          ok(d);
-          return;
+    const open = () => new Promise(ok => {
+      try {
+        if (!window.indexedDB) {
+          useMemDb = true;
+          return ok(null);
         }
-        const nextVer = (d.version || 4) + 1;
-        d.close();
-        const upg = indexedDB.open('aung-gas-pos', nextVer);
-        upg.onupgradeneeded = () => {
-          const ud = upg.result;
+        const probe = indexedDB.open('aung-gas-pos');
+        probe.onerror = () => { useMemDb = true; ok(null); };
+        probe.onblocked = () => { useMemDb = true; ok(null); };
+        probe.onupgradeneeded = () => {
+          const d = probe.result;
           REQUIRED_STORES.forEach(n => {
-            if (!ud.objectStoreNames.contains(n)) {
-              ud.createObjectStore(n, { keyPath: n === 'meta' ? 'k' : 'id' });
+            if (!d.objectStoreNames.contains(n)) {
+              d.createObjectStore(n, { keyPath: n === 'meta' ? 'k' : 'id' });
             }
           });
         };
-        upg.onsuccess = () => ok(upg.result);
-        upg.onerror = () => no(upg.error);
-      };
+        probe.onsuccess = () => {
+          const d = probe.result;
+          const missing = REQUIRED_STORES.filter(n => !d.objectStoreNames.contains(n));
+          if (missing.length === 0) {
+            ok(d);
+            return;
+          }
+          const nextVer = (d.version || 4) + 1;
+          d.close();
+          const upg = indexedDB.open('aung-gas-pos', nextVer);
+          upg.onupgradeneeded = () => {
+            const ud = upg.result;
+            REQUIRED_STORES.forEach(n => {
+              if (!ud.objectStoreNames.contains(n)) {
+                ud.createObjectStore(n, { keyPath: n === 'meta' ? 'k' : 'id' });
+              }
+            });
+          };
+          upg.onsuccess = () => ok(upg.result);
+          upg.onerror = () => { useMemDb = true; ok(null); };
+        };
+      } catch (e) {
+        useMemDb = true;
+        ok(null);
+      }
     });
 
     let syncTimer = null;
@@ -395,7 +429,25 @@
       }, 2200);
     };
 
+    // Unified DB helpers supporting both IndexedDB and Sandbox In-Memory fallback
+    const makeMemOs = n => ({
+      add: o => { const k = n === 'meta' ? o.k : o.id; if (memStore[n].has(k)) throw Object.assign(new Error('Exists'), { name: 'ConstraintError' }); memStore[n].set(k, JSON.parse(JSON.stringify(o))); },
+      put: o => { const k = n === 'meta' ? o.k : o.id; memStore[n].set(k, JSON.parse(JSON.stringify(o))); },
+      delete: k => { memStore[n].delete(k); },
+      clear: () => { memStore[n].clear(); },
+      get: k => { const r = { result: memStore[n].get(k), onsuccess: null }; setTimeout(() => { if (r.onsuccess) r.onsuccess(); }, 0); return r; }
+    });
+
     const run = (st, mode, fn) => new Promise((ok, no) => {
+      if (useMemDb || !db) {
+        try {
+          const fakeTx = { objectStore: n => makeMemOs(n) };
+          const out = fn(fakeTx);
+          if (mode === 'readwrite') scheduleAutoSync();
+          ok(out);
+        } catch (err) { no(err); }
+        return;
+      }
       const t = db.transaction(st, mode);
       let out;
       t.oncomplete = () => {
@@ -406,21 +458,23 @@
       t.onerror = () => {};
       out = fn(t);
     });
+
     const all = s => new Promise((ok, no) => {
+      if (useMemDb || !db) {
+        return ok(Array.from(memStore[s].values()).map(x => JSON.parse(JSON.stringify(x))));
+      }
       const q = db.transaction(s).objectStore(s).getAll();
       q.onsuccess = () => ok(q.result);
       q.onerror = () => no(q.error);
     });
+
     const add = (s, o) => run(s, 'readwrite', t => t.objectStore(s).add(o));
     const put = (s, o) => run(s, 'readwrite', t => t.objectStore(s).put(o));
     const del = (s, k) => run(s, 'readwrite', t => t.objectStore(s).delete(k));
 
     async function seed() {
-      const m = await new Promise(ok => {
-        const q = db.transaction('meta').objectStore('meta').get('seeded');
-        q.onsuccess = () => ok(q.result);
-      });
-      if (m) return;
+      const mm = await all('meta');
+      if (mm.find(x => x.k === 'seeded')) return;
       await run(['products', 'meta'], 'readwrite', t => {
         SAMPLE.forEach(([n, c, u]) => t.objectStore('products').add({
           id: uuid(), name: n, cat: c, unit: u, sample: true, at: Date.now()
@@ -483,6 +537,23 @@
     }
 
     const mergeRemoteStoreData = remoteData => new Promise((ok, no) => {
+      if (useMemDb || !db) {
+        const stats = { added: 0, updated: 0 };
+        REQUIRED_STORES.forEach(n => {
+          const list = Array.isArray(remoteData[n]) ? remoteData[n] : [];
+          list.forEach(r => {
+            if (!r || typeof r !== 'object') return;
+            const key = n === 'meta' ? r.k : r.id;
+            if (!key || (n === 'meta' && LOCAL_ONLY_META.has(key))) return;
+            const loc = memStore[n].get(key);
+            if (loc === undefined) { memStore[n].set(key, r); stats.added++; }
+            else if (recTimestamp(n, r) > recTimestamp(n, loc) && JSON.stringify(loc) !== JSON.stringify(r)) {
+              memStore[n].set(key, r); stats.updated++;
+            }
+          });
+        });
+        return ok(stats);
+      }
       const t = db.transaction(REQUIRED_STORES, 'readwrite');
       const stats = { added: 0, updated: 0 };
       REQUIRED_STORES.forEach(n => {
@@ -514,6 +585,9 @@
       t.onabort = () => no(t.error);
     });
 
+    // =========================================================================
+    // v24-s13 GOOGLE APPS SCRIPT CORS-SAFE CLOUD SYNC
+    // =========================================================================
     async function runCloudSync({ silent = false, pushOnly = false } = {}) {
       const url = getSyncUrl().trim();
       if (!url) return { ok: false, error: 'Sync URL မထည့်ရသေးပါ။' };
@@ -528,28 +602,46 @@
       try {
         let pulled = { added: 0, updated: 0 };
         if (!pushOnly) {
-          const getRes = await fetch(url, { method: 'GET', redirect: 'follow' });
+          const getRes = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-store',
+            redirect: 'follow'
+          });
           if (!getRes.ok) throw new Error('GET HTTP ' + getRes.status);
-          const getJson = await getRes.json();
+          const rawGetText = await getRes.text();
+          let getJson;
+          try {
+            getJson = JSON.parse(rawGetText);
+          } catch (e) {
+            throw new Error('Apps Script GET မှ JSON အဖြေ မဟုတ်ပါ (Deploy > New deployment > Anyone စစ်ပါ)');
+          }
           if (!getJson || !getJson.ok) throw new Error((getJson && getJson.error) || 'Invalid server response');
           pulled = await mergeRemoteStoreData(getJson.data || {});
         }
 
         const localPayload = await buildSyncPayload();
+        // Content-Type: text/plain;charset=utf-8 avoids browser CORS preflight OPTIONS request
         const postRes = await fetch(url, {
           method: 'POST',
+          mode: 'cors',
+          cache: 'no-store',
           redirect: 'follow',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ data: localPayload })
         });
         if (!postRes.ok) throw new Error('POST HTTP ' + postRes.status);
-        const postJson = await postRes.json();
+        const rawPostText = await postRes.text();
+        let postJson;
+        try {
+          postJson = JSON.parse(rawPostText);
+        } catch (e) {
+          throw new Error('Apps Script POST မှ JSON အဖြေ မဟုတ်ပါ (doPost(e) နှင့် New deployment စစ်ပါ)');
+        }
         if (!postJson || !postJson.ok) throw new Error((postJson && postJson.error) || 'POST failed');
 
         const now = Date.now();
-        const tx = db.transaction('meta', 'readwrite');
-        tx.objectStore('meta').put({ k: 'lastSyncAt', v: now });
-        await new Promise((r, j) => { tx.oncomplete = r; tx.onabort = () => j(tx.error); });
+        await put('meta', { k: 'lastSyncAt', v: now });
         lastSyncAt = now;
 
         await reload();
@@ -562,7 +654,11 @@
       } catch (err) {
         syncInProgress = false;
         updateSyncBadge('err', 'Sync !');
-        return { ok: false, error: String(err && err.message || err) };
+        const rawErr = String(err && err.message || err);
+        const friendlyErr = /failed to fetch|networkerror/i.test(rawErr)
+          ? 'Failed to fetch — Google Apps Script တွင် (၁) Deploy > New deployment > Web app ဖြင့် ထုတ်ထားခြင်း ရှိ/မရှိ၊ (၂) Who has access ကို "Anyone" ရွေးထားခြင်း ရှိ/မရှိ၊ (၃) URL အဆုံးသည် /exec ဖြစ်ခြင်း ရှိ/မရှိ စစ်ဆေးပါ။'
+          : rawErr;
+        return { ok: false, error: friendlyErr };
       }
     }
 
@@ -2359,9 +2455,9 @@
     }
 
     // =========================================================================
-    // 6. TAB 5: ဒေတာ (CLOUD SYNC, BACKUP, RESTORE, MONTH LOCK & UPDATE)
+    // 6. TAB 5: ဒေတာ (CLOUD SYNC v24-s13 CORS FIX, BACKUP, RESTORE & LOCK)
     // =========================================================================
-    const APP_VER = 'v24-s12 (Cloud Sync + Multi-Device)';
+    const APP_VER = 'v24-s13 (CORS Fix + Multi-Device)';
     const STORES = ['products', 'sales', 'gasEv', 'pays', 'stk', 'cf', 'meta'];
     const saveBlob = (name, blob) => {
       const u = URL.createObjectURL(blob), a = h('a', { href: u, download: name });
@@ -2398,6 +2494,21 @@
     };
 
     const importAll = (d, fresh) => new Promise((ok, no) => {
+      if (useMemDb || !db) {
+        const st = { added: 0, same: 0, diff: 0 };
+        if (fresh) memStore.products.clear();
+        STORES.forEach(n => {
+          (d.data[n] || []).forEach(r => {
+            if (n === 'meta' && LOCAL_ONLY_META.has(r.k)) return;
+            const k = n === 'meta' ? r.k : r.id;
+            const ex = memStore[n].get(k);
+            if (ex === undefined) { memStore[n].set(k, r); st.added++; }
+            else if (JSON.stringify(ex) === JSON.stringify(r)) st.same++;
+            else st.diff++;
+          });
+        });
+        return ok(st);
+      }
       const t = db.transaction(STORES, 'readwrite'), st = { added: 0, same: 0, diff: 0 };
       if (fresh) t.objectStore('products').clear();
       STORES.forEach(n => {
@@ -2434,7 +2545,7 @@
       const st = t => new Date(t).toLocaleDateString('en-GB') + ' ' + new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       const days = bk ? (Date.now() - bk) / 864e5 : null;
 
-      // Cloud Sync Card (Google Sheets Web App)
+      // Cloud Sync Card (Google Sheets Web App — v24-s13 CORS Fixed)
       const syncMsg = h('div');
       const urlIn = h('input', {
         placeholder: 'https://script.google.com/macros/s/....../exec',
@@ -2458,7 +2569,7 @@
           syncUrl = v;
           try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
           await put('meta', { k: 'syncUrl', v });
-          updateSyncBadge(v ? '' : '', v ? 'Sync' : '');
+          updateSyncBadge('', v ? 'Sync' : '');
           note(syncMsg, v ? 'Sync URL သိမ်းပြီးပါပြီ။ အောက်ကခလုတ်ဖြင့် Sync စတင်နိုင်ပါပြီ။' : 'Sync URL ဖျက်ပြီးပါပြီ။', 1);
         }
       }, 'URL သိမ်းမည်');
@@ -2481,7 +2592,7 @@
           if (res.ok) {
             note(syncMsg, '✓ Sync ပြီးပါပြီ! (Cloud မှ အသစ်ဝင် ' + res.pulled.added + ' · ပြင်ဆင် ' + res.pulled.updated + ' · Cloud ပေါ်တင် ' + res.upserted + ')', 1);
           } else {
-            note(syncMsg, 'Sync မအောင်မြင်ပါ: ' + res.error + '\n(Apps Script Deploy တွင် Who has access: Anyone ရွေးထားခြင်း ရှိ/မရှိ စစ်ပါ)');
+            note(syncMsg, 'Sync မအောင်မြင်ပါ:\n' + res.error);
           }
         }
       }, '⇄ Sync ယခုလုပ်မည် (Pull + Push)');
@@ -2505,17 +2616,17 @@
           if (res.ok) {
             note(syncMsg, '✓ ဒီစက်မှ စာရင်း ' + res.upserted + ' ခုလုံး Google Sheet ပေါ် တင်ပြီးပါပြီ! ယခု ဖုန်းထဲတွင် URL ထည့်ပြီး "Sync ယခုလုပ်မည်" နှိပ်နိုင်ပါပြီ။', 1);
           } else {
-            note(syncMsg, 'Upload မအောင်မြင်ပါ: ' + res.error);
+            note(syncMsg, 'Upload မအောင်မြင်ပါ:\n' + res.error);
           }
         }
       }, '↑ ဒီစက်မှ Cloud ပေါ်သို့ အကုန်တင်မည် (Tablet ပင်မစက် စတင်ရန်)');
 
       const cloudSyncCard = h('div', { class: 'card', style: 'border:2px solid var(--navy);background:#F8FAFC' },
-        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — Tablet နှင့် ဖုန်း ချိတ်ဆက်ရန်)'),
+        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — v24-s13 CORS Fixed)'),
         h('div', { style: 'margin:4px 0' },
           h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ — Apps Script Web App URL ထည့်ပြီး ချိတ်ဆက်ပါ')
         ),
-        h('label', {}, 'Google Apps Script Web App URL'),
+        h('label', {}, 'Google Apps Script Web App URL (/exec)'),
         h('div', { class: 'row' }, urlIn, saveUrlBtn),
         h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်းတိုင်း & အင်တာနက်ပြန်မိတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
         syncNowBtn,
@@ -2647,10 +2758,14 @@
               if (!navigator.onLine) return note(msg, 'အင်တာနက် လိုပါတယ်။');
               if (!(await uiConfirm('App ဗားရှင်းအသစ်ကို ယူမယ် (ဒေတာ မပျက်ပါဘူး)။ ဆက်လုပ်မလား?'))) return;
               try {
-                const rs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(rs.map(r => r.unregister()));
-                const ks = await caches.keys();
-                await Promise.all(ks.filter(k => k.startsWith('aung')).map(k => caches.delete(k)));
+                if ('serviceWorker' in navigator) {
+                  const rs = await navigator.serviceWorker.getRegistrations();
+                  await Promise.all(rs.map(r => r.unregister()));
+                }
+                if (window.caches) {
+                  const ks = await caches.keys();
+                  await Promise.all(ks.filter(k => k.startsWith('aung')).map(k => caches.delete(k)));
+                }
                 location.reload();
               } catch (e) { note(msg, 'မအောင်မြင်ပါ: ' + (e && e.message || e)); }
             }
@@ -4532,7 +4647,7 @@
     }
 
     // =========================================================================
-    // 10. NAVIGATION, BOOT & SERVICE WORKER
+    // 10. NAVIGATION, BOOT & SERVICE WORKER (v24-s13)
     // =========================================================================
     const VIEWS = {
       1: viewSale,
@@ -4560,6 +4675,7 @@
     }
     const net = () => {
       const e = $('#net');
+      if (!e) return;
       e.textContent = navigator.onLine ? 'အွန်လိုင်း' : 'အော့ဖ်လိုင်း (ဆက်သုံးနိုင်)';
       e.className = navigator.onLine ? '' : 'off';
       if (navigator.onLine) scheduleAutoSync();
@@ -4568,7 +4684,7 @@
     addEventListener('offline', net);
     net();
 
-    window.onload = async () => {
+    async function bootApp() {
       try {
         db = await open();
         await seed();
@@ -4577,15 +4693,25 @@
         await reload();
         await runAutoDailySnapshot();
         show(1);
+        hideSplash();
         if (navigator.onLine && getSyncUrl()) {
           runCloudSync({ silent: true, pushOnly: false });
         }
-        if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+        if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+          navigator.serviceWorker.register('sw.js?v=24s13').catch(() => {});
+        }
       } catch (e) {
+        hideSplash();
         $('#app').append(h('div', { class: 'msg e' }, 'ဖုန်းထဲ သိမ်းဆည်းမှု မဖွင့်နိုင်ပါ: ' + (e && e.message || e) + '။ Private/Incognito မဟုတ်တဲ့ Chrome မှာ ဖွင့်ပါ။'));
       }
-    };
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootApp);
+    } else {
+      bootApp();
+    }
   </script>
 </body>
 </html>

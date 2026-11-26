@@ -1,6 +1,6 @@
-// AUNG Gas Solutions POS v24-s12 Service Worker
+// AUNG Gas Solutions POS v24-s13 Service Worker
 // Cache version identifier for offline-first PWA updates
-const CACHE_NAME = 'aung-gas-pos-v24-s12';
+const CACHE_NAME = 'aung-gas-pos-v24-s13';
 
 // Core application shell assets to pre-cache on install
 const ASSETS = [
