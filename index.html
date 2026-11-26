@@ -55,6 +55,21 @@
     }
     header b { font-size: 17px; }
     header b span { color: #FF9E58; }
+    .hdr-badges { display: flex; align-items: center; gap: 6px; }
+    #syncBadge {
+      font-size: 11.5px;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background: #16325B;
+      color: #DCE7F7;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+    }
+    #syncBadge.show { display: inline-block; }
+    #syncBadge.busy { background: var(--org); color: #fff; }
+    #syncBadge.ok { background: #1B7F3B; color: #fff; }
+    #syncBadge.err { background: var(--red); color: #fff; }
     #net { font-size: 12.5px; padding: 2px 10px; border-radius: 12px; background: var(--ok); font-weight: 700; }
     #net.off { background: var(--org); }
     main { padding: 12px; max-width: 760px; margin: auto; }
@@ -220,7 +235,10 @@
 
   <header>
     <b>AUNG <span>Gas Solutions</span></b>
-    <span id="net"></span>
+    <div class="hdr-badges">
+      <span id="syncBadge" onclick="show(5)">Sync</span>
+      <span id="net"></span>
+    </div>
   </header>
 
   <main id="app"></main>
@@ -307,9 +325,10 @@
     };
 
     // =========================================================================
-    // 1. VERSION-SAFE INDEXEDDB OPENER (PROBES EXISTING VERSION WITHOUT CRASH)
+    // 1. VERSION-SAFE INDEXEDDB OPENER & CLOUD SYNC ENGINE
     // =========================================================================
     const REQUIRED_STORES = ['products', 'sales', 'meta', 'gasEv', 'pays', 'stk', 'cf'];
+    const LOCAL_ONLY_META = new Set(['lastBackup', 'seeded', 'gas2', 'rollingSnapshots', 'preRestoreSnap', 'syncUrl', 'lastSyncAt', 'autoSync']);
     let db;
 
     const open = () => new Promise((ok, no) => {
@@ -346,10 +365,43 @@
       };
     });
 
+    let syncTimer = null;
+    let syncInProgress = false;
+    let syncUrl = '';
+    let lastSyncAt = null;
+    let autoSyncEnabled = true;
+
+    const getSyncUrl = () => {
+      if (syncUrl) return syncUrl;
+      try { return localStorage.getItem('aung_sync_url') || ''; } catch (e) { return ''; }
+    };
+
+    const updateSyncBadge = (state, text) => {
+      const el = $('#syncBadge');
+      if (!el) return;
+      if (!getSyncUrl()) {
+        el.className = '';
+        return;
+      }
+      el.className = 'show' + (state ? ' ' + state : '');
+      el.textContent = text || 'Sync';
+    };
+
+    const scheduleAutoSync = () => {
+      if (!autoSyncEnabled || !getSyncUrl() || !navigator.onLine) return;
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => {
+        runCloudSync({ silent: true, pushOnly: false });
+      }, 2200);
+    };
+
     const run = (st, mode, fn) => new Promise((ok, no) => {
       const t = db.transaction(st, mode);
       let out;
-      t.oncomplete = () => ok(out);
+      t.oncomplete = () => {
+        if (mode === 'readwrite') scheduleAutoSync();
+        ok(out);
+      };
       t.onabort = () => no(t.error);
       t.onerror = () => {};
       out = fn(t);
@@ -402,7 +454,117 @@
       lockedMonths = (mm.find(x => x.k === 'lockedMonths') || {}).v || [];
       reopenLog = (mm.find(x => x.k === 'reopenLog') || {}).v || [];
       rollingSnapshots = (mm.find(x => x.k === 'rollingSnapshots') || {}).v || [];
+      const su = (mm.find(x => x.k === 'syncUrl') || {}).v;
+      if (su !== undefined) syncUrl = su || '';
+      else syncUrl = getSyncUrl();
+      lastSyncAt = (mm.find(x => x.k === 'lastSyncAt') || {}).v || lastSyncAt;
+      const asv = (mm.find(x => x.k === 'autoSync') || {}).v;
+      if (asv !== undefined) autoSyncEnabled = !!asv;
+      updateSyncBadge(lastSyncAt ? 'ok' : '', lastSyncAt ? 'Sync ✓' : 'Sync');
     };
+
+    const recTimestamp = (store, r) => {
+      if (!r || typeof r !== 'object') return 0;
+      if (store === 'meta') return Number(r.at || 0);
+      return Number(r.voidedAt || r.repaidAt || r.paidAt || r.closedAt || r.at || 0);
+    };
+
+    async function buildSyncPayload() {
+      const payload = {};
+      for (const n of REQUIRED_STORES) {
+        const rows = await all(n);
+        if (n === 'meta') {
+          payload[n] = rows.filter(x => x && !LOCAL_ONLY_META.has(x.k));
+        } else {
+          payload[n] = rows;
+        }
+      }
+      return payload;
+    }
+
+    const mergeRemoteStoreData = remoteData => new Promise((ok, no) => {
+      const t = db.transaction(REQUIRED_STORES, 'readwrite');
+      const stats = { added: 0, updated: 0 };
+      REQUIRED_STORES.forEach(n => {
+        const os = t.objectStore(n);
+        const list = Array.isArray(remoteData[n]) ? remoteData[n] : [];
+        list.forEach(r => {
+          if (!r || typeof r !== 'object') return;
+          const key = n === 'meta' ? r.k : r.id;
+          if (!key) return;
+          if (n === 'meta' && LOCAL_ONLY_META.has(key)) return;
+          const req = os.get(key);
+          req.onsuccess = () => {
+            const loc = req.result;
+            if (loc === undefined) {
+              os.add(r);
+              stats.added++;
+            } else {
+              const remTs = recTimestamp(n, r);
+              const locTs = recTimestamp(n, loc);
+              if (remTs > locTs && JSON.stringify(loc) !== JSON.stringify(r)) {
+                os.put(r);
+                stats.updated++;
+              }
+            }
+          };
+        });
+      });
+      t.oncomplete = () => ok(stats);
+      t.onabort = () => no(t.error);
+    });
+
+    async function runCloudSync({ silent = false, pushOnly = false } = {}) {
+      const url = getSyncUrl().trim();
+      if (!url) return { ok: false, error: 'Sync URL မထည့်ရသေးပါ။' };
+      if (!navigator.onLine) {
+        updateSyncBadge('err', 'Sync Off');
+        return { ok: false, error: 'အင်တာနက် မရှိပါ။' };
+      }
+      if (syncInProgress) return { ok: false, error: 'Sync လုပ်နေဆဲ ဖြစ်ပါသည်။' };
+
+      syncInProgress = true;
+      updateSyncBadge('busy', 'Syncing...');
+      try {
+        let pulled = { added: 0, updated: 0 };
+        if (!pushOnly) {
+          const getRes = await fetch(url, { method: 'GET', redirect: 'follow' });
+          if (!getRes.ok) throw new Error('GET HTTP ' + getRes.status);
+          const getJson = await getRes.json();
+          if (!getJson || !getJson.ok) throw new Error((getJson && getJson.error) || 'Invalid server response');
+          pulled = await mergeRemoteStoreData(getJson.data || {});
+        }
+
+        const localPayload = await buildSyncPayload();
+        const postRes = await fetch(url, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ data: localPayload })
+        });
+        if (!postRes.ok) throw new Error('POST HTTP ' + postRes.status);
+        const postJson = await postRes.json();
+        if (!postJson || !postJson.ok) throw new Error((postJson && postJson.error) || 'POST failed');
+
+        const now = Date.now();
+        const tx = db.transaction('meta', 'readwrite');
+        tx.objectStore('meta').put({ k: 'lastSyncAt', v: now });
+        await new Promise((r, j) => { tx.oncomplete = r; tx.onabort = () => j(tx.error); });
+        lastSyncAt = now;
+
+        await reload();
+        updateSyncBadge('ok', 'Sync ✓');
+        syncInProgress = false;
+        if (pulled.added > 0 || pulled.updated > 0) {
+          if (typeof VIEWS === 'object' && VIEWS[tab]) VIEWS[tab]();
+        }
+        return { ok: true, pulled, upserted: postJson.upserted || 0 };
+      } catch (err) {
+        syncInProgress = false;
+        updateSyncBadge('err', 'Sync !');
+        return { ok: false, error: String(err && err.message || err) };
+      }
+    }
 
     async function ensureGas() {
       const m = (await all('meta')).find(x => x.k === 'gas2');
@@ -2197,9 +2359,9 @@
     }
 
     // =========================================================================
-    // 6. TAB 5: ဒေတာ (BACKUP, RESTORE, MONTH LOCK, AUTO SNAPSHOTS & UPDATE)
+    // 6. TAB 5: ဒေတာ (CLOUD SYNC, BACKUP, RESTORE, MONTH LOCK & UPDATE)
     // =========================================================================
-    const APP_VER = 'v24 (feature/aung-pos-v24)';
+    const APP_VER = 'v24-s12 (Cloud Sync + Multi-Device)';
     const STORES = ['products', 'sales', 'gasEv', 'pays', 'stk', 'cf', 'meta'];
     const saveBlob = (name, blob) => {
       const u = URL.createObjectURL(blob), a = h('a', { href: u, download: name });
@@ -2214,7 +2376,7 @@
     async function dumpAll() {
       const o = {};
       for (const n of STORES) o[n] = await all(n);
-      o.meta = o.meta.filter(x => x.k !== 'lastBackup' && x.k !== 'rollingSnapshots' && x.k !== 'preRestoreSnap');
+      o.meta = o.meta.filter(x => !LOCAL_ONLY_META.has(x.k));
       return { app: 'aung-gas-pos', schema: 4, exportedAt: new Date().toISOString(), data: o };
     }
 
@@ -2241,7 +2403,7 @@
       STORES.forEach(n => {
         const os = t.objectStore(n);
         (d.data[n] || []).forEach(r => {
-          if (n === 'meta' && (r.k === 'lastBackup' || r.k === 'seeded' || r.k === 'gas2' || r.k === 'rollingSnapshots' || r.k === 'preRestoreSnap')) return;
+          if (n === 'meta' && LOCAL_ONLY_META.has(r.k)) return;
           const g = os.get(n === 'meta' ? r.k : r.id);
           g.onsuccess = () => {
             if (g.result === undefined) { os.add(r); st.added++; }
@@ -2271,6 +2433,95 @@
       const msg = h('div');
       const st = t => new Date(t).toLocaleDateString('en-GB') + ' ' + new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       const days = bk ? (Date.now() - bk) / 864e5 : null;
+
+      // Cloud Sync Card (Google Sheets Web App)
+      const syncMsg = h('div');
+      const urlIn = h('input', {
+        placeholder: 'https://script.google.com/macros/s/....../exec',
+        value: getSyncUrl(),
+        autocomplete: 'off'
+      });
+      const autoCb = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
+      autoCb.checked = autoSyncEnabled;
+      autoCb.onchange = async () => {
+        autoSyncEnabled = autoCb.checked;
+        await put('meta', { k: 'autoSync', v: autoSyncEnabled });
+      };
+
+      const saveUrlBtn = h('button', {
+        class: 'n',
+        onclick: async () => {
+          const v = urlIn.value.trim();
+          if (v && !v.startsWith('https://script.google.com/')) {
+            return note(syncMsg, 'Google Apps Script Web App URL (https://script.google.com/...) အမှန်ကို ထည့်ပါ။');
+          }
+          syncUrl = v;
+          try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
+          await put('meta', { k: 'syncUrl', v });
+          updateSyncBadge(v ? '' : '', v ? 'Sync' : '');
+          note(syncMsg, v ? 'Sync URL သိမ်းပြီးပါပြီ။ အောက်ကခလုတ်ဖြင့် Sync စတင်နိုင်ပါပြီ။' : 'Sync URL ဖျက်ပြီးပါပြီ။', 1);
+        }
+      }, 'URL သိမ်းမည်');
+
+      const syncNowBtn = h('button', {
+        class: 'o',
+        style: 'margin-top:8px',
+        onclick: async () => {
+          const v = urlIn.value.trim();
+          if (v && v !== getSyncUrl()) {
+            syncUrl = v;
+            try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
+            await put('meta', { k: 'syncUrl', v });
+          }
+          if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Web App URL ထည့်ပြီး သိမ်းပါ။');
+          syncNowBtn.disabled = true;
+          note(syncMsg, 'Google Sheet နှင့် ချိတ်ဆက်ပြီး Sync လုပ်နေပါသည်...', 1);
+          const res = await runCloudSync({ silent: false, pushOnly: false });
+          syncNowBtn.disabled = false;
+          if (res.ok) {
+            note(syncMsg, '✓ Sync ပြီးပါပြီ! (Cloud မှ အသစ်ဝင် ' + res.pulled.added + ' · ပြင်ဆင် ' + res.pulled.updated + ' · Cloud ပေါ်တင် ' + res.upserted + ')', 1);
+          } else {
+            note(syncMsg, 'Sync မအောင်မြင်ပါ: ' + res.error + '\n(Apps Script Deploy တွင် Who has access: Anyone ရွေးထားခြင်း ရှိ/မရှိ စစ်ပါ)');
+          }
+        }
+      }, '⇄ Sync ယခုလုပ်မည် (Pull + Push)');
+
+      const pushAllBtn = h('button', {
+        class: 'n',
+        style: 'width:100%;margin-top:8px;border-color:var(--org);color:#9A4308;font-weight:700',
+        onclick: async () => {
+          const v = urlIn.value.trim();
+          if (v && v !== getSyncUrl()) {
+            syncUrl = v;
+            try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
+            await put('meta', { k: 'syncUrl', v });
+          }
+          if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Web App URL ထည့်ပြီး သိမ်းပါ။');
+          if (!(await uiConfirm('ဒီစက် (ကောင်တာ Tablet) ထဲရှိ စာရင်းအားလုံးကို Google Sheet Cloud ပေါ်သို့ အကုန်တင်မလား?\n(ပထမဆုံးအကြိမ် စက်ချိတ်ဆက်ရာတွင် ပင်မစက်မှ အရင်တင်ရန် သုံးပါ)'))) return;
+          pushAllBtn.disabled = true;
+          note(syncMsg, 'ဒီစက်မှ ဒေတာအားလုံး Cloud ပေါ်တင်နေပါသည်...', 1);
+          const res = await runCloudSync({ silent: false, pushOnly: true });
+          pushAllBtn.disabled = false;
+          if (res.ok) {
+            note(syncMsg, '✓ ဒီစက်မှ စာရင်း ' + res.upserted + ' ခုလုံး Google Sheet ပေါ် တင်ပြီးပါပြီ! ယခု ဖုန်းထဲတွင် URL ထည့်ပြီး "Sync ယခုလုပ်မည်" နှိပ်နိုင်ပါပြီ။', 1);
+          } else {
+            note(syncMsg, 'Upload မအောင်မြင်ပါ: ' + res.error);
+          }
+        }
+      }, '↑ ဒီစက်မှ Cloud ပေါ်သို့ အကုန်တင်မည် (Tablet ပင်မစက် စတင်ရန်)');
+
+      const cloudSyncCard = h('div', { class: 'card', style: 'border:2px solid var(--navy);background:#F8FAFC' },
+        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — Tablet နှင့် ဖုန်း ချိတ်ဆက်ရန်)'),
+        h('div', { style: 'margin:4px 0' },
+          h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ — Apps Script Web App URL ထည့်ပြီး ချိတ်ဆက်ပါ')
+        ),
+        h('label', {}, 'Google Apps Script Web App URL'),
+        h('div', { class: 'row' }, urlIn, saveUrlBtn),
+        h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်းတိုင်း & အင်တာနက်ပြန်မိတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
+        syncNowBtn,
+        pushAllBtn,
+        syncMsg
+      );
 
       const bkb = h('button', {
         class: 'o',
@@ -2330,7 +2581,7 @@
         const m = {};
         sales.filter(x => !x.voided && creditOf(x) > 0 && x.cust).forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += creditOf(x); });
         pays.forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).p += x.amount; });
-        cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += e.amt; });
+        cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: e.cust, c: 0, p: 0 }).c += e.amt; });
         dlCsv('debts', [['Customer Name', 'ကြွေးယူ', 'ပြန်ပေး', 'ကျန်']].concat(Object.values(m).map(c => [c.n, c.c, c.p, c.c - c.p])));
       };
       const csvExp = () => {
@@ -2378,6 +2629,7 @@
       }, 'Lock / Reopen ပြောင်းမည်');
 
       app.append(
+        cloudSyncCard,
         h('div', { class: 'card' },
           h('b', {}, 'Backup (ဒေတာ လုံခြုံရေး)'),
           h('div', { class: 'tot', style: 'text-align:left;font-size:16px;color:' + (days === null || days >= 1 ? 'var(--red)' : 'var(--ok)') }, bk ? 'နောက်ဆုံး backup ဖိုင်ထုတ်ချိန်: ' + st(bk) : 'Backup တစ်ခါမှ မလုပ်ရသေးပါ'),
@@ -2602,7 +2854,6 @@
           }
         }, 'စရိတ် မှတ်မည်');
 
-        // Unified Accounts Payable (Supplier & Gas Credit Purchases)
         const unpaidPayables = [];
         gasEv.forEach(e => {
           const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
@@ -3931,20 +4182,17 @@
       const dateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
       const siteIn = h('input', { list: 'o2site-dl', placeholder: 'ဆိုဒ် / ဖောက်သည်အမည် (ဥပမာ ကိုကျော်မိုးဝင်း၊ ရောကီ)' });
 
-      // Full Delivered Inputs
       const d40FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'စက်ရုံ 40L' });
       const d47FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'စက်ရုံ 47L' });
       const d40OwnIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'အပိုင် 40L' });
       const dGasIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'Gas အလုံးရေ (ဥပမာ 1)' });
       const dGasVissIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', min: '0', placeholder: 'Gas ပိဿာ (ဥပမာ 5 သို့ 10)' });
 
-      // Empty Picked Up Inputs
       const e40FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'စက်ရုံ 40L အခွံ' });
       const e47FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'စက်ရုံ 47L အခွံ' });
       const e40OwnIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'အပိုင် 40L အခွံ' });
       const eGasIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'Gas အခွံ (အလုံး)' });
 
-      // Unit Prices (O2 default 25,000 MMK, 0 allowed)
       const o2PriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '25000', placeholder: '25000 (0 ထည့်နိုင်သည်)' });
       const gasPriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'Gas ၁ ပိဿာဈေး (0 ထည့်နိုင်သည်)' });
 
@@ -4314,6 +4562,7 @@
       const e = $('#net');
       e.textContent = navigator.onLine ? 'အွန်လိုင်း' : 'အော့ဖ်လိုင်း (ဆက်သုံးနိုင်)';
       e.className = navigator.onLine ? '' : 'off';
+      if (navigator.onLine) scheduleAutoSync();
     };
     addEventListener('online', net);
     addEventListener('offline', net);
@@ -4328,6 +4577,9 @@
         await reload();
         await runAutoDailySnapshot();
         show(1);
+        if (navigator.onLine && getSyncUrl()) {
+          runCloudSync({ silent: true, pushOnly: false });
+        }
         if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
       } catch (e) {

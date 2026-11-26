@@ -1,6 +1,6 @@
-// AUNG Gas Solutions POS v24-s11 Service Worker
-// Cache version name for offline-first PWA updates
-const CACHE_NAME = 'aung-gas-pos-v24-s11';
+// AUNG Gas Solutions POS v24-s12 Service Worker
+// Cache version identifier for offline-first PWA updates
+const CACHE_NAME = 'aung-gas-pos-v24-s12';
 
 // Core application shell assets to pre-cache on install
 const ASSETS = [
@@ -34,9 +34,10 @@ self.addEventListener('message', event => {
   }
 });
 
-// Fetch event: network-first with cache fallback for offline support
+// Fetch event: bypass Google Apps Script Cloud Sync URLs, network-first with cache fallback for app assets
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  if (event.request.url.includes('script.google.com') || event.request.url.includes('script.googleusercontent.com')) return;
   event.respondWith(
     fetch(event.request)
       .then(response => {
