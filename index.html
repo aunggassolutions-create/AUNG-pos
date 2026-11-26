@@ -785,7 +785,7 @@
       const c = stk.filter(e => e.pid === p.id && e.type === 'count').sort((a, b) => b.at - a.at)[0];
       if (!c) return null;
       let n = c.qty;
-      stk.forEach(e => { if (e.pid === p.id && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += e.qty; });
+      stk.forEach(e => { if (e.pid === p.id && !e.voided && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += e.qty; });
       sales.forEach(x => { if (!x.voided && x.at > c.at) x.lines.forEach(l => { if (l.pid === p.id) n -= l.qty; }); });
       return n;
     }
@@ -1592,19 +1592,25 @@
             if (!(q_ > 0)) return;
             const c = parseFloat(await uiPrompt('တစ် ' + p.unit + ' ချင်း ဝယ်ဈေး (ကျပ်)', p.buyPrice || '', 'number'));
             const sp = parseFloat(await uiPrompt('တစ် ' + p.unit + ' ချင်း ရောင်းဈေး သတ်မှတ်မည် (မထည့်ရင် ဗလာထား)', p.sellPrice || '', 'number'));
-            const payChoice = await uiPrompt('ငွေပေးချေမှု ရွေးပါ (နံပါတ်ရိုက်ပါ — ငွေစာရင်းထဲကပါ တစ်ခါတည်း နှုတ်ပေးပါမယ်)\n1 = ငွေသား\n2 = KPay\n3 = Wave Pay\n4 = AyA Pay\n5 = ငွေစာရင်းထဲက မနှုတ်ပါ (အကြွေး/မှတ်တမ်းသက်သက်)', '1', 'number');
+            const payChoice = await uiPrompt('ငွေပေးချေမှု ရွေးပါ (နံပါတ်ရိုက်ပါ — ငွေစာရင်းထဲကပါ တစ်ခါတည်း နှုတ်ပေးပါမယ်)\n1 = ငွေသား\n2 = KPay\n3 = Wave Pay\n4 = AyA Pay\n5 = အကြွေးဝယ် (ပေးရန်ကျန် အကြွေးစာရင်းထဲ ထည့်မည်)', '1', 'number');
             if (payChoice === null) return;
-            const payM = ({ '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' })[String(payChoice || '').trim()] || null;
+            const chTrim = String(payChoice || '').trim();
+            const payM = ({ '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' })[chTrim] || null;
+            const isCreditBuy = chTrim === '5' || !payM;
             const totCost = (!isNaN(c) && c > 0) ? q_ * c : 0;
             const msgConfirm = p.name + ' ' + q_ + ' ' + p.unit + ' ဝယ်ယူတာ မှတ်မလား?' +
               (totCost > 0 ? '\nစုစုပေါင်း ဝယ်ငွေ: ' + money(totCost) : '') +
               ((!isNaN(sp) && sp > 0) ? '\nရောင်းဈေး: ' + money(sp) : '') +
-              (payM && totCost > 0 ? '\n(' + PAY[payM] + ' စရိတ်စာရင်းထဲ တစ်ခါတည်း နှုတ်မည်)' : '');
+              (totCost > 0 ? (payM ? '\n(' + PAY[payM] + ' စရိတ်စာရင်းထဲ တစ်ခါတည်း နှုတ်မည်)' : '\n(အကြွေးဝယ် — စရိတ်/ငွေဝင် ထိပ်ဆုံး ပေးရန်ကျန် အကြွေးစာရင်းထဲ ထည့်မည်)') : '');
             if (!(await uiConfirm(msgConfirm))) return;
 
             const now = Date.now();
             await run(['stk', 'products', 'cf'], 'readwrite', t => {
-              t.objectStore('stk').add({ id: uuid(), at: now, pid: p.id, name: p.name, type: 'buy', qty: q_, cost: isNaN(c) ? null : c });
+              t.objectStore('stk').add({
+                id: uuid(), at: now, pid: p.id, name: p.name, type: 'buy', qty: q_,
+                cost: isNaN(c) ? null : c, totalCost: totCost,
+                payCh: payM || 'credit', paid: !isCreditBuy || totCost <= 0
+              });
               const upd = { ...p };
               if (!isNaN(c) && c >= 0) upd.buyPrice = c;
               if (!isNaN(sp) && sp >= 0) upd.sellPrice = sp;
@@ -1615,7 +1621,7 @@
             });
             await reload();
             draw();
-            note(msg, p.name + ' ဝယ်ယူမှု သိမ်းပြီးပါပြီ' + (payM && totCost > 0 ? ' (' + PAY[payM] + ' စရိတ်ထဲပါ မှတ်ပြီး)' : '') + '။', 1);
+            note(msg, p.name + ' ဝယ်ယူမှု သိမ်းပြီးပါပြီ' + (totCost > 0 ? (payM ? ' (' + PAY[payM] + ' စရိတ်ထဲပါ မှတ်ပြီး)' : ' (ပေးရန်ကျန် အကြွေးစာရင်းထဲ ထည့်ပြီး)') : '') + '။', 1);
           }
         }, 'ဝယ်');
 
@@ -1697,7 +1703,7 @@
       }, 'ပစ္စည်းအသစ် ထည့်မည်');
 
       app.append(
-        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်းပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),
+        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်း (သို့မဟုတ် အကြွေးဝယ်) ပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),
         h('div', { class: 'card' }, h('b', {}, 'ပစ္စည်းအသစ်'), nn, h('div', { class: 'row' }, nc, nu), addBtn),
         msg, fix,
         h('h2', {}, 'ပစ္စည်းစာရင်း (' + products.length + ')'), sumEl, q, box
@@ -1706,7 +1712,7 @@
     }
 
     // =========================================================================
-    // 5. TAB 3: GAS စာရင်း (AUTO-EXPENSE ON INTAKE FROM 2026-11-26 ONWARDS)
+    // 5. TAB 3: GAS စာရင်း (AUTO-EXPENSE + DELETE/REVERT + CREDIT PAYABLES)
     // =========================================================================
     function gasBookRecon(dateKey) {
       const [a, b] = dbounds(dateKey);
@@ -1995,7 +2001,7 @@
         h('option', { value: 'kpay' }, 'KPay — အသုံးစရိတ်ထဲ တန်းဝင်မည်'),
         h('option', { value: 'wave' }, 'Wave Pay — အသုံးစရိတ်ထဲ တန်းဝင်မည်'),
         h('option', { value: 'aya' }, 'AyA Pay — အသုံးစရိတ်ထဲ တန်းဝင်မည်'),
-        h('option', { value: 'credit' }, 'အကြွေး / ငွေမချေရသေး (စရိတ်ထဲ မနှုတ်သေးပါ)')
+        h('option', { value: 'credit' }, 'အကြွေး / ငွေမချေရသေး (ပေးရန်ကျန် အကြွေးထဲ ဝင်မည်)')
       );
 
       const handleGasIntake = async (modeType) => {
@@ -2007,26 +2013,32 @@
         const totCost = q * unitCost;
         const now = Date.now();
         if (!(await guardMonthLock(now, msg))) return;
+        const isCredit = ch === 'credit' && totCost > 0;
         const willExp = totCost > 0 && ch !== 'credit' && dkey(now) >= AUTO_EXP_EFFECTIVE_DATE;
         const labelAction = modeType === 'recv' ? 'အပြည့်အိုး ' + q + ' လုံး (' + r2(av) + ' viss) ဝယ်ယူ/ရရှိ' : 'အိုးလဲ (အပြည့် +' + q + ' / အခွံ −' + q + ', ' + r2(av) + ' viss)';
         const confirmTxt = a_ + ' ဆီက ' + labelAction + ' မှတ်မလား?' +
-          (totCost > 0 ? '\nစုစုပေါင်း ကျသင့်ငွေ: ' + money(totCost) + (willExp ? '\n(' + PAY[ch] + ' အသုံးစရိတ်စာရင်းထဲ တန်းဝင်ပါမည်)' : ' (အကြွေး/ငွေမနှုတ်)') : '\n(ကျသင့်ငွေ: 0 ကျပ်)');
+          (totCost > 0 ? '\nစုစုပေါင်း ကျသင့်ငွေ: ' + money(totCost) + (willExp ? '\n(' + PAY[ch] + ' အသုံးစရိတ်စာရင်းထဲ တန်းဝင်ပါမည်)' : '\n(အကြွေး — စရိတ်/ငွေဝင် ထိပ်ဆုံး ပေးရန်ကျန် အကြွေးစာရင်းထဲ ဝင်ပါမည်)') : '\n(ကျသင့်ငွေ: 0 ကျပ်)');
         if (!(await uiConfirm(confirmTxt))) return;
 
+        const gasEvId = uuid();
         await run(['gasEv', 'cf'], 'readwrite', t => {
-          t.objectStore('gasEv').add({ id: uuid(), at: now, type: modeType, qty: q, actualViss: av, cost: (!isNaN(c) && c >= 0) ? c : null, payCh: ch, agent: a_ });
+          t.objectStore('gasEv').add({
+            id: gasEvId, at: now, type: modeType, qty: q, actualViss: av,
+            cost: (!isNaN(c) && c >= 0) ? c : null, totalCost: totCost,
+            payCh: ch, paid: !isCredit, agent: a_
+          });
           if (willExp) {
             t.objectStore('cf').add({
               id: uuid(), at: now, type: 'exp',
               desc: 'Gas ဝယ်ယူမှု: ' + a_ + ' × ' + q + ' လုံး',
-              cat: 'factory', amt: totCost, m: ch
+              cat: 'factory', amt: totCost, m: ch, linkedGasEvId: gasEvId
             });
           }
         });
         aq.value = ac.value = '';
         await reload();
         viewGas();
-        note(msg, 'Gas အဝင် မှတ်ပြီးပါပြီ' + (willExp ? ' (' + PAY[ch] + ' စရိတ်ထဲပါ မှတ်ပြီး)' : '') + '။', 1);
+        note(msg, 'Gas အဝင် မှတ်ပြီးပါပြီ' + (willExp ? ' (' + PAY[ch] + ' စရိတ်ထဲပါ မှတ်ပြီး)' : isCredit ? ' (ပေးရန်ကျန် အကြွေးစာရင်းထဲ ထည့်ပြီး)' : '') + '။', 1);
       };
 
       const rb = h('button', { onclick: () => handleGasIntake('recv') }, 'အပြည့် ရရှိ');
@@ -2088,10 +2100,57 @@
         }
       }, 'သိမ်းမည်');
 
-      const hist = gasEv.filter(e => e.type !== 'gas_ob' && e.type !== 'gas_close').slice().sort((a, b) => b.at - a.at).slice(0, 15).map(e => h('div', { class: 'li' },
-        h('span', {}, stamp(e.at) + ' · ' + (e.type === 'recv' ? (e.ground ? 'Ground Stock ညှိ ' : 'အပြည့်ရရှိ ') + e.qty + ' (' + e.agent + ')' : e.type === 'ret' ? 'အခွံပြန်ပေး ' + e.qty + ' (' + e.agent + ')' : e.type === 'eswap' ? 'အိုးလဲ ' + e.qty + ' (' + e.agent + ')' : e.type === 'ecount' ? 'အခွံရေတွက် ' + (e.qty > 0 ? '+' : '') + e.qty + ' (' + e.agent + ')' : e.type === 'gas_ret_viss' ? 'Gas ပြန်ဝယ်/အပ် +' + e.viss + ' viss (' + e.agent + ')' : e.type === 'cyl' ? 'ဖွင့်: ' + RL[e.role] + ' (' + (e.agent || '') + ') ' + e.cap + ' viss' + (e.closed ? ' · ပိတ်ပြီး' + (e.gain > 0 ? ' (Gain +' + e.gain + ')' : '') : '') : 'ယခင်စနစ်')),
-        h('b', {}, e.viss ? (e.viss > 0 ? '+' : '') + r2(e.viss) : '')
-      ));
+      const hist = gasEv.filter(e => e.type !== 'gas_ob' && e.type !== 'gas_close').slice().sort((a, b) => b.at - a.at).slice(0, 25).map(e => {
+        const totCost = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
+        const isCredit = (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.payCh === 'credit' && !e.paid && totCost > 0;
+        const labelTxt = e.type === 'recv' ? (e.ground ? 'Ground Stock ညှိ ' : 'အပြည့်ရရှိ ') + e.qty + ' (' + e.agent + ')'
+          : e.type === 'ret' ? 'အခွံပြန်ပေး ' + e.qty + ' (' + e.agent + ')'
+          : e.type === 'eswap' ? 'အိုးလဲ ' + e.qty + ' (' + e.agent + ')'
+          : e.type === 'ecount' ? 'အခွံရေတွက် ' + (e.qty > 0 ? '+' : '') + e.qty + ' (' + e.agent + ')'
+          : e.type === 'gas_ret_viss' ? 'Gas ပြန်ဝယ်/အပ် +' + e.viss + ' viss (' + e.agent + ')'
+          : e.type === 'cyl' ? 'ဖွင့်: ' + RL[e.role] + ' (' + (e.agent || '') + ') ' + e.cap + ' viss' + (e.closed ? ' · ပိတ်ပြီး' + (e.gain > 0 ? ' (Gain +' + e.gain + ')' : '') : '')
+          : 'ယခင်စနစ်';
+
+        const delGasBtn = h('button', {
+          class: 'g',
+          style: 'padding:2px 8px;font-size:12px;min-height:28px',
+          onclick: async () => {
+            if (!(await guardMonthLock(e.at, msg))) return;
+            const linkedExps = cf.filter(x => !x.voided && x.type === 'exp' && (
+              x.linkedGasEvId === e.id ||
+              (totCost > 0 && Math.abs((x.at || 0) - (e.at || 0)) <= 2000 && x.amt === totCost && String(x.desc || '').includes('Gas'))
+            ));
+            const confirmMsg = 'ဒီ Gas မှတ်တမ်းကို ဖျက်မလား?\n' +
+              '• ' + stamp(e.at) + ' · ' + labelTxt + '\n' +
+              '• Gas Stock လက်ကျန်ကို အလိုအလျောက် ပြန်ညှိပေးပါမည်။' +
+              (linkedExps.length ? '\n• တွဲလျက် အသုံးစရိတ် (' + money(linkedExps.reduce((a, x) => a + x.amt, 0)) + ') ကိုပါ ပယ်ဖျက်ပေးပါမည်။' : '');
+            if (!(await uiConfirm(confirmMsg))) return;
+            try {
+              await run(['gasEv', 'cf'], 'readwrite', t => {
+                t.objectStore('gasEv').delete(e.id);
+                const cfStore = t.objectStore('cf');
+                linkedExps.forEach(expItem => cfStore.put({ ...expItem, voided: true, voidedAt: Date.now() }));
+              });
+              await reload();
+              viewGas();
+              note(msg, 'Gas မှတ်တမ်း ဖျက်ပြီး Stock နှင့် ငွေစာရင်း ပြန်ညှိပြီးပါပြီ။', 1);
+            } catch (err) {
+              note(msg, 'မဖျက်နိုင်ပါ: ' + (err && err.message || err));
+            }
+          }
+        }, 'ဖျက်မည် (×)');
+
+        return h('div', { class: 'li', style: 'flex-wrap:wrap' },
+          h('span', { style: 'flex:1 1 60%' },
+            stamp(e.at) + ' · ' + labelTxt,
+            totCost > 0 ? h('span', { class: isCredit ? 'tag red' : 'tag ok' }, (isCredit ? 'အကြွေး ' : ((e.payCh && PAY[e.payCh]) ? PAY[e.payCh] + ' ' : '')) + money(totCost)) : ''
+          ),
+          h('span', { style: 'display:flex;align-items:center;gap:6px' },
+            e.viss ? h('b', {}, (e.viss > 0 ? '+' : '') + r2(e.viss)) : '',
+            delGasBtn
+          )
+        );
+      });
       const dt = (t, ...k) => h('details', { class: 'card', open: true }, h('summary', { style: 'font-weight:700;padding:4px 0;cursor:pointer' }, t), ...k);
 
       app.append(
@@ -2122,8 +2181,9 @@
           h('label', {}, 'ငွေပေးချေမှု Channel'), payChSel,
           h('div', { class: 'row', style: 'margin-top:8px' }, rb, swb, tb)
         ),
-        h('details', { class: 'card' },
-          h('summary', { style: 'font-weight:700;padding:4px 0;cursor:pointer' }, 'အဆင့်မြင့် (သတ်မှတ်ချက်၊ 197~203 ဗူးဘောင်၊ မှတ်တမ်း)'),
+        h('details', { class: 'card', open: true },
+          h('summary', { style: 'font-weight:700;padding:4px 0;cursor:pointer' }, 'Gas အဝင်/အထွက် မှတ်တမ်းများ (မှားရင် ဖျက်မည် × နှိပ်နိုင်သည်) & သတ်မှတ်ချက်'),
+          h('h2', {}, 'မှတ်တမ်းများ'), h('div', { class: 'card' }, hist.length ? hist : h('small', {}, 'မှတ်တမ်း မရှိသေးပါ။')),
           h('div', { class: 'card' }, h('b', {}, 'သတ်မှတ်ချက်'),
             h('label', {}, '48kg အိုးတစ်လုံး ထုတ်လို့ရတဲ့ ပိဿာ'), cu,
             h('label', {}, '၁ ပိဿာ = Gas ဗူး (ဗူး)'), cc,
@@ -2131,8 +2191,7 @@
             h('label', {}, 'ဗူးအိုး အများဆုံး ဗူးသတ်မှတ်ချက် (Max)'), cmax,
             h('label', {}, 'Gas အိုးကျန်နည်းပြီလို့ သတိပေးမယ့် ပိဿာ'), cl_,
             h('label', {}, 'Oxygen အိုးကြီး ကျန်နည်းပြီလို့ သတိပေးမယ့် %'), co_, sb
-          ),
-          h('h2', {}, 'မှတ်တမ်း'), h('div', { class: 'card' }, hist.length ? hist : h('small', {}, 'မှတ်တမ်း မရှိသေးပါ။'))
+          )
         )
       );
     }
@@ -2353,7 +2412,7 @@
     }
 
     // =========================================================================
-    // 7. TAB 7 & 8: CASH FLOW, LOANS, REPORTS & P&L
+    // 7. TAB 7 & 8: CASH FLOW, PAYABLES, LOANS, REPORTS & P&L
     // =========================================================================
     const ECAT = {
       factory: 'စက်ရုံ / ကုန်ပစ္စည်းဝယ်စရိတ်',
@@ -2543,12 +2602,111 @@
           }
         }, 'စရိတ် မှတ်မည်');
 
+        // Unified Accounts Payable (Supplier & Gas Credit Purchases)
+        const unpaidPayables = [];
+        gasEv.forEach(e => {
+          const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
+          if ((e.type === 'recv' || e.type === 'eswap') && !e.ground && e.payCh === 'credit' && !e.paid && tot > 0) {
+            unpaidPayables.push({
+              kind: 'gas',
+              id: e.id,
+              at: e.at,
+              title: 'Gas ဝယ်ယူမှု: ' + (e.agent || 'Gas') + ' × ' + e.qty + ' လုံး',
+              amt: tot,
+              raw: e
+            });
+          }
+        });
+        stk.forEach(e => {
+          if (e.type === 'buy' && !e.voided && !e.paid) {
+            const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
+            const isCreditStk = e.payCh === 'credit' || (!e.payCh && tot > 0 && !cf.some(x => !x.voided && x.type === 'exp' && Math.abs((x.at || 0) - (e.at || 0)) <= 2000 && x.amt === tot));
+            if (isCreditStk && tot > 0) {
+              unpaidPayables.push({
+                kind: 'stk',
+                id: e.id,
+                at: e.at,
+                title: 'ပစ္စည်းဝယ်: ' + e.name + ' × ' + e.qty,
+                amt: tot,
+                raw: e
+              });
+            }
+          }
+        });
+        unpaidPayables.sort((a, b) => b.at - a.at);
+        const totalPayablesAmt = unpaidPayables.reduce((a, x) => a + x.amt, 0);
+
+        const payablesCard = h('div', { class: 'card', style: 'border:2px solid var(--red);background:#FFFDFD' },
+          h('div', { style: 'display:flex;justify-content:space-between;align-items:center' },
+            h('b', { style: 'color:var(--red)' }, 'ပေးရန်ကျန် အကြွေးများ (Supplier & Gas အကြွေး)'),
+            h('b', { style: 'color:var(--red);font-size:16px' }, money(totalPayablesAmt))
+          ),
+          unpaidPayables.length ? h('div', { style: 'margin-top:6px' },
+            ...unpaidPayables.map(item => h('div', { class: 'li', style: 'flex-wrap:wrap' },
+              h('span', { style: 'flex:1 1 55%' },
+                h('b', {}, item.title),
+                h('br'),
+                h('small', {}, dkey(item.at) + ' ' + tm(item.at) + ' · ' + money(item.amt))
+              ),
+              h('span', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
+                h('button', {
+                  class: 'n',
+                  style: 'border-color:var(--ok);color:var(--ok);font-weight:700;padding:4px 9px;font-size:12.5px',
+                  onclick: async () => {
+                    const ch = await uiPrompt(item.title + ' (' + money(item.amt) + ') ကို ဘာနဲ့ ပြန်ဆပ်မလဲ (အသုံးစရိတ်စာရင်းထဲ တန်းဝင်ပါမည်)?\n1 = ငွေသား\n2 = KPay\n3 = Wave Pay\n4 = AyA Pay', '1', 'number');
+                    const pm = ({ '1': 'cash', '2': 'kpay', '3': 'wave', '4': 'aya' })[String(ch || '').trim()];
+                    if (!pm) return;
+                    const now = Date.now();
+                    if (!(await guardMonthLock(now, msg))) return;
+                    if (!(await uiConfirm(item.title + ' အကြွေး ' + money(item.amt) + ' (' + PAY[pm] + ') ပြန်ဆပ်ပြီးကြောင်း မှတ်မလား?'))) return;
+                    try {
+                      const storeName = item.kind === 'gas' ? 'gasEv' : 'stk';
+                      await run([storeName, 'cf'], 'readwrite', t => {
+                        t.objectStore(storeName).put({ ...item.raw, paid: true, paidAt: now, paidMethod: pm });
+                        t.objectStore('cf').add({
+                          id: uuid(), at: now, type: 'exp',
+                          desc: 'အကြွေးပြန်ဆပ် (' + item.title + ')',
+                          cat: 'factory', amt: item.amt, m: pm,
+                          ...(item.kind === 'gas' ? { linkedGasEvId: item.id } : { linkedStkId: item.id })
+                        });
+                      });
+                      await reload();
+                      viewExp(dv, 1);
+                      note(msg, 'အကြွေး ' + money(item.amt) + ' (' + PAY[pm] + ') ပြန်ဆပ်ပြီး အသုံးစရိတ်စာရင်းထဲ မှတ်ပြီးပါပြီ။', 1);
+                    } catch (err) {
+                      note(msg, 'မသိမ်းနိုင်ပါ: ' + (err && err.message || err));
+                    }
+                  }
+                }, 'ငွေပြန်ဆပ်မည်'),
+                h('button', {
+                  class: 'g',
+                  style: 'padding:4px 8px;font-size:12px',
+                  onclick: async () => {
+                    if (!(await guardMonthLock(item.at, msg))) return;
+                    if (!(await uiConfirm('ဒီအကြွေးဝယ်မှတ်တမ်း (' + item.title + ') ကို ဖျက်မလား? (Stock လက်ကျန်ကိုပါ ပြန်လျှော့ပေးပါမည်)'))) return;
+                    try {
+                      const storeName = item.kind === 'gas' ? 'gasEv' : 'stk';
+                      await del(storeName, item.id);
+                      await reload();
+                      viewExp(dv, 1);
+                      note(msg, 'အကြွေးဝယ်မှတ်တမ်း ဖျက်ပြီး Stock ပြန်ညှိပြီးပါပြီ။', 1);
+                    } catch (err) {
+                      note(msg, 'မဖျက်နိုင်ပါ: ' + (err && err.message || err));
+                    }
+                  }
+                }, 'ဖျက်မည် (×)')
+              )
+            ))
+          ) : h('div', { style: 'margin-top:4px' }, h('small', {}, 'လက်ရှိ ပေးရန်ကျန် အကြွေးမရှိပါ။'))
+        );
+
         const t0 = dbounds(dkey(Date.now()))[0], td = exps().filter(e => e.at >= t0), bc = {};
         td.forEach(e => { bc[e.cat] = (bc[e.cat] || 0) + e.amt; });
         const all_ = cf.filter(e => e.type === 'exp').sort((a, b) => b.at - a.at).slice(0, 25);
 
         app.append(
           tabs,
+          payablesCard,
           h('div', { class: 'card' },
             h('b', {}, 'စရိတ်အသစ်'),
             h('label', {}, 'အမျိုးအစား'), cs,
