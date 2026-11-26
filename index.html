@@ -169,7 +169,7 @@
     .log-tbl th { background: #E2E8F0; color: var(--grey-dark); font-weight: 700; }
     .log-tbl tr.sub-h th { background: #F1F5F9; font-size: 11px; }
     .log-tbl td.dt-col { text-align: left; white-space: nowrap; font-weight: 600; }
-    .log-tbl td.rem-col { text-align: left; min-width: 110px; }
+    .log-tbl td.rem-col { text-align: left; min-width: 115px; }
     .log-tbl td.stk-col { font-weight: 700; background: #FFFBEB; }
     .modal-bg {
       position: fixed;
@@ -2128,7 +2128,7 @@
           if (!r || typeof r !== 'object' || typeof (n === 'meta' ? r.k : r.id) !== 'string') return n + ' ထဲမှာ ပျက်တဲ့ မှတ်တမ်း ပါနေပါတယ်။';
           if (n === 'sales' && (typeof r.at !== 'number' || !Array.isArray(r.lines) || !r.lines.every(l => l && Number.isFinite(l.qty) && Number.isFinite(l.price)))) return 'ရောင်းချမှု မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
           if (n === 'pays' && !Number.isFinite(r.amount)) return 'ကြွေးပြန်ပေး မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
-          if (n === 'stk' && r.type !== 'ocyl' && r.type !== 'o2_fac' && r.type !== 'o2_own' && r.type !== 'o2_stock_set' && !Number.isFinite(r.qty)) return 'လက်ကျန် မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
+          if (n === 'stk' && r.type !== 'ocyl' && r.type !== 'o2_fac' && r.type !== 'o2_own' && r.type !== 'o2_fac_ob' && r.type !== 'o2_own_ob' && r.type !== 'o2_stock_set' && !Number.isFinite(r.qty)) return 'လက်ကျန် မှတ်တမ်းထဲ ပျက်တာ ပါနေပါတယ်။';
         }
       }
       return null;
@@ -2697,7 +2697,7 @@
       const loanInByM = { cash: 0, kpay: 0, wave: 0, aya: 0 }, loanOutByM = { cash: 0, kpay: 0, wave: 0, aya: 0 };
       cf.filter(e => e.type === 'loan' && !e.voided).forEach(e => {
         if (e.at >= a && e.at <= b && (e.m in loanInByM)) loanInByM[e.m] += e.amt;
-        if (e.repaid && e.repaidAt >= a && e.repaidAt <= b && (e.repaidMethod in loanOutByM)) loanOutByM[e.repaidMethod] += e.amt;
+        if (e.repaid && e.repaidAt >= a && e.repaidAt <= b && (e.repaidMethod in loanOutByM)) loanOutByM[e.m] += e.amt;
       });
       const gasRefByM = { cash: 0, kpay: 0, wave: 0, aya: 0 };
       cf.filter(e => e.type === 'gas_ret' && !e.voided).forEach(e => {
@@ -2902,7 +2902,6 @@
         return Number(d) + '.' + Number(m) + '.' + y;
       };
 
-      // Top Month Selector & Sub-tabs matching user's 2 logbooks
       const monthIn = h('input', { type: 'month', value: o2Month, style: 'width:auto;padding:6px 10px;font-weight:700' });
       monthIn.onchange = () => { if (monthIn.value) { o2Month = monthIn.value; viewOxy(); } };
 
@@ -2919,7 +2918,6 @@
         }, '၂။ အပိုင်အိုး (40L / Over · လက်ငင်း/ဘောင်ချာကျန်)')
       );
 
-      // Unified Logbook Entry Form (matches handwritten columns: Date | Empty | Full | Remarks/Payment)
       const isFac = o2LedgerTab === 1;
       const effDateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
       const emp1In = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: '40L Empty' });
@@ -2933,7 +2931,6 @@
       const rate2In = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: String(rate2Def) });
       const remIn = h('input', { placeholder: isFac ? 'Sign / Remarks (မထည့်လည်းရ)' : 'Remarks / ဘောင်ချာနံပါတ်' });
 
-      // Own cylinder payment status selector (Paid immediately vs Unpaid Voucher)
       const payStatusSel = h('select', {},
         h('option', { value: 'paid' }, 'လက်ငင်းရှင်းပြီး (Paid — ငွေစာရင်းထဲမှ နှုတ်မည်)'),
         h('option', { value: 'unpaid' }, 'ဘောင်ချာကျန် (Unpaid / Credit — နောက်မှရှင်းမည်)')
@@ -3033,12 +3030,12 @@
           h('div', {}, h('label', {}, isFac ? 'Sign / Remarks' : 'Remarks / ဘောင်ချာ'), remIn)
         ),
         h('div', { class: 'row' },
-          h('div', {}, h('label', {}, 'Empty · 40L (အခွံပို့)'), emp1In),
-          h('div', {}, h('label', {}, isFac ? 'Empty · 47L (အခွံပို့)' : 'Empty · Over 40L (အခွံ)'), emp2In)
+          h('div', {}, h('label', {}, 'Empty · 40L (အခွံ)'), emp1In),
+          h('div', {}, h('label', {}, isFac ? 'Empty · 47L (အခွံ)' : 'Empty · Over 40L (အခွံ)'), emp2In)
         ),
         h('div', { class: 'row' },
-          h('div', {}, h('label', {}, 'Full · 40L (အပြည့်ဝင်)'), full1In),
-          h('div', {}, h('label', {}, isFac ? 'Full · 47L (အပြည့်ဝင်)' : 'Full · Over 40L (အပြည့်)'), full2In)
+          h('div', {}, h('label', {}, 'Full · 40L (အပြည့်)'), full1In),
+          h('div', {}, h('label', {}, isFac ? 'Full · 47L (အပြည့်)' : 'Full · Over 40L (အပြည့်)'), full2In)
         ),
         h('div', { class: 'row' },
           h('div', {}, h('label', {}, '40L တစ်လုံးဈေး (ကျပ်)'), rate1In),
@@ -3048,11 +3045,10 @@
         addEntryBtn
       );
 
-      // Build Ledger Table 1 (Factory 40L & 47L) OR Ledger Table 2 (Own 40L & Over 40L)
       let ledgerSection;
 
       if (isFac) {
-        // Calculate Opening Stock for o2Month from prior months + explicit month opening
+        // Table 1: Factory Cylinders (40L & 47L) -> Stock_new = Stock_old - Empty + Full
         const obRec = stk.filter(e => e.type === 'o2_fac_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
         let open40 = 0, open47 = 0;
         if (obRec) {
@@ -3069,13 +3065,11 @@
           });
         }
 
-        // Group same-timestamp pair entries or show chronological rows for o2Month
         const rawFac = stk.filter(e => e.type === 'o2_fac' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
         const rows = [];
         for (let i = 0; i < rawFac.length; i++) {
           const cur = rawFac[i];
           const nxt = rawFac[i + 1];
-          // Merge paired 40L + 47L entries created together
           if (nxt && cur.createdAt && cur.createdAt === nxt.createdAt && cur.o2type !== nxt.o2type) {
             const r40 = cur.o2type === '40L' ? cur : nxt;
             const r47 = cur.o2type === '47L' ? cur : nxt;
@@ -3083,7 +3077,6 @@
               ids: [r40.id, r47.id], at: r40.at, dk: dkey(r40.at),
               e40: r40.emptyQty || 0, e47: r47.emptyQty || 0,
               f40: r40.fullQty || 0, f47: r47.fullQty || 0,
-              bill: (r40.fullQty || 0) * (r40.rate || rate1Def) + (r47.fullQty || 0) * (r47.rate || rate2Def),
               note: r40.note || r47.note || ''
             });
             i++;
@@ -3093,7 +3086,6 @@
               ids: [cur.id], at: cur.at, dk: dkey(cur.at),
               e40: is40 ? (cur.emptyQty || 0) : 0, e47: !is40 ? (cur.emptyQty || 0) : 0,
               f40: is40 ? (cur.fullQty || 0) : 0, f47: !is40 ? (cur.fullQty || 0) : 0,
-              bill: (cur.fullQty || 0) * (cur.rate || (is40 ? rate1Def : rate2Def)),
               note: cur.note || ''
             });
           }
@@ -3101,7 +3093,6 @@
 
         let run40 = open40, run47 = open47;
         let sumE40 = 0, sumE47 = 0, sumF40 = 0, sumF47 = 0, sumBill40 = 0, sumBill47 = 0;
-        // Re-sum exact bills from rawFac
         rawFac.forEach(e => {
           if (e.o2type === '40L') sumBill40 += (e.fullQty || 0) * (e.rate || rate1Def);
           if (e.o2type === '47L') sumBill47 += (e.fullQty || 0) * (e.rate || rate2Def);
@@ -3214,7 +3205,6 @@
                 )
               )
             ),
-            // Monthly Factory Settlement Summary Box (Amount + Cylinder Counts)
             h('div', { style: 'margin-top:10px;padding:10px;background:#FFF7ED;border:1.5px solid var(--org);border-radius:8px' },
               h('b', { style: 'font-size:15px;color:#9A3412' }, o2Month + ' လကုန် စက်ရုံသို့ ငွေရှင်းရန် အနှစ်ချုပ်'),
               h('div', { class: 'li', style: 'padding:4px 0' },
@@ -3242,7 +3232,8 @@
           )
         );
       } else {
-        // Table 2: Own Cylinders (40L & Over 40L) with Paid vs Unpaid Vouchers
+        // Table 2: Own Cylinders (40L & Over 40L) -> User-Confirmed Exact Formula:
+        // Stock_new = Stock_old + Empty - Full
         const obOwn = stk.filter(e => e.type === 'o2_own_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
         let open40 = 0, openOver = 0;
         if (obOwn) {
@@ -3254,8 +3245,8 @@
           open40 = priorOb ? (Number(priorOb.s40) || 0) : 0;
           openOver = priorOb ? (Number(priorOb.sOver) || 0) : 0;
           stk.filter(e => e.type === 'o2_own' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
-            open40 += (e.full40 || 0) - (e.emp40 || 0);
-            openOver += (e.fullOver || 0) - (e.empOver || 0);
+            open40 = open40 + (e.emp40 || 0) - (e.full40 || 0);
+            openOver = openOver + (e.empOver || 0) - (e.fullOver || 0);
           });
         }
 
@@ -3265,8 +3256,9 @@
         let paidTotal = 0, unpaidTotal = 0;
 
         const tableRows = ownRows.map(r => {
-          run40 = run40 - (r.emp40 || 0) + (r.full40 || 0);
-          runOver = runOver - (r.empOver || 0) + (r.fullOver || 0);
+          // Stock_new = Stock_old + Empty - Full
+          run40 = run40 + (r.emp40 || 0) - (r.full40 || 0);
+          runOver = runOver + (r.empOver || 0) - (r.fullOver || 0);
           sumE40 += (r.emp40 || 0); sumEOver += (r.empOver || 0);
           sumF40 += (r.full40 || 0); sumFOver += (r.fullOver || 0);
           const bill = Number(r.billAmt) || 0;
@@ -3276,7 +3268,7 @@
           }
 
           const payBadge = bill <= 0
-            ? h('small', {}, r.note || 'အခွံပို့')
+            ? h('small', {}, r.note || 'အခွံ')
             : r.paid
               ? h('span', {}, h('span', { class: 'tag ok' }, 'Paid (' + (PAY[r.paidMethod] || 'ရှင်းပြီး') + ')'), ' ', h('small', {}, money(bill) + (r.note ? ' · ' + r.note : '')))
               : h('span', {},
@@ -3332,7 +3324,6 @@
           );
         });
 
-        // Also count all unpaid vouchers across ALL months so nothing is forgotten
         const allUnpaidOwn = stk.filter(e => e.type === 'o2_own' && !e.paid && (Number(e.billAmt) || 0) > 0);
         const allUnpaidSum = allUnpaidOwn.reduce((a, e) => a + (Number(e.billAmt) || 0), 0);
 
@@ -3340,9 +3331,9 @@
           class: 'n',
           style: 'padding:4px 9px;font-size:12px',
           onclick: async () => {
-            const s40 = parseInt(await uiPrompt(o2Month + ' လအစ အပိုင်အိုး 40L လက်ကျန် (ဥပမာ 10)', open40, 'number'));
+            const s40 = parseInt(await uiPrompt(o2Month + ' လအစ အပိုင်အိုး 40L လက်ကျန် (Stock)', open40, 'number'));
             if (isNaN(s40) || s40 < 0) return;
-            const sOv = parseInt(await uiPrompt(o2Month + ' လအစ အပိုင်အိုး Over 40L လက်ကျန် (ဥပမာ 4)', openOver, 'number'));
+            const sOv = parseInt(await uiPrompt(o2Month + ' လအစ အပိုင်အိုး Over 40L လက်ကျန် (Stock)', openOver, 'number'));
             if (isNaN(sOv) || sOv < 0) return;
             await add('stk', { id: uuid(), at: Date.now(), type: 'o2_own_ob', month: o2Month, s40, sOver: sOv });
             await reload();
@@ -3409,7 +3400,6 @@
         );
       }
 
-      // Collapsible legacy Mother Cylinder & O2 Refill/Swap products so v23 features remain intact
       const o2 = products.filter(p => p.cat === 'အောက်ဆီဂျင်'), now = new Date(), t0 = dbounds(dkey(Date.now()))[0], m0 = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
       const cnt = (p, t) => { let q = 0, v = 0; sales.forEach(s => { if (!s.voided && s.at >= t) s.lines.forEach(l => { if (l.pid === p.id) { q += l.qty; v += amt(l); } }); }); return { q, v }; };
       const rowF = p => {
