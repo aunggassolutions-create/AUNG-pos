@@ -3,27 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#334155">
+  <meta name="theme-color" content="#0B1F3A">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
   <title>AUNG Gas Solutions POS v24</title>
   <style>
     :root {
-      --navy: #334155;
-      --grey-dark: #1E293B;
-      --org: #EA580C;
-      --org-soft: #FFEDD5;
-      --bg: #F3F4F6;
+      --navy: #0B1F3A;
+      --navy-mid: #16325B;
+      --org: #E86A12;
+      --org-soft: #FFE9D6;
+      --bg: #F4F6F9;
       --card: #FFFFFF;
-      --ln: #D1D5DB;
-      --red: #B91C1C;
-      --ok: #15803D;
+      --ln: #D5DBE4;
+      --red: #B3261E;
+      --ok: #1B7F3B;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       background: var(--bg);
-      color: var(--grey-dark);
+      color: var(--navy);
       font-family: "Noto Sans Myanmar", "Myanmar Text", system-ui, -apple-system, sans-serif;
       line-height: 1.7;
       padding-bottom: 82px;
@@ -42,7 +42,7 @@
     }
     #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
     header {
-      background: var(--grey-dark);
+      background: var(--navy);
       color: #fff;
       padding: 10px 14px;
       display: flex;
@@ -54,20 +54,20 @@
       border-bottom: 3px solid var(--org);
     }
     header b { font-size: 17px; }
-    header b span { color: #FB923C; }
+    header b span { color: #FF9E58; }
     #net { font-size: 12.5px; padding: 2px 10px; border-radius: 12px; background: var(--ok); font-weight: 700; }
     #net.off { background: var(--org); }
     main { padding: 12px; max-width: 760px; margin: auto; }
-    h2 { font-size: 17px; margin: 14px 0 6px; color: var(--grey-dark); }
+    h2 { font-size: 17px; margin: 14px 0 6px; color: var(--navy); }
     .card {
       background: var(--card);
       border: 1px solid var(--ln);
       border-radius: 9px;
       padding: 11px;
       margin-bottom: 10px;
-      box-shadow: 0 1px 2px rgba(30, 41, 59, .05);
+      box-shadow: 0 1px 2px rgba(11, 31, 58, .05);
     }
-    label { display: block; font-size: 13.5px; margin-top: 8px; font-weight: 600; }
+    label { display: block; font-size: 13.5px; margin-top: 8px; font-weight: 600; color: var(--navy); }
     input, select, textarea {
       width: 100%;
       padding: 9px 10px;
@@ -75,7 +75,7 @@
       border: 1px solid var(--ln);
       border-radius: 7px;
       background: #fff;
-      color: var(--grey-dark);
+      color: var(--navy);
       margin-top: 3px;
     }
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -93,7 +93,7 @@
     }
     button.o { background: var(--org); font-weight: 700; width: 100%; margin-top: 10px; padding: 13px; }
     button.g { background: #fff; color: var(--red); border: 1px solid var(--red); padding: 4px 10px; font-size: 13px; min-height: 34px; }
-    button.n { background: #fff; color: var(--grey-dark); border: 1px solid var(--navy); padding: 5px 10px; font-size: 13px; min-height: 35px; }
+    button.n { background: #fff; color: var(--navy); border: 1px solid var(--navy); padding: 5px 10px; font-size: 13px; min-height: 35px; }
     button:disabled { opacity: .5; cursor: not-allowed; }
     .li {
       display: flex;
@@ -107,21 +107,21 @@
     .tag {
       font-size: 11.5px;
       background: var(--org-soft);
-      color: #9A3412;
+      color: #9A4308;
       border-radius: 4px;
       padding: 1px 6px;
       margin-left: 5px;
       font-weight: 700;
       display: inline-block;
     }
-    .tag.ok { background: #DCFCE7; color: var(--ok); }
-    .tag.red { background: #FEE2E2; color: var(--red); }
-    .tag.grey { background: #E2E8F0; color: var(--grey-dark); }
+    .tag.ok { background: #E3F4E8; color: var(--ok); }
+    .tag.red { background: #FDE7E5; color: var(--red); }
+    .tag.navy { background: #E8EEF7; color: var(--navy); }
     .tot { font-size: 20px; font-weight: 700; text-align: right; margin-top: 8px; }
     .void { text-decoration: line-through; opacity: .55; }
     .msg { padding: 10px; border-radius: 7px; margin: 8px 0; font-size: 14px; white-space: pre-line; }
-    .msg.e { background: #FEE2E2; color: var(--red); }
-    .msg.k { background: #DCFCE7; color: var(--ok); }
+    .msg.e { background: #FDE7E5; color: var(--red); }
+    .msg.k { background: #E3F4E8; color: var(--ok); }
     nav {
       position: fixed;
       bottom: 0;
@@ -129,7 +129,7 @@
       right: 0;
       display: flex;
       background: #fff;
-      border-top: 2px solid var(--grey-dark);
+      border-top: 2px solid var(--navy);
       overflow-x: auto;
       z-index: 20;
     }
@@ -137,7 +137,7 @@
       flex: 0 0 auto;
       min-width: 21vw;
       background: #fff;
-      color: var(--grey-dark);
+      color: var(--navy);
       border-radius: 0;
       padding: 13px 8px;
       font-weight: 700;
@@ -147,7 +147,7 @@
     }
     @media (min-width: 820px) { nav button { min-width: auto; flex: 1 1 0; } }
     nav button.on { background: var(--org); color: #fff; }
-    small { color: #64748B; }
+    small { color: #5A6B82; }
     .tr {
       display: grid;
       grid-template-columns: 1fr 62px 66px 84px;
@@ -157,24 +157,23 @@
       font-size: 14px;
       align-items: start;
     }
-    .tr.h { font-weight: 700; background: #F1F5F9; }
+    .tr.h { font-weight: 700; background: #F4F6F9; }
     .tr span:nth-child(n+2) { text-align: right; }
     .st-tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
     .st-tbl th, .st-tbl td { border: 1px solid var(--ln); padding: 5px; text-align: right; }
     .st-tbl th:first-child, .st-tbl td:first-child, .st-tbl th:nth-child(4), .st-tbl td:nth-child(4) { text-align: left; }
-    .st-tbl th { background: #F1F5F9; color: var(--grey-dark); }
-    /* Handwritten Logbook Style Ledger Table */
+    .st-tbl th { background: #F4F6F9; color: var(--navy); }
     .log-tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 8px; }
-    .log-tbl th, .log-tbl td { border: 1px solid #94A3B8; padding: 5px 4px; text-align: center; vertical-align: middle; }
-    .log-tbl th { background: #E2E8F0; color: var(--grey-dark); font-weight: 700; }
-    .log-tbl tr.sub-h th { background: #F1F5F9; font-size: 11px; }
+    .log-tbl th, .log-tbl td { border: 1px solid #9AA8BD; padding: 5px 4px; text-align: center; vertical-align: middle; }
+    .log-tbl th { background: #E8EEF7; color: var(--navy); font-weight: 700; }
+    .log-tbl tr.sub-h th { background: #F4F6F9; font-size: 11px; }
     .log-tbl td.dt-col { text-align: left; white-space: nowrap; font-weight: 600; }
     .log-tbl td.rem-col { text-align: left; min-width: 115px; }
-    .log-tbl td.stk-col { font-weight: 700; background: #FFFBEB; }
+    .log-tbl td.stk-col { font-weight: 700; background: #FFFDF5; }
     .modal-bg {
       position: fixed;
       inset: 0;
-      background: rgba(30, 41, 59, .68);
+      background: rgba(11, 31, 58, .68);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -214,8 +213,8 @@
 <body>
   <div id="splash">
     <svg width="260" height="125" viewBox="0 0 320 155" xmlns="http://www.w3.org/2000/svg">
-      <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#334155">AUNG</text>
-      <text x="160" y="135" text-anchor="middle" font-family="'Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="-0.5" fill="#EA580C">Gas Solutions</text>
+      <text x="160" y="88" text-anchor="middle" font-family="Impact,'Arial Black',system-ui,sans-serif" font-weight="900" font-size="94" letter-spacing="2" fill="#0B1F3A">AUNG</text>
+      <text x="160" y="135" text-anchor="middle" font-family="'Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="-0.5" fill="#E86A12">Gas Solutions</text>
     </svg>
   </div>
 
@@ -241,7 +240,7 @@
   <div id="rcpt"></div>
 
   <script>
-    setTimeout(() => { const sp = document.getElementById('splash'); if (sp) sp.classList.add('hide'); }, 950);
+    setTimeout(() => { const sp = document.getElementById('splash'); if (sp) sp.classList.add('hide'); }, 900);
 
     const $ = s => document.querySelector(s);
     const h = (t, a = {}, ...c) => {
@@ -530,7 +529,7 @@
         const agSt = agentStats();
         const box = h('div', { class: 'modal-box' },
           h('b', { style: 'font-size:17px' }, title),
-          subtitle ? h('div', { class: 'msg', style: 'background:#FFF7ED;color:#9A3412;margin:8px 0' }, subtitle) : '',
+          subtitle ? h('div', { class: 'msg', style: 'background:#FFF3E8;color:#9A4308;margin:8px 0' }, subtitle) : '',
           h('label', {}, 'နောက်ထပ် ဖွင့်သုံးမယ့် ကိုယ်စားလှယ်အိုး ရွေးပါ'),
           ...Object.keys(AGENTS).map(k => {
             const s = agSt[k];
@@ -545,7 +544,7 @@
           }),
           allowNeg ? h('button', {
             class: 'n',
-            style: 'width:100%;margin-top:8px;padding:10px;border-color:var(--org);color:#9A3412',
+            style: 'width:100%;margin-top:8px;padding:10px;border-color:var(--org);color:#9A4308',
             onclick: () => { bg.remove(); res({ action: 'neg' }); }
           }, 'အိုးမလဲဘဲ ဒီအိုးကနေပဲ ဆက်နှုတ်မည် (အနုတ်ဖြစ်မယ်)') : '',
           h('button', {
@@ -826,7 +825,7 @@
         const isOverdue = ln.due && ln.due <= todayStr;
         return h('div', {
           class: 'msg',
-          style: 'background:' + (isOverdue ? '#FEE2E2' : '#E2E8F0') + ';color:' + (isOverdue ? 'var(--red)' : 'var(--grey-dark)') + ';display:flex;justify-content:space-between;align-items:center;gap:8px'
+          style: 'background:' + (isOverdue ? '#FDE7E5' : '#E8EEF7') + ';color:' + (isOverdue ? 'var(--red)' : 'var(--navy)') + ';display:flex;justify-content:space-between;align-items:center;gap:8px'
         },
           h('span', {}, (isOverdue ? '⚠ ပြန်ဆပ်ရမည့်ရက် ရောက်/ကျော်ပြီ: ' : 'ယာယီချေးငွေ: ') + ln.lender + ' · ' + money(ln.amt) + (ln.due ? ' (ဆပ်ရမည့်ရက်: ' + ln.due + ')' : '')),
           h('button', { style: 'padding:6px 10px;white-space:nowrap', onclick: () => show(7) }, 'ပြန်ဆပ်မည်')
@@ -841,10 +840,10 @@
       if (drops.length) {
         const dropQty = drops.reduce((a, s) => a + s.lines.reduce((b, l) => b + l.qty, 0), 0);
         const dropAmt = drops.reduce((a, s) => a + stotal(s), 0);
-        cards.push(h('div', { class: 'card', style: 'border-color:var(--org);background:#FFF7ED' },
+        cards.push(h('div', { class: 'card', style: 'border-color:var(--org);background:#FFFDF9' },
           h('div', { style: 'display:flex;justify-content:space-between;align-items:center' },
-            h('b', { style: 'color:#9A3412' }, 'ထားခဲ့ဗူး/အိုး (လာယူရန်ကျန်)'),
-            h('b', { style: 'color:#9A3412' }, dropQty + ' ခု · ' + money(dropAmt))
+            h('b', { style: 'color:#9A4308' }, 'ထားခဲ့ဗူး/အိုး (လာယူရန်ကျန်)'),
+            h('b', { style: 'color:#9A4308' }, dropQty + ' ခု · ' + money(dropAmt))
           ),
           h('small', {}, 'ငွေမရှင်းရသေးသရွေ့ ယနေ့ရောင်းချမှုနှင့် ငွေစာရင်းထဲ မပေါင်းသေးပါ။'),
           ...drops.map(s => {
@@ -859,7 +858,7 @@
       cods.forEach(s => {
         cards.push(h('div', {
           class: 'msg',
-          style: 'background:#FFEDD5;color:#9A3412;display:flex;justify-content:space-between;align-items:center;gap:8px'
+          style: 'background:#FFF3E8;color:#9A4308;display:flex;justify-content:space-between;align-items:center;gap:8px'
         },
           h('span', {}, 'COD (ငွေမရသေး) · ' + dkey(s.at) + ' ' + tm(s.at) + (s.cust ? ' · ' + s.cust : '') + ' · ' + s.lines.map(l => l.name + '×' + l.qty).join(', ') + ' · ' + money(stotal(s))),
           h('button', { style: 'padding:6px 10px;white-space:nowrap', onclick: () => viewSettle(s.id) }, 'ငွေရပြီ')
@@ -974,7 +973,7 @@
       const aA = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'ပထမနည်းလမ်း ပေးတဲ့ပမာဏ' });
       const bInfo = h('div', { style: 'margin:6px 0;font-weight:700' });
       const split = h('div', { style: 'display:none' }, h('label', {}, 'ပထမနည်းလမ်း + ပမာဏ'), h('div', { class: 'row' }, sA, aA), h('label', {}, 'ကျန်ငွေ ပေးမယ့်နည်းလမ်း'), sB, bInfo);
-      const pHint = h('small', { style: 'display:none;color:#9A3412' }, '');
+      const pHint = h('small', { style: 'display:none;color:#9A4308' }, '');
 
       const sync = () => {
         if (pay.value === 'pending') {
@@ -1005,7 +1004,7 @@
       const dIn = h('input', { type: 'date', max: dkey(Date.now()) });
       const hCb = h('input', { type: 'checkbox', checked: '', style: 'width:auto;margin-right:8px' });
       const hBox = h('label', { style: 'display:none;align-items:center' }, hCb, 'အရင်ရက်စာ — 48kg/အိုးကြီးထဲက မနှုတ်ပါနဲ့');
-      const dWarn = h('div', { class: 'msg', style: 'display:none;background:#FFF7ED;color:#9A3412' });
+      const dWarn = h('div', { class: 'msg', style: 'display:none;background:#FFF3E8;color:#9A4308' });
       const dSync = () => {
         const p = isPast(dIn.value);
         hBox.style.display = p ? 'flex' : 'none';
@@ -1032,7 +1031,7 @@
         const p = products.find(x => x.name === pn.value.trim()), q = parseFloat(qty.value), pc = parseFloat(pr.value), f = foc.checked;
         if (!p) return note(msg, 'ပစ္စည်းစာရင်းထဲက ပစ္စည်းကို ရွေးပါ။ မရှိရင် "ပစ္စည်းများ" မှာ အရင်ထည့်ပါ။');
         if (!(q > 0)) return note(msg, 'ပမာဏကို 0 ထက်ကြီးအောင် ထည့်ပါ။');
-        if (!f && (isNaN(pc) || pc <= 0)) return note(msg, 'ဈေးနှုန်းကို ကိုယ်တိုင် ထည့်ပါ (0 ထက်ကြီးရမယ်)။ လှူ/လက်ဆောင်ဆိုရင် FOC ကို အမှန်ခြစ်ပါ။');
+        if (!f && (isNaN(pc) || pc < 0)) return note(msg, 'ဈေးနှုန်းကို မှန်ကန်အောင် ထည့်ပါ (0 သို့မဟုတ် အထက်)။');
         const g = gv(p, q, un.value);
         if (g === null) return note(msg, 'Gas ကို "Gas (ပိဿာ)" မှာ ပိဿာနဲ့၊ "Gas ဗူးဖြည့်" မှာ ဗူးနဲ့ပဲ ထည့်ပါ။');
         if (!p.gas) {
@@ -1044,7 +1043,7 @@
         }
         const buyPriceAtSale = (!p.gas && p.o2 !== 'refill') ? (Number(p.buyPrice) || 0) : 0;
         lines.push({
-          pid: p.id, name: p.name, qty: q, unit: un.value, price: isNaN(pc) ? 0 : pc, foc: f,
+          pid: p.id, name: p.name, qty: q, unit: un.value, price: isNaN(pc) ? 0 : pc, foc: f || pc === 0,
           gasViss: g, gasRole: p.gas || null, o2use: (p.o2 === 'refill' && p.use > 0) ? q * p.use : 0,
           buyPriceAtSale
         });
@@ -1174,7 +1173,7 @@
               h('span', {},
                 h('b', { class: s.voided ? 'void' : '' }, money(stotal(s))), ' ',
                 (!s.voided && partsOf(s).some(x => x.m === 'pending')) ? h('button', { style: 'padding:4px 10px;font-size:13px', onclick: () => viewSettle(s.id) }, 'ငွေရပြီ') : '', ' ',
-                s.voided ? '' : h('button', { class: 'g', style: 'color:var(--grey-dark);border-color:var(--navy)', onclick: () => printSale(s) }, 'Print'), ' ',
+                s.voided ? '' : h('button', { class: 'g', style: 'color:var(--navy);border-color:var(--navy)', onclick: () => printSale(s) }, 'Print'), ' ',
                 s.voided ? '' : h('button', {
                   class: 'g',
                   onclick: async () => {
@@ -1206,7 +1205,7 @@
         msg,
         h('div', { class: 'card' },
           list, tot,
-          h('details', { style: 'margin:8px 0' }, h('summary', { style: 'color:#64748B' }, 'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'), dIn, dWarn, hBox),
+          h('details', { style: 'margin:8px 0' }, h('summary', { style: 'color:#5A6B82' }, 'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'), dIn, dWarn, hBox),
           h('label', {}, 'ငွေပေးချေမှု'), pay, pHint, split, cust, tagIn,
           h('label', { style: 'display:flex;align-items:center' }, prt, 'ဘောင်ချာ print ထုတ်မည်'),
           save
@@ -1267,10 +1266,10 @@
           return h('div', { class: 'li', style: 'cursor:pointer', onclick: () => viewCustDetail(c.key) },
             h('span', {}, c.name, c.phone ? h('br') : '', c.phone ? h('small', {}, c.phone) : '',
               shn > 0 ? h('span', { class: 'tag' }, 'Gasအိုး ' + shn + ' လုံး') : '',
-              o2Tot !== 0 ? h('span', { class: 'tag', style: 'background:#E2E8F0;color:var(--grey-dark)' }, 'O2အိုး ' + o2Tot + ' လုံး') : '',
+              o2Tot !== 0 ? h('span', { class: 'tag navy' }, 'O2အိုး ' + o2Tot + ' လုံး') : '',
               cb.bal > 0.5 ? h('span', { class: 'tag red' }, 'အိုးလျော်ကြေး ' + money(cb.bal)) : ''
             ),
-            h('b', { style: 'color:' + (c.bal < -0.5 ? 'var(--red)' : c.bal > 0.5 ? 'var(--grey-dark)' : '#94A3B8') }, money(c.bal))
+            h('b', { style: 'color:' + (c.bal < -0.5 ? 'var(--red)' : c.bal > 0.5 ? 'var(--navy)' : '#8A97AB') }, money(c.bal))
           );
         }) : [h('small', {}, 'ဖောက်သည် မရှိသေးပါ။')]));
       };
@@ -1496,18 +1495,18 @@
         h('div', { class: 'card', style: 'margin-top:8px' },
           h('b', { style: 'font-size:18px' }, c.name),
           h('div', {}, c.phone || 'ဖုန်းမရှိ'),
-          h('div', { class: 'tot', style: 'text-align:left;color:' + (c.bal < -0.5 ? 'var(--red)' : 'var(--grey-dark)') }, 'ကြွေးကျန် ' + money(c.bal)),
+          h('div', { class: 'tot', style: 'text-align:left;color:' + (c.bal < -0.5 ? 'var(--red)' : 'var(--navy)') }, 'ကြွေးကျန် ' + money(c.bal)),
           h('small', {}, 'ကြွေးယူ ' + money(c.cr) + ' · ပြန်ပေး ' + money(c.pd)),
           h('div', { class: 'row', style: 'margin-top:6px' }, ph, obB)
         ),
         msg,
-        c.bal > 0.5 ? h('div', { class: 'card' }, h('b', {}, 'ငွေရှင်းရန်'), am, me, h('details', { style: 'margin:8px 0' }, h('summary', { style: 'color:#64748B' }, 'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'), pd_), pay, allB) : '',
+        c.bal > 0.5 ? h('div', { class: 'card' }, h('b', {}, 'ငွေရှင်းရန်'), am, me, h('details', { style: 'margin:8px 0' }, h('summary', { style: 'color:#5A6B82' }, 'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'), pd_), pay, allB) : '',
         h('div', { class: 'card' },
           h('b', {}, 'ဖောက်သည်လက်ဝယ်ရှိ Oxygen (O2) အိုးလက်ကျန်'),
           h('div', { class: 'row', style: 'margin:6px 0;text-align:center' },
-            h('div', { style: 'background:#F1F5F9;padding:6px;border-radius:6px' }, h('small', {}, '40L (စက်ရုံ)'), h('div', {}, h('b', {}, o2b['40L'] + ' လုံး'))),
-            h('div', { style: 'background:#F1F5F9;padding:6px;border-radius:6px' }, h('small', {}, '40L (အပိုင်)'), h('div', {}, h('b', {}, o2b['over40'] + ' လုံး'))),
-            h('div', { style: 'background:#F1F5F9;padding:6px;border-radius:6px' }, h('small', {}, '47L (စက်ရုံ)'), h('div', {}, h('b', {}, o2b['47L'] + ' လုံး')))
+            h('div', { style: 'background:#F4F6F9;padding:6px;border-radius:6px' }, h('small', {}, '40L (စက်ရုံ)'), h('div', {}, h('b', {}, o2b['40L'] + ' လုံး'))),
+            h('div', { style: 'background:#F4F6F9;padding:6px;border-radius:6px' }, h('small', {}, '40L (အပိုင်)'), h('div', {}, h('b', {}, o2b['over40'] + ' လုံး'))),
+            h('div', { style: 'background:#F4F6F9;padding:6px;border-radius:6px' }, h('small', {}, '47L (စက်ရုံ)'), h('div', {}, h('b', {}, o2b['47L'] + ' လုံး')))
           ),
           h('div', { class: 'row', style: 'margin-top:6px' },
             h('button', { class: 'n', onclick: () => o2Move(1) }, 'O2 အိုးပို့ (+)'),
@@ -1531,7 +1530,24 @@
         h('h2', {}, 'ဝယ်ယူခဲ့တာများ'),
         h('div', { class: 'card' }, cs.length ? cs.map(x => h('div', { class: 'li', style: 'align-items:flex-start' },
           h('span', { class: x.voided ? 'void' : '' }, sd_(x.at) + (x.voided ? ' (ပယ်ဖျက်ပြီး)' : ''), ...x.lines.map(l => h('div', {}, h('small', {}, l.name + ' × ' + l.qty + ' ' + l.unit + (l.foc ? ' (FOC)' : ' @ ' + Math.round(l.price).toLocaleString('en-US')))))),
-          h('span', { style: 'text-align:right' }, h('b', { class: x.voided ? 'void' : '' }, money(stotal(x))), creditOf(x) > 0 ? h('div', {}, h('small', { style: 'color:var(--red)' }, 'ကြွေး ' + money(creditOf(x)))) : '', ' ', x.voided ? '' : h('button', { class: 'n', style: 'padding:2px 8px;font-size:12px', onclick: () => printSale(x) }, 'Print'))
+          h('span', { style: 'text-align:right' },
+            h('b', { class: x.voided ? 'void' : '' }, money(stotal(x))),
+            creditOf(x) > 0 ? h('div', {}, h('small', { style: 'color:var(--red)' }, 'ကြွေး ' + money(creditOf(x)))) : '',
+            ' ',
+            x.voided ? '' : h('button', { class: 'n', style: 'padding:2px 8px;font-size:12px', onclick: () => printSale(x) }, 'Print'),
+            ' ',
+            x.voided ? '' : h('button', {
+              class: 'g',
+              style: 'padding:2px 8px;font-size:12px',
+              onclick: async () => {
+                if (!(await guardMonthLock(saleEffAt(x), msg))) return;
+                if (!(await uiConfirm('ဒီအရောင်းဘောင်ချာကို ပယ်ဖျက် (Void) လုပ်မလား? (ကြွေးစာရင်းထဲမှ အလိုအလျောက် ပြန်နှုတ်သွားပါမည်)'))) return;
+                await put('sales', { ...x, voided: true, voidedAt: Date.now() });
+                await reload();
+                viewCustDetail(key);
+              }
+            }, 'ပယ်ဖျက်')
+          )
         )) : h('small', {}, 'မရှိသေးပါ။')),
         h('h2', {}, 'ပြန်ပေးခဲ့တာများ'),
         h('div', { class: 'card' }, ps.length ? ps.map(x => h('div', { class: 'li' }, h('span', {}, sd_(x.at) + ' · ' + PAY[x.method]), h('b', {}, money(x.amount)))) : h('small', {}, 'မရှိသေးပါ။'))
@@ -1561,7 +1577,7 @@
           } catch (e) { note(msg, 'မထည့်နိုင်ပါ: ' + (e && e.message || e)); }
         }
       }, products.length ? 'Gas ပစ္စည်း ၂ ခု ပြန်ထည့်မည်' : 'နမူနာပစ္စည်းများ ပြန်ထည့်မည်') : '';
-      const r2 = x => Math.round(x * 100) / 100, sumEl = h('div', { class: 'msg', style: 'background:#E2E8F0;color:var(--grey-dark)' });
+      const r2 = x => Math.round(x * 100) / 100, sumEl = h('div', { class: 'msg', style: 'background:#E8EEF7;color:var(--navy)' });
 
       const row = p => {
         const st = p.gas ? null : stockOf(p);
@@ -1590,8 +1606,8 @@
             await run(['stk', 'products', 'cf'], 'readwrite', t => {
               t.objectStore('stk').add({ id: uuid(), at: now, pid: p.id, name: p.name, type: 'buy', qty: q_, cost: isNaN(c) ? null : c });
               const upd = { ...p };
-              if (!isNaN(c) && c > 0) upd.buyPrice = c;
-              if (!isNaN(sp) && sp > 0) upd.sellPrice = sp;
+              if (!isNaN(c) && c >= 0) upd.buyPrice = c;
+              if (!isNaN(sp) && sp >= 0) upd.sellPrice = sp;
               t.objectStore('products').put(upd);
               if (payM && totCost > 0 && dkey(now) >= AUTO_EXP_EFFECTIVE_DATE) {
                 t.objectStore('cf').add({ id: uuid(), at: now, type: 'exp', desc: 'ပစ္စည်းဝယ်: ' + p.name + ' × ' + q_, cat: 'factory', amt: totCost, m: payM });
@@ -1649,7 +1665,7 @@
         }, 'ယူနစ်');
 
         const priceInfo = (p.buyPrice || p.sellPrice) ? (' · ' + (p.buyPrice ? 'ဝယ် ' + Math.round(p.buyPrice).toLocaleString() : '') + (p.buyPrice && p.sellPrice ? ' / ' : '') + (p.sellPrice ? 'ရောင်း ' + Math.round(p.sellPrice).toLocaleString() : '')) : '';
-        const badge = p.gas ? h('small', {}, '(Gas စာရင်း tab မှာ ကြည့်ပါ)') : p.o2 === 'refill' ? h('small', {}, '(Oxygen tab မှာ ကြည့်ပါ)') : st === null ? h('small', { style: 'color:#9A3412' }, 'လက်ကျန် မရေတွက်ရသေး' + priceInfo) : h('b', { style: 'color:' + (st <= 0 ? 'var(--red)' : 'var(--ok)') }, 'လက်ကျန် ' + r2(st) + ' ' + p.unit + priceInfo);
+        const badge = p.gas ? h('small', {}, '(Gas စာရင်း tab မှာ ကြည့်ပါ)') : p.o2 === 'refill' ? h('small', {}, '(Oxygen tab မှာ ကြည့်ပါ)') : st === null ? h('small', { style: 'color:#9A4308' }, 'လက်ကျန် မရေတွက်ရသေး' + priceInfo) : h('b', { style: 'color:' + (st <= 0 ? 'var(--red)' : 'var(--ok)') }, 'လက်ကျန် ' + r2(st) + ' ' + p.unit + priceInfo);
         return h('div', { class: 'li', style: 'flex-wrap:wrap' },
           h('span', { style: 'flex:1 1 55%' }, p.name, p.sample ? h('span', { class: 'tag' }, 'နမူနာ') : '', h('br'), h('small', {}, p.cat + ' · ' + p.unit), h('br'), badge),
           h('span', { style: 'display:flex;gap:6px;flex-wrap:wrap' }, ...((p.gas || p.o2 === 'refill') ? [] : [buy, cnt, ret]), ...(p.gas ? [] : [un_]), dl_)
@@ -1681,7 +1697,7 @@
       }, 'ပစ္စည်းအသစ် ထည့်မည်');
 
       app.append(
-        h('div', { class: 'msg e', style: 'background:#FFF7ED;color:#9A3412' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်းပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),
+        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်းပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),
         h('div', { class: 'card' }, h('b', {}, 'ပစ္စည်းအသစ်'), nn, h('div', { class: 'row' }, nc, nu), addBtn),
         msg, fix,
         h('h2', {}, 'ပစ္စည်းစာရင်း (' + products.length + ')'), sumEl, q, box
@@ -1790,7 +1806,7 @@
 
       const gasReturnBtn = h('button', {
         class: 'n',
-        style: 'width:100%;margin-bottom:10px;padding:11px;font-weight:700;border-color:var(--org);color:#9A3412',
+        style: 'width:100%;margin-bottom:10px;padding:11px;font-weight:700;border-color:var(--org);color:#9A4308',
         onclick: () => {
           const bg = h('div', { class: 'modal-bg' });
           const agS = h('select', {}, Object.keys(AGENTS).map(k => h('option', { value: k }, k)));
@@ -1879,18 +1895,18 @@
           h('b', { style: 'font-size:16px' }, 'နေ့စဉ် Gas စာရင်းတိုက်စစ်ချက်'),
           reconDateIn
         ),
-        h('div', { style: 'background:#F1F5F9;padding:8px;border-radius:6px;margin-bottom:8px' },
+        h('div', { style: 'background:#F4F6F9;padding:8px;border-radius:6px;margin-bottom:8px' },
           h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, 'Opening Balance'), h('b', {}, r2(recon.openViss) + ' viss')),
           h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, '+ အဝင် (In)' + (recon.inDetails.length ? ' (' + recon.inDetails.join(', ') + ')' : '')), h('b', { style: 'color:var(--ok)' }, '+' + r2(recon.inViss) + ' viss')),
           recon.retViss > 0 ? h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, '+ Gas လက်ကျန်ပြန်ဝင်'), h('b', { style: 'color:var(--ok)' }, '+' + r2(recon.retViss) + ' viss')) : '',
           h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, '− ယနေ့ ပိဿာအရောင်း'), h('b', {}, '−' + r2(recon.salesViss) + ' viss')),
           h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, '− ဗူးအိုးလဲ' + (recon.canSwapDetails.length ? ' (' + recon.canSwapDetails.join(', ') + ')' : '')), h('b', {}, '−' + r2(recon.canSwapViss) + ' viss')),
-          h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid var(--ln)' }, h('b', {}, '= စာရင်းလက်ကျန် (Book Stock)'), h('b', { style: 'font-size:16px;color:var(--grey-dark)' }, r2(recon.bookViss) + ' viss'))
+          h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid var(--ln)' }, h('b', {}, '= စာရင်းလက်ကျန် (Book Stock)'), h('b', { style: 'font-size:16px;color:var(--navy)' }, r2(recon.bookViss) + ' viss'))
         ),
-        h('div', { style: 'background:#FFF7ED;border:1px solid var(--ln);padding:8px;border-radius:6px;margin-bottom:8px' },
+        h('div', { style: 'background:#FFFDF9;border:1px solid var(--ln);padding:8px;border-radius:6px;margin-bottom:8px' },
           h('b', { style: 'font-size:14px' }, 'မြေပြင်လက်ကျန် (Ground Stock)'),
           ...(groundBreakdown.length ? groundBreakdown.map(g => h('div', { class: 'li', style: 'padding:2px 0;font-size:13.5px' }, h('span', {}, g.label + ' (' + g.desc + ')'), h('span', {}, r2(g.viss) + ' viss'))) : [h('small', {}, 'မြေပြင်လက်ကျန် မရှိသေးပါ')]),
-          h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid var(--ln)' }, h('b', {}, '= မြေပြင်လက်ကျန် စုစုပေါင်း'), h('b', { style: 'font-size:16px;color:var(--grey-dark)' }, r2(groundVissTotal) + ' viss'))
+          h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid var(--ln)' }, h('b', {}, '= မြေပြင်လက်ကျန် စုစုပေါင်း'), h('b', { style: 'font-size:16px;color:var(--navy)' }, r2(groundVissTotal) + ' viss'))
         ),
         h('div', { class: 'li', style: 'padding:6px 4px' },
           h('b', {}, 'ကွာဟချက် (မြေပြင် − စာရင်း)'),
@@ -1948,10 +1964,10 @@
         const otherPartials = L.slice(1);
         return h('div', { class: 'card' },
           h('b', {}, GL[r] + ' (လက်ရှိသုံးနေတာ) · ' + (c.agent || 'TT Gas')),
-          h('div', { class: 'tot', style: 'text-align:left;color:' + (rm <= cfg.low ? 'var(--red)' : 'var(--grey-dark)') }, r2(rm) + ' ပိဿာ'),
-          r === 'can' ? h('div', { style: 'margin:6px 0;padding:8px;background:#F1F5F9;border-radius:6px;font-size:13px' },
-            h('div', {}, 'ထွက်ရှိဗူး စုစုပေါင်း: ', h('b', { style: 'color:' + (cansOut > cfg.canMax ? 'var(--red)' : 'var(--grey-dark)') }, cansOut + ' ဗူး'), ' (သတ်မှတ်ချက် ' + cfg.canMin + '~' + cfg.canMax + ' ဗူး)'),
-            h('div', {}, '• ငွေရှင်းပြီးဗူး: ', h('b', {}, Math.max(paidCans, 0) + ' ဗူး'), ' · ထားခဲ့ဗူး (လာယူရန်ကျန်): ', h('b', { style: 'color:#9A3412' }, dropoffCans + ' ဗူး')),
+          h('div', { class: 'tot', style: 'text-align:left;color:' + (rm <= cfg.low ? 'var(--red)' : 'var(--navy)') }, r2(rm) + ' ပိဿာ'),
+          r === 'can' ? h('div', { style: 'margin:6px 0;padding:8px;background:#F4F6F9;border-radius:6px;font-size:13px' },
+            h('div', {}, 'ထွက်ရှိဗူး စုစုပေါင်း: ', h('b', { style: 'color:' + (cansOut > cfg.canMax ? 'var(--red)' : 'var(--navy)') }, cansOut + ' ဗူး'), ' (သတ်မှတ်ချက် ' + cfg.canMin + '~' + cfg.canMax + ' ဗူး)'),
+            h('div', {}, '• ငွေရှင်းပြီးဗူး: ', h('b', {}, Math.max(paidCans, 0) + ' ဗူး'), ' · ထားခဲ့ဗူး (လာယူရန်ကျန်): ', h('b', { style: 'color:#9A4308' }, dropoffCans + ' ဗူး')),
             h('div', {}, '• လက်ကျန် ခန့်မှန်း: ≈ ', h('b', {}, Math.floor(Math.max(rm, 0) * cfg.cans) + ' ဗူး'))
           ) : h('small', {}, '≈ Gas ဗူး ' + Math.floor(Math.max(rm, 0) * cfg.cans) + ' ဗူး'),
           (rm <= cfg.low ? h('div', { class: 'msg e' }, rm <= 0 ? 'ကုန်သွားပါပြီ — အိုးလဲပါ' : 'ကျန်နည်းပြီ — အိုးလဲဖို့ ပြင်ပါ') : ''),
@@ -1973,7 +1989,7 @@
       };
 
       const agSel = h('select', {}, Object.keys(AGENTS).map(k => h('option', { value: k }, k + ' (' + AGENTS[k].kg + 'kg / ' + AGENTS[k].viss + ' viss)')));
-      const aq = num('အိုးအရေအတွက်'), ac = num('တစ်လုံးဈေး (ကျပ် — စရိတ်စာရင်းထဲ ဝင်မည်)');
+      const aq = num('အိုးအရေအတွက်'), ac = num('တစ်လုံးဈေး (ကျပ် — 0 ထည့်နိုင်သည်)');
       const payChSel = h('select', {},
         h('option', { value: 'cash' }, 'ငွေသား (Cash — အသုံးစရိတ်ထဲ တန်းဝင်မည်)'),
         h('option', { value: 'kpay' }, 'KPay — အသုံးစရိတ်ထဲ တန်းဝင်မည်'),
@@ -1987,17 +2003,18 @@
         if (!(q > 0)) return note(msg, 'အရေအတွက် ထည့်ပါ။');
         const av = parseFloat(await uiPrompt('အမှန်တကယ် ချိန်တွယ်ရရှိသည့် စုစုပေါင်း ပိဿာ (စံ ' + r2(q * AGENTS[a_].viss) + ' viss)', r2(q * AGENTS[a_].viss), 'number'));
         if (isNaN(av) || av <= 0) return;
-        const totCost = (!isNaN(c) && c > 0) ? q * c : 0;
+        const unitCost = (!isNaN(c) && c >= 0) ? c : 0;
+        const totCost = q * unitCost;
         const now = Date.now();
         if (!(await guardMonthLock(now, msg))) return;
         const willExp = totCost > 0 && ch !== 'credit' && dkey(now) >= AUTO_EXP_EFFECTIVE_DATE;
         const labelAction = modeType === 'recv' ? 'အပြည့်အိုး ' + q + ' လုံး (' + r2(av) + ' viss) ဝယ်ယူ/ရရှိ' : 'အိုးလဲ (အပြည့် +' + q + ' / အခွံ −' + q + ', ' + r2(av) + ' viss)';
         const confirmTxt = a_ + ' ဆီက ' + labelAction + ' မှတ်မလား?' +
-          (totCost > 0 ? '\nစုစုပေါင်း ကျသင့်ငွေ: ' + money(totCost) + (willExp ? '\n(' + PAY[ch] + ' အသုံးစရိတ်စာရင်းထဲ တန်းဝင်ပါမည်)' : ' (အကြွေး/ငွေမနှုတ်)') : '');
+          (totCost > 0 ? '\nစုစုပေါင်း ကျသင့်ငွေ: ' + money(totCost) + (willExp ? '\n(' + PAY[ch] + ' အသုံးစရိတ်စာရင်းထဲ တန်းဝင်ပါမည်)' : ' (အကြွေး/ငွေမနှုတ်)') : '\n(ကျသင့်ငွေ: 0 ကျပ်)');
         if (!(await uiConfirm(confirmTxt))) return;
 
         await run(['gasEv', 'cf'], 'readwrite', t => {
-          t.objectStore('gasEv').add({ id: uuid(), at: now, type: modeType, qty: q, actualViss: av, cost: isNaN(c) ? null : c, payCh: ch, agent: a_ });
+          t.objectStore('gasEv').add({ id: uuid(), at: now, type: modeType, qty: q, actualViss: av, cost: (!isNaN(c) && c >= 0) ? c : null, payCh: ch, agent: a_ });
           if (willExp) {
             t.objectStore('cf').add({
               id: uuid(), at: now, type: 'exp',
@@ -2080,7 +2097,7 @@
       app.append(
         h('div', { class: 'card' },
           h('b', {}, 'Main Gas Stock (ပိဿာလက်ကျန် စုစုပေါင်း)'),
-          h('div', { class: 'tot', style: 'text-align:left;color:var(--grey-dark)' }, r2(mViss) + ' ပိဿာ'),
+          h('div', { class: 'tot', style: 'text-align:left;color:var(--navy)' }, r2(mViss) + ' ပိဿာ'),
           h('small', {}, 'အပြည့် ' + fullLeft + ' လုံး · လက်ကျန်အိုး (လ/က) ' + partialCnt + ' လုံး · အခွံ ' + emptyWait + ' လုံး' + (totalGain > 0 ? ' · Gain +' + r2(totalGain) + ' viss' : '')),
           h('div', { style: 'margin-top:8px;border-top:1px solid var(--ln);padding-top:6px' },
             ...Object.entries(agSt).map(([name, s]) => h('div', { class: 'li', style: 'padding:4px 0;flex-wrap:wrap' },
@@ -2505,7 +2522,7 @@
         const ms = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
         const rentCb = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
         const dI = h('input', { type: 'date', max: dkey(Date.now()), value: dv || '' });
-        const dW = h('div', { class: 'msg', style: 'background:#FFF7ED;color:#9A3412;display:' + (isPast(dv) ? 'block' : 'none') }, '⚠ အရင်ရက်စာ မှတ်နေတာပါ။ ယနေ့အတွက်ဆိုရင် ရက်စွဲကို ဖျက်ပါ။');
+        const dW = h('div', { class: 'msg', style: 'background:#FFF3E8;color:#9A4308;display:' + (isPast(dv) ? 'block' : 'none') }, '⚠ အရင်ရက်စာ မှတ်နေတာပါ။ ယနေ့အတွက်ဆိုရင် ရက်စွဲကို ဖျက်ပါ။');
         dI.onchange = () => { dW.style.display = isPast(dI.value) ? 'block' : 'none'; };
 
         const bt = h('button', {
@@ -2539,7 +2556,7 @@
             h('label', {}, 'ငွေပမာဏ'), am,
             h('label', {}, 'ဘာနဲ့ပေးလဲ'), ms,
             h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, rentCb, 'ဆိုင်လခ ပေးချေမှု (P&L တွင် နှစ်ခါမနှုတ်ပါ)'),
-            h('details', { style: 'margin:8px 0' }, h('summary', { style: 'color:#64748B' }, 'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'), dI, dW),
+            h('details', { style: 'margin:8px 0' }, h('summary', { style: 'color:#5A6B82' }, 'ရက်စွဲ ပြောင်းရန် (မလိုရင် မထိပါနဲ့)'), dI, dW),
             bt
           ),
           msg,
@@ -2642,7 +2659,7 @@
         const toSel = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k]))); toSel.value = 'cash';
         const amtIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'လွှဲပြောင်းမည့် ငွေပမာဏ' });
         const noteIn = h('input', { placeholder: 'မှတ်ချက် (ဥပမာ KPay ထုတ်ပြီး ငွေသားထဲထည့်)' });
-        const balInfo = h('small', { style: 'display:block;margin-top:4px;color:var(--grey-dark);font-weight:700' }, '');
+        const balInfo = h('small', { style: 'display:block;margin-top:4px;color:var(--navy);font-weight:700' }, '');
         const syncBal = () => { balInfo.textContent = PAY[fromSel.value] + ' လက်ရှိစာရင်းလက်ကျန်: ' + money(curBalOf(fromSel.value)); };
         fromSel.onchange = syncBal; syncBal();
 
@@ -2780,13 +2797,13 @@
               row('+ ကြွေးကောက်ရငွေ', money(col[m])),
               compInByM[m] > 0 ? row('+ အိုးလျော်ကြေးရငွေ', money(compInByM[m]), 'var(--ok)') : '',
               facRefByM[m] > 0 ? row('+ Factory ငွေပြန်အမ်း (Actual Refund)', money(facRefByM[m]), 'var(--ok)') : '',
-              loanInByM[m] > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(loanInByM[m]), 'var(--grey-dark)') : '',
+              loanInByM[m] > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(loanInByM[m]), 'var(--navy)') : '',
               xferInByM[m] > 0 ? row('+ ငွေလွှဲလက်ခံ (အဝင်)', money(xferInByM[m]), 'var(--ok)') : '',
               row('− အသုံးစရိတ်', money(om[m])),
               gasRefByM[m] > 0 ? row('− Gas ပြန်အမ်းငွေ', money(gasRefByM[m]), 'var(--red)') : '',
               loanOutByM[m] > 0 ? row('− ချေးငွေပြန်ဆပ် (အထွက်)', money(loanOutByM[m]), 'var(--red)') : '',
               xferOutByM[m] > 0 ? row('− ငွေလွှဲထုတ် (အထွက်)', money(xferOutByM[m]), 'var(--red)') : '',
-              row('= လက်ကျန်ငွေ (စာရင်းအရ)', money(ex), 'var(--grey-dark)'),
+              row('= လက်ကျန်ငွေ (စာရင်းအရ)', money(ex), 'var(--navy)'),
               cl ? row('ရေတွက်ထားတာ · ကွာ', money(cl.amt) + ' · ' + (cl.amt - ex >= 0 ? '+' : '') + r2(cl.amt - ex), Math.abs(cl.amt - ex) < 0.5 ? 'var(--ok)' : 'var(--red)') : ''
             ),
             ia,
@@ -2800,7 +2817,7 @@
             row('အဖွင့်ငွေ', money(sumOp)),
             row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)', money(sIn)),
             row('+ ကြွေးကောက်ရငွေ', money(cIn)),
-            lIn > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(lIn), 'var(--grey-dark)') : '',
+            lIn > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(lIn), 'var(--navy)') : '',
             row('− အသုံးစရိတ်', money(oOut)),
             gOut > 0 ? row('− Gas ပြန်အမ်းငွေ', money(gOut), 'var(--red)') : '',
             lOut > 0 ? row('− ချေးငွေပြန်ဆပ် (အထွက်)', money(lOut), 'var(--red)') : '',
@@ -2890,8 +2907,8 @@
         const mPnl = calcPnL(k.slice(0, 7), true);
         const pnlBox = (title, p) => h('div', { class: 'card' },
           h('b', { style: 'font-size:16px' }, title),
-          p.unidGasWarn ? h('div', { class: 'msg e', style: 'background:#FFF7ED;color:#9A3412' }, '⚠ Gas Supplier ဝယ်ဈေးမှတ်တမ်း မပြည့်စုံသေးပါ — ခန့်မှန်း COGS (Estimated) ဖြင့် တွက်ထားပါသည်။') : '',
-          p.rentWarn ? h('div', { class: 'msg e', style: 'background:#FFF7ED;color:#9A3412' }, '⚠ ' + p.rentWarn) : '',
+          p.unidGasWarn ? h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, '⚠ Gas Supplier ဝယ်ဈေးမှတ်တမ်း မပြည့်စုံသေးပါ — ခန့်မှန်း COGS (Estimated) ဖြင့် တွက်ထားပါသည်။') : '',
+          p.rentWarn ? h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, '⚠ ' + p.rentWarn) : '',
           row('Net Revenue (အရောင်းဝင်ငွေ)', money(p.netRev)),
           row('− Gas COGS (Supplier Latest / Buy-Back)', money(p.gasCogs)),
           row('− Oxygen COGS (4-Type / Mother Cyl)', money(p.o2Cogs)),
@@ -2900,7 +2917,7 @@
           row('− Operating Expenses', money(p.opExp)),
           row('− Supplier Weight Variance Expense', money(p.weightVarExp)),
           row('− Allocated Shop Rent (750k/mo)', money(p.rentAlloc)),
-          h('div', { class: 'li', style: 'border-top:2px solid var(--grey-dark)' }, h('b', {}, '= Net Profit / (Loss)'), h('b', { style: 'font-size:18px;color:' + (p.netProfit < 0 ? 'var(--red)' : 'var(--ok)') }, money(p.netProfit))),
+          h('div', { class: 'li', style: 'border-top:2px solid var(--navy)' }, h('b', {}, '= Net Profit / (Loss)'), h('b', { style: 'font-size:18px;color:' + (p.netProfit < 0 ? 'var(--red)' : 'var(--ok)') }, money(p.netProfit))),
           h('div', { style: 'margin-top:6px' }, h('small', {}, 'Applied Gas Rates: ' + Object.entries(p.supRates).map(([ag, sr]) => ag + ' ' + Math.round(sr.perViss) + '/viss' + (sr.date ? ' (' + sr.date + ')' : ' [Est]')).join(' · ')))
         );
         body = [pnlBox('နေ့စဉ် အရှုံး/အမြတ် (Daily P&L — ' + k + ')', dPnl), pnlBox('လစဉ် အရှုံး/အမြတ် (Monthly P&L — ' + k.slice(0, 7) + ')', mPnl)];
@@ -2956,10 +2973,9 @@
       const rate2In = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: String(rate2Def) });
       const remIn = h('input', { placeholder: isFac ? 'Sign / Remarks (မထည့်လည်းရ)' : 'Remarks / ဘောင်ချာနံပါတ်' });
 
-      // Damaged / Unfillable Empty Cylinder Return Toggle (Own Cylinder only)
       const dmgCb = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
       const dmgBox = h('label', {
-        style: isFac ? 'display:none' : 'display:flex;align-items:center;margin-top:8px;padding:8px;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:7px;color:var(--red)'
+        style: isFac ? 'display:none' : 'display:flex;align-items:center;margin-top:8px;padding:8px;background:#FDE7E5;border:1px solid #FCA5A5;border-radius:7px;color:var(--red)'
       }, dmgCb, 'အိုးပျက် / ဖြည့်မရ (အခွံသက်သက် ပြန်ထုတ် — 0 ကျပ်)');
 
       const payStatusSel = h('select', {},
@@ -2967,7 +2983,7 @@
         h('option', { value: 'unpaid' }, 'ဘောင်ချာကျန် (Unpaid / Credit — နောက်မှရှင်းမည်)')
       );
       const payMethodSel = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
-      const ownPayBox = h('div', { style: isFac ? 'display:none' : 'display:block;margin-top:6px;padding:8px;background:#FFF7ED;border-radius:7px;border:1px solid #FDBA74' },
+      const ownPayBox = h('div', { style: isFac ? 'display:none' : 'display:block;margin-top:6px;padding:8px;background:#FFF3E8;border-radius:7px;border:1px solid #FDBA74' },
         h('label', { style: 'margin-top:0' }, 'အပိုင်အိုး ဖြည့်ခ ငွေရှင်းမှု အခြေအနေ'),
         payStatusSel,
         h('div', { id: 'ownChWrap' }, h('label', {}, 'ပေးချေသည့် Channel (လက်ငင်းဆိုလျှင်)'), payMethodSel)
@@ -3007,8 +3023,10 @@
           const effAt = stampAt(dk);
           if (!(await guardMonthLock(effAt, msg))) return;
 
-          const r1 = parseFloat(rate1In.value) || rate1Def;
-          const r2 = parseFloat(rate2In.value) || rate2Def;
+          const r1Parsed = parseFloat(rate1In.value);
+          const r2Parsed = parseFloat(rate2In.value);
+          const r1 = !isNaN(r1Parsed) && r1Parsed >= 0 ? r1Parsed : rate1Def;
+          const r2 = !isNaN(r2Parsed) && r2Parsed >= 0 ? r2Parsed : rate2Def;
           const now = Date.now();
 
           if (isFac) {
@@ -3154,8 +3172,8 @@
         let run40 = open40, run47 = open47;
         let sumE40 = 0, sumE47 = 0, sumF40 = 0, sumF47 = 0, sumBill40 = 0, sumBill47 = 0;
         rawFac.forEach(e => {
-          if (e.o2type === '40L') sumBill40 += (e.fullQty || 0) * (e.rate || rate1Def);
-          if (e.o2type === '47L') sumBill47 += (e.fullQty || 0) * (e.rate || rate2Def);
+          if (e.o2type === '40L') sumBill40 += (e.fullQty || 0) * (e.rate !== undefined ? e.rate : rate1Def);
+          if (e.o2type === '47L') sumBill47 += (e.fullQty || 0) * (e.rate !== undefined ? e.rate : rate2Def);
         });
 
         const tableRows = rows.map(r => {
@@ -3247,7 +3265,7 @@
                   )
                 ),
                 h('tbody', {},
-                  h('tr', { style: 'background:#F8FAFC' },
+                  h('tr', { style: 'background:#F4F6F9' },
                     h('td', { class: 'dt-col' }, 'လအစ Opening'),
                     h('td', {}, '-'), h('td', {}, '-'), h('td', {}, '-'), h('td', {}, '-'),
                     h('td', { class: 'stk-col' }, open40),
@@ -3255,7 +3273,7 @@
                     h('td', { class: 'rem-col' }, h('small', {}, 'Opening Stock'))
                   ),
                   ...(tableRows.length ? tableRows : [h('tr', {}, h('td', { colspan: '8' }, h('small', {}, o2Month + ' လအတွက် စာရင်းမရှိသေးပါ')))]),
-                  h('tr', { style: 'background:#E2E8F0;font-weight:700' },
+                  h('tr', { style: 'background:#E8EEF7;font-weight:700' },
                     h('td', { class: 'dt-col' }, 'လချုပ် စုစုပေါင်း'),
                     h('td', {}, sumE40), h('td', {}, sumE47),
                     h('td', { style: 'color:var(--ok)' }, sumF40), h('td', { style: 'color:var(--ok)' }, sumF47),
@@ -3265,8 +3283,8 @@
                 )
               )
             ),
-            h('div', { style: 'margin-top:10px;padding:10px;background:#FFF7ED;border:1.5px solid var(--org);border-radius:8px' },
-              h('b', { style: 'font-size:15px;color:#9A3412' }, o2Month + ' လကုန် စက်ရုံသို့ ငွေရှင်းရန် အနှစ်ချုပ်'),
+            h('div', { style: 'margin-top:10px;padding:10px;background:#FFF3E8;border:1.5px solid var(--org);border-radius:8px' },
+              h('b', { style: 'font-size:15px;color:#9A4308' }, o2Month + ' လကုန် စက်ရုံသို့ ငွေရှင်းရန် အနှစ်ချုပ်'),
               h('div', { class: 'li', style: 'padding:4px 0' },
                 h('span', {}, '• 40L Full စုစုပေါင်း: ' + sumF40 + ' လုံး'),
                 h('b', {}, money(sumBill40))
@@ -3292,9 +3310,6 @@
           )
         );
       } else {
-        // Table 2: Own Cylinders (40L & Over 40L)
-        // Normal: Stock_new = Stock_old + Empty - Full
-        // Damaged Empty Return (damagedReturn): Stock_new = Stock_old - Empty (0 MMK)
         const applyOwnDelta = (cur40, curOver, e) => {
           if (e.damagedReturn) {
             return [cur40 - (e.emp40 || 0), curOver - (e.empOver || 0)];
@@ -3436,7 +3451,7 @@
                   )
                 ),
                 h('tbody', {},
-                  h('tr', { style: 'background:#F8FAFC' },
+                  h('tr', { style: 'background:#F4F6F9' },
                     h('td', { class: 'dt-col' }, 'လအစ Opening'),
                     h('td', {}, '-'), h('td', {}, '-'), h('td', {}, '-'), h('td', {}, '-'),
                     h('td', { class: 'stk-col' }, open40),
@@ -3444,7 +3459,7 @@
                     h('td', { class: 'rem-col' }, h('small', {}, 'Opening Stock'))
                   ),
                   ...(tableRows.length ? tableRows : [h('tr', {}, h('td', { colspan: '8' }, h('small', {}, o2Month + ' လအတွက် စာရင်းမရှိသေးပါ')))]),
-                  h('tr', { style: 'background:#E2E8F0;font-weight:700' },
+                  h('tr', { style: 'background:#E8EEF7;font-weight:700' },
                     h('td', { class: 'dt-col' }, 'လချုပ် စုစုပေါင်း'),
                     h('td', {}, sumE40), h('td', {}, sumEOver),
                     h('td', { style: 'color:var(--ok)' }, sumF40), h('td', { style: 'color:var(--ok)' }, sumFOver),
@@ -3454,7 +3469,7 @@
                 )
               )
             ),
-            h('div', { style: 'margin-top:10px;padding:10px;background:#F8FAFC;border:1px solid var(--ln);border-radius:8px' },
+            h('div', { style: 'margin-top:10px;padding:10px;background:#F4F6F9;border:1px solid var(--ln);border-radius:8px' },
               h('div', { class: 'li', style: 'padding:4px 0' },
                 h('span', {}, o2Month + ' လက်ငင်းရှင်းပြီး စုစုပေါင်း (Paid)'),
                 h('b', { style: 'color:var(--ok)' }, money(paidTotal))
@@ -3491,7 +3506,7 @@
       const missingO2Sizes = STANDARD_O2_SIZES.filter(sz => !products.some(p => p.name.toLowerCase() === sz.toLowerCase()));
       const addStandardO2Btn = missingO2Sizes.length ? h('button', {
         class: 'n',
-        style: 'width:100%;margin-bottom:8px;padding:9px;font-weight:700;border-color:var(--org);color:#9A3412',
+        style: 'width:100%;margin-bottom:8px;padding:9px;font-weight:700;border-color:var(--org);color:#9A4308',
         onclick: async () => {
           await run('products', 'readwrite', t => {
             const os = t.objectStore('products');
@@ -3601,7 +3616,7 @@
     }
 
     // =========================================================================
-    // 9. TAB 9: O2 DELIVERY (ဆိုဒ်ပို့စာရင်း — O2 + GAS CYLINDERS & VISS)
+    // 9. TAB 9: O2 DELIVERY (SITE OPENING BALANCE + O2 & GAS CYLS/VISS)
     // =========================================================================
     let selectedSiteKey = '';
 
@@ -3631,11 +3646,19 @@
         const eown40 = Number(e.emp40Own) || 0;
         const egas = Number(e.empGas) || 0;
 
-        s.f40 += (df40 - ef40);
-        s.f47 += (df47 - ef47);
-        s.own40 += (down40 - eown40);
-        s.gas += (dgas - egas);
-        s.gasVissTotal += dgasViss;
+        if (e.isOpening) {
+          s.f40 = df40;
+          s.f47 = df47;
+          s.own40 = down40;
+          s.gas = dgas;
+        } else {
+          s.f40 += (df40 - ef40);
+          s.f47 += (df47 - ef47);
+          s.own40 += (down40 - eown40);
+          s.gas += (dgas - egas);
+          s.gasVissTotal += dgasViss;
+        }
+
         s.entries.push({
           ...e,
           bal40Fac: s.f40,
@@ -3646,6 +3669,88 @@
       });
 
       return map;
+    }
+
+    function openSiteOpeningModal(preSiteName, onSaved) {
+      const siteMap = siteHoldingsMap();
+      const sites = Array.from(siteMap.values());
+      const bg = h('div', { class: 'modal-bg' });
+      const dl = h('datalist', { id: 'o2site-ob-dl' },
+        [...new Set([...customers().map(c => c.name), ...sites.map(s => s.name)])].map(n => h('option', { value: n }))
+      );
+      const sNameIn = h('input', { list: 'o2site-ob-dl', value: preSiteName || '', placeholder: 'ဆိုဒ် / ဖောက်သည်အမည် (ဥပမာ ကိုကျော်မိုးဝင်း)' });
+      const dtIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
+      const s40FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '0' });
+      const s47FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '0' });
+      const s40OwnIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '0' });
+      const sGasIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '0' });
+      const ntIn = h('input', { placeholder: 'မှတ်ချက် (ဥပမာ အရင်ရက်မှကျန်ရှိ အဖွင့်လက်ကျန်)' });
+
+      const syncExisting = () => {
+        const cur = siteMap.get(ck(sNameIn.value));
+        if (cur) {
+          s40FacIn.value = String(cur.f40);
+          s47FacIn.value = String(cur.f47);
+          s40OwnIn.value = String(cur.own40);
+          sGasIn.value = String(cur.gas);
+        }
+      };
+      sNameIn.onchange = syncExisting;
+      if (preSiteName) syncExisting();
+
+      const saveObBtn = h('button', {
+        class: 'o',
+        style: 'margin-top:0',
+        onclick: async () => {
+          const rawName = sNameIn.value.trim();
+          if (!rawName) return uiAlert('ဆိုဒ် / ဖောက်သည်အမည် ထည့်ပါ။');
+          const exCust = customers().find(x => x.key === ck(rawName));
+          const canon = exCust ? exCust.name : rawName;
+          const v40 = parseInt(s40FacIn.value) || 0;
+          const v47 = parseInt(s47FacIn.value) || 0;
+          const vOwn = parseInt(s40OwnIn.value) || 0;
+          const vGas = parseInt(sGasIn.value) || 0;
+          const effAt = stampAt(dtIn.value);
+
+          saveObBtn.disabled = true;
+          await run('cf', 'readwrite', t => {
+            const os = t.objectStore('cf');
+            if (!exCust) os.add({ id: uuid(), at: effAt, type: 'cust', name: canon, phone: '' });
+            os.add({
+              id: uuid(), at: effAt, type: 'o2site', isOpening: true, site: canon,
+              del40Fac: v40, del47Fac: v47, del40Own: vOwn, delGas: vGas, delGasViss: 0,
+              emp40Fac: 0, emp47Fac: 0, emp40Own: 0, empGas: 0,
+              o2Price: 0, gasPrice: 0, totalBill: 0, pay: 'opening',
+              note: ntIn.value.trim() || 'အဖွင့်လက်ကျန် (Opening Balance)'
+            });
+          });
+          bg.remove();
+          if (onSaved) onSaved(canon);
+        }
+      }, '✔ အဖွင့်လက်ကျန် သိမ်းမည် (0 ကျပ်)');
+
+      bg.append(dl, h('div', { class: 'modal-box' },
+        h('b', { style: 'font-size:16.5px;color:var(--navy)' }, 'ဆိုဒ် အဖွင့်လက်ကျန် (Site Opening Balance)'),
+        h('div', { class: 'msg', style: 'background:#E8EEF7;color:var(--navy);margin:8px 0;font-size:13px' },
+          'အရင်ရက်က အရောင်းစာရင်းထဲ ဝင်ပြီးသား အကြွေးကို နှစ်ခါထပ်မပေါင်းဘဲ (0 ကျပ်ဖြင့်) လက်ရှိ ဆိုဒ်ထဲရောက်နေသော အိုးလက်ကျန်များကို စတင်သတ်မှတ်နိုင်ပါသည်။'
+        ),
+        h('label', {}, 'ဆိုဒ် / ဖောက်သည်အမည်'), sNameIn,
+        h('label', {}, 'ရက်စွဲ'), dtIn,
+        h('div', { class: 'row' },
+          h('div', {}, h('label', {}, 'စက်ရုံ 40L လက်ကျန်'), s40FacIn),
+          h('div', {}, h('label', {}, 'စက်ရုံ 47L လက်ကျန်'), s47FacIn)
+        ),
+        h('div', { class: 'row' },
+          h('div', {}, h('label', {}, 'အပိုင် 40L လက်ကျန်'), s40OwnIn),
+          h('div', {}, h('label', {}, 'Gas အိုး လက်ကျန် (အလုံး)'), sGasIn)
+        ),
+        h('label', {}, 'မှတ်ချက်'), ntIn,
+        h('div', { class: 'row', style: 'margin-top:12px' },
+          h('button', { class: 'n', onclick: () => bg.remove() }, 'မလုပ်ပါ'),
+          saveObBtn
+        )
+      ));
+      document.body.appendChild(bg);
     }
 
     function viewO2Delivery() {
@@ -3666,7 +3771,7 @@
       );
 
       const dateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
-      const siteIn = h('input', { list: 'o2site-dl', placeholder: 'ဆိုဒ် / ဖောက်သည်အမည် (ဥပမာ ရောကီ၊ မင်းဓမ္မ)' });
+      const siteIn = h('input', { list: 'o2site-dl', placeholder: 'ဆိုဒ် / ဖောက်သည်အမည် (ဥပမာ ကိုကျော်မိုးဝင်း၊ ရောကီ)' });
 
       // Full Delivered Inputs
       const d40FacIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'စက်ရုံ 40L' });
@@ -3681,9 +3786,9 @@
       const e40OwnIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'အပိုင် 40L အခွံ' });
       const eGasIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'Gas အခွံ (အလုံး)' });
 
-      // Unit Prices (O2 default 25,000 MMK, Gas editable per Viss)
-      const o2PriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '25000' });
-      const gasPriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'Gas ၁ ပိဿာဈေး (အတက်အကျ)' });
+      // Unit Prices (O2 default 25,000 MMK, 0 allowed)
+      const o2PriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '25000', placeholder: '25000 (0 ထည့်နိုင်သည်)' });
+      const gasPriceIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: 'Gas ၁ ပိဿာဈေး (0 ထည့်နိုင်သည်)' });
 
       const paySel = h('select', {},
         h('option', { value: 'credit' }, 'အကြွေး (Credit — ဖောက်သည် အကြွေးစာရင်းထဲ တန်းဝင်မည်)'),
@@ -3697,9 +3802,11 @@
 
       const calcPreview = () => {
         const o2Qty = (parseInt(d40FacIn.value) || 0) + (parseInt(d47FacIn.value) || 0) + (parseInt(d40OwnIn.value) || 0);
-        const o2Pr = parseFloat(o2PriceIn.value) || 0;
+        const o2PrRaw = parseFloat(o2PriceIn.value);
+        const o2Pr = !isNaN(o2PrRaw) && o2PrRaw >= 0 ? o2PrRaw : 0;
         const gViss = parseFloat(dGasVissIn.value) || 0;
-        const gPr = parseFloat(gasPriceIn.value) || 0;
+        const gPrRaw = parseFloat(gasPriceIn.value);
+        const gPr = !isNaN(gPrRaw) && gPrRaw >= 0 ? gPrRaw : 0;
         totPreview.textContent = 'ကျသင့်ငွေ: ' + money((o2Qty * o2Pr) + (gViss * gPr));
       };
       [d40FacIn, d47FacIn, d40OwnIn, dGasIn, dGasVissIn, o2PriceIn, gasPriceIn].forEach(el => el.oninput = calcPreview);
@@ -3725,10 +3832,13 @@
             return note(msg, 'အပြည့်ပို့ သို့မဟုတ် အခွံပြန်ယူ အရေအတွက် အနည်းဆုံး တစ်ခု ထည့်ပါ။');
           }
 
-          const o2Pr = parseFloat(o2PriceIn.value) || 0;
-          const gPr = parseFloat(gasPriceIn.value) || 0;
-          if (dgasViss > 0 && gPr <= 0) {
-            return note(msg, 'Gas ပိဿာ ပို့သည့်အတွက် Gas ၁ ပိဿာဈေး ထည့်ပါ။');
+          const o2PrRaw = parseFloat(o2PriceIn.value);
+          const gPrRaw = parseFloat(gasPriceIn.value);
+          const o2Pr = (!isNaN(o2PrRaw) && o2PrRaw >= 0) ? o2PrRaw : 0;
+          const gPr = (!isNaN(gPrRaw) && gPrRaw >= 0) ? gPrRaw : 0;
+
+          if (dgasViss > 0 && isNaN(gPrRaw)) {
+            return note(msg, 'Gas ပိဿာ ပို့သည့်အတွက် Gas ၁ ပိဿာဈေး ထည့်ပါ (အခမဲ့/အကြွေးစာရင်းဝင်ပြီးသားဆို 0 ထည့်ပါ)။');
           }
 
           const dk = dateIn.value;
@@ -3745,7 +3855,7 @@
           const confirmMsg = 'O2 Delivery မှတ်တမ်းတင်မည် (' + canonicalSite + ' · ' + fmtLogDate(dk) + ')\n' +
             '• အပြည့်ပို့: စက်ရုံ40L(' + df40 + '), စက်ရုံ47L(' + df47 + '), အပိုင်40L(' + down40 + ')' + gasDesc + '\n' +
             '• အခွံပြန်ယူ: စက်ရုံ40L(' + ef40 + '), စက်ရုံ47L(' + ef47 + '), အပိုင်40L(' + eown40 + ')' + (egas > 0 ? ', Gas(' + egas + ' လုံး)' : '') +
-            (totalBill > 0 ? '\n• ကျသင့်ငွေ: ' + money(totalBill) + ' → ' + (pm === 'credit' ? 'အကြွေးစာရင်းထဲ တန်းဝင်မည်' : PAY[pm] + ' အရောင်းစာရင်းထဲ တန်းဝင်မည်') : '\n• အခွံသက်သက် ပြန်သိမ်း (0 ကျပ်)');
+            (totalBill > 0 ? '\n• ကျသင့်ငွေ: ' + money(totalBill) + ' → ' + (pm === 'credit' ? 'အကြွေးစာရင်းထဲ တန်းဝင်မည်' : PAY[pm] + ' အရောင်းစာရင်းထဲ တန်းဝင်မည်') : '\n• ကျသင့်ငွေ: 0 ကျပ် (အိုးလက်ကျန်သက်သက် မှတ်ပါမည်)');
 
           if (!(await uiConfirm(confirmMsg))) return;
           saveDelivBtn.disabled = true;
@@ -3760,13 +3870,13 @@
             const delivId = uuid();
             const linkedSaleId = totalBill > 0 ? uuid() : null;
             const saleLines = [];
-            if (df40 > 0) saleLines.push({ name: '40L O2 (စက်ရုံအိုး - Delivery)', qty: df40, unit: 'အိုး', price: o2Pr, foc: false });
-            if (df47 > 0) saleLines.push({ name: '47L O2 (စက်ရုံအိုး - Delivery)', qty: df47, unit: 'အိုး', price: o2Pr, foc: false });
-            if (down40 > 0) saleLines.push({ name: '40L O2 (အပိုင်အိုး - Delivery)', qty: down40, unit: 'အိုး', price: o2Pr, foc: false });
+            if (df40 > 0) saleLines.push({ name: '40L O2 (စက်ရုံအိုး - Delivery)', qty: df40, unit: 'အိုး', price: o2Pr, foc: o2Pr === 0 });
+            if (df47 > 0) saleLines.push({ name: '47L O2 (စက်ရုံအိုး - Delivery)', qty: df47, unit: 'အိုး', price: o2Pr, foc: o2Pr === 0 });
+            if (down40 > 0) saleLines.push({ name: '40L O2 (အပိုင်အိုး - Delivery)', qty: down40, unit: 'အိုး', price: o2Pr, foc: o2Pr === 0 });
             if (dgasViss > 0) {
               saleLines.push({
                 name: 'Gas (Delivery' + (dgas > 0 ? ' · ' + dgas + ' လုံး' : '') + ')',
-                qty: dgasViss, unit: 'viss', price: gPr, foc: false,
+                qty: dgasViss, unit: 'viss', price: gPr, foc: gPr === 0,
                 gasViss: dgasViss, gasRole: 'viss',
                 alloc: gasAlloc,
                 cylId: gasAlloc && gasAlloc[0] ? gasAlloc[0].cyl : null
@@ -3783,7 +3893,7 @@
                 del40Fac: df40, del47Fac: df47, del40Own: down40,
                 delGas: dgas, delGasViss: dgasViss,
                 emp40Fac: ef40, emp47Fac: ef47, emp40Own: eown40, empGas: egas,
-                o2Price: o2Pr, gasPrice: gPr, totalBill, pay: pm,
+                o2Price: o2Pr, gasPrice: gPr, totalBill, pay: totalBill > 0 ? pm : 'none',
                 saleId: linkedSaleId, note: noteIn.value.trim()
               });
               if (linkedSaleId && saleLines.length) {
@@ -3800,7 +3910,7 @@
             selectedSiteKey = ck(canonicalSite);
             await reload();
             viewO2Delivery();
-            note(msg, canonicalSite + ' Delivery မှတ်တမ်း သိမ်းဆည်းပြီးပါပြီ' + (totalBill > 0 ? ' (' + (pm === 'credit' ? 'အကြွေးစာရင်းထဲ ထည့်ပြီး' : PAY[pm] + ' အရောင်းထဲ ထည့်ပြီး') + ')' : '') + '။', 1);
+            note(msg, canonicalSite + ' Delivery မှတ်တမ်း သိမ်းဆည်းပြီးပါပြီ' + (totalBill > 0 ? ' (' + (pm === 'credit' ? 'အကြွေးစာရင်းထဲ ထည့်ပြီး' : PAY[pm] + ' အရောင်းထဲ ထည့်ပြီး') + ')' : ' (0 ကျပ်)') + '။', 1);
           } catch (err) {
             saveDelivBtn.disabled = false;
             if (err && err.message === 'CANCELLED') note(msg, 'ပယ်ဖျက်လိုက်ပါသည်။');
@@ -3817,6 +3927,17 @@
       const siteSummaryCard = h('div', { class: 'card', style: 'border:2px solid var(--navy)' },
         h('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px' },
           h('b', { style: 'font-size:15.5px' }, 'ဆိုဒ်အလိုက် အိုးလက်ကျန် စာရင်းချုပ် (' + sites.length + ' ဆိုဒ်)'),
+          h('button', {
+            class: 'n',
+            style: 'padding:5px 10px;font-size:12.5px;font-weight:700;border-color:var(--org);color:#9A4308',
+            onclick: () => openSiteOpeningModal('', async canon => {
+              selectedSiteKey = ck(canon);
+              await reload();
+              viewO2Delivery();
+            })
+          }, '+ ဆိုဒ် အဖွင့်လက်ကျန် ထည့်မည်')
+        ),
+        h('div', { style: 'margin:4px 0' },
           h('small', {}, 'စုစုပေါင်း: စက်ရုံ40L (' + totAll40Fac + ') · စက်ရုံ47L (' + totAll47Fac + ') · အပိုင်40L (' + totAll40Own + ') · Gas (' + totAllGas + ' လုံး)')
         ),
         sites.length ? h('div', { style: 'overflow-x:auto' },
@@ -3833,7 +3954,7 @@
             h('tbody', {}, ...sites.map(s => {
               const o2Sum = s.f40 + s.f47 + s.own40;
               const isSel = selectedSiteKey === s.key;
-              return h('tr', { style: isSel ? 'background:#FFF7ED' : '' },
+              return h('tr', { style: isSel ? 'background:#FFF3E8' : '' },
                 h('td', { class: 'dt-col' }, s.name),
                 h('td', { style: 'font-weight:700' }, s.f40),
                 h('td', { style: 'font-weight:700' }, s.f47),
@@ -3848,7 +3969,7 @@
               );
             }))
           )
-        ) : h('div', { style: 'margin-top:6px' }, h('small', {}, 'ဆိုဒ်ပို့စာရင်း မရှိသေးပါ။ အောက်တွင် စတင်ထည့်သွင်းပါ။'))
+        ) : h('div', { style: 'margin-top:6px' }, h('small', {}, 'ဆိုဒ်ပို့စာရင်း မရှိသေးပါ။ အပေါ်က "+ ဆိုဒ် အဖွင့်လက်ကျန် ထည့်မည်" သို့မဟုတ် အောက်တွင် စတင်ထည့်သွင်းပါ။'))
       );
 
       const activeSite = selectedSiteKey ? siteMap.get(selectedSiteKey) : (sites[0] || null);
@@ -3859,10 +3980,20 @@
           onchange: e => { selectedSiteKey = e.target.value; viewO2Delivery(); }
         }, ...sites.map(s => h('option', { value: s.key, selected: s.key === activeSite.key }, s.name)));
 
+        const editSiteObBtn = h('button', {
+          class: 'n',
+          style: 'padding:4px 8px;font-size:12px',
+          onclick: () => openSiteOpeningModal(activeSite.name, async canon => {
+            selectedSiteKey = ck(canon);
+            await reload();
+            viewO2Delivery();
+          })
+        }, 'အဖွင့်လက်ကျန် ပြင်မည်');
+
         siteLedgerCard = h('div', { class: 'card', style: 'border:2px solid var(--org)' },
           h('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px' },
             h('b', { style: 'font-size:15.5px' }, 'ဆိုဒ်မှတ်တမ်းဇယား: ' + activeSite.name),
-            siteSel
+            h('div', { style: 'display:flex;gap:6px;align-items:center;flex-wrap:wrap' }, editSiteObBtn, siteSel)
           ),
           h('div', { style: 'overflow-x:auto' },
             h('table', { class: 'log-tbl' },
@@ -3883,15 +4014,19 @@
               h('tbody', {},
                 ...activeSite.entries.map(r => {
                   const bill = Number(r.totalBill) || 0;
-                  const gasDelLabel = (r.delGas || r.delGasViss)
-                    ? ((r.delGas || 0) + '/' + r2(r.delGasViss || 0))
-                    : '';
-                  const payTag = bill <= 0
-                    ? h('small', {}, r.note || 'အခွံသိမ်း')
-                    : r.pay === 'credit'
-                      ? h('span', { class: 'tag red' }, 'အကြွေး ' + money(bill))
-                      : h('span', { class: 'tag ok' }, (PAY[r.pay] || r.pay) + ' ' + money(bill));
-                  return h('tr', {},
+                  const gasDelLabel = r.isOpening
+                    ? (r.delGas || '')
+                    : (r.delGas || r.delGasViss)
+                      ? ((r.delGas || 0) + '/' + r2(r.delGasViss || 0))
+                      : '';
+                  const payTag = r.isOpening
+                    ? h('span', { class: 'tag navy' }, 'အဖွင့်လက်ကျန် (0 ကျပ်)')
+                    : bill <= 0
+                      ? h('small', {}, r.note || '0 ကျပ်')
+                      : r.pay === 'credit'
+                        ? h('span', { class: 'tag red' }, 'အကြွေး ' + money(bill))
+                        : h('span', { class: 'tag ok' }, (PAY[r.pay] || r.pay) + ' ' + money(bill));
+                  return h('tr', { style: r.isOpening ? 'background:#F4F6F9' : '' },
                     h('td', { class: 'dt-col' }, fmtLogDate(dkey(r.at))),
                     h('td', { style: 'color:var(--ok);font-weight:700' }, r.del40Fac || ''),
                     h('td', { style: 'color:var(--ok);font-weight:700' }, r.del47Fac || ''),
@@ -3907,13 +4042,13 @@
                     h('td', { class: 'stk-col' }, r.balGas),
                     h('td', { class: 'rem-col' },
                       payTag,
-                      r.note ? h('div', {}, h('small', {}, r.note)) : '',
+                      r.note && !r.isOpening ? h('div', {}, h('small', {}, r.note)) : '',
                       h('button', {
                         class: 'g',
                         style: 'padding:1px 6px;font-size:11px;min-height:24px;float:right',
                         onclick: async () => {
                           if (!(await guardMonthLock(r.at, msg))) return;
-                          if (!(await uiConfirm('ဒီ Delivery မှတ်တမ်းကို ဖျက်မလား? (ချိတ်ဆက်ထားသော အရောင်း/အကြွေးကိုပါ ပယ်ဖျက်ပါမည်)'))) return;
+                          if (!(await uiConfirm('ဒီမှတ်တမ်းကို ဖျက်မလား? (ချိတ်ဆက်ထားသော အရောင်း/အကြွေးကိုပါ ပယ်ဖျက်ပါမည်)'))) return;
                           await run(['cf', 'sales'], 'readwrite', t => {
                             t.objectStore('cf').delete(r.id);
                             if (r.saleId) {
@@ -3928,7 +4063,7 @@
                     )
                   );
                 }),
-                h('tr', { style: 'background:#E2E8F0;font-weight:700' },
+                h('tr', { style: 'background:#E8EEF7;font-weight:700' },
                   h('td', { class: 'dt-col' }, 'လက်ရှိကျန်'),
                   h('td', { colspan: '4' }, 'O2 စုစုပေါင်း: ' + (activeSite.f40 + activeSite.f47 + activeSite.own40) + ' လုံး'),
                   h('td', { colspan: '4' }, ''),
@@ -3954,7 +4089,7 @@
             h('div', {}, h('label', {}, 'ရက်စွဲ (Date)'), dateIn),
             h('div', {}, h('label', {}, 'ဆိုဒ် / ဖောက်သည်အမည်'), siteIn)
           ),
-          h('div', { style: 'margin-top:8px;padding:8px;background:#F1F5F9;border-radius:7px' },
+          h('div', { style: 'margin-top:8px;padding:8px;background:#F4F6F9;border-radius:7px' },
             h('b', { style: 'font-size:13.5px;color:var(--ok)' }, '၁။ အပြည့်ပို့ (Delivered Full)'),
             h('div', { class: 'row' },
               h('div', {}, h('label', {}, 'စက်ရုံ 40L'), d40FacIn),
@@ -3977,7 +4112,7 @@
           ),
           h('div', { class: 'row' },
             h('div', {}, h('label', {}, 'O2 တစ်လုံးဈေး (ပုံသေ 25,000)'), o2PriceIn),
-            h('div', {}, h('label', {}, 'Gas ၁ ပိဿာဈေး (Gas ပို့လျှင်ထည့်)'), gasPriceIn)
+            h('div', {}, h('label', {}, 'Gas ၁ ပိဿာဈေး (0 ထည့်နိုင်သည်)'), gasPriceIn)
           ),
           h('label', {}, 'ငွေရှင်းမှု အခြေအနေ (အကြွေး / အရောင်း တန်းဝင်)'),
           paySel,
