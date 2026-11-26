@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aung-gas-pos-v24-s5';
+const CACHE_NAME = 'aung-gas-pos-v24-s6';
 const ASSETS = [
   './',
   './index.html',
