@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0B1F3A">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
-  <title>AUNG Gas Solutions POS v24-s14</title>
+  <title>AUNG Gas Solutions POS v24-s14.1</title>
   <style>
     :root {
       --navy: #0B1F3A;
@@ -59,17 +59,18 @@
     .hdr-badges { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
     #roleBadge {
       font-size: 11.5px;
-      padding: 2px 9px;
+      padding: 3px 10px;
       border-radius: 12px;
       background: #16325B;
       color: #FFD8B8;
-      border: 1px solid rgba(255, 158, 88, 0.45);
+      border: 1px solid rgba(255, 158, 88, 0.5);
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
+      user-select: none;
     }
     #roleBadge.admin {
-      background: var(--org);
+      background: var(--ok);
       color: #fff;
       border-color: #fff;
     }
@@ -109,6 +110,11 @@
       background: #fff;
       color: var(--navy);
       margin-top: 3px;
+    }
+    input:disabled, input[readonly] {
+      background: #EEF2F6;
+      color: #6B7C93;
+      cursor: not-allowed;
     }
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
     .row > * { flex: 1 1 120px; min-width: 0; }
@@ -276,6 +282,7 @@
   <div id="rcpt"></div>
 
   <script>
+    // Ensure splash screen always hides cleanly within 700ms so no blank/stuck screen ever occurs
     const hideSplash = () => {
       const sp = document.getElementById('splash');
       if (sp) sp.classList.add('hide');
@@ -303,7 +310,11 @@
       for (const k in a) {
         if (k === 'class') e.className = a[k];
         else if (k.startsWith('on')) e[k] = a[k];
-        else e.setAttribute(k, a[k]);
+        else if (k === 'disabled' || k === 'readOnly' || k === 'checked') {
+          if (a[k]) e[k] = true;
+        } else {
+          e.setAttribute(k, a[k]);
+        }
       }
       c.flat().forEach(x => { if (x !== null && x !== undefined && x !== '') e.append(x); });
       return e;
@@ -362,17 +373,16 @@
     };
 
     // =========================================================================
-    // 1. VERSION-SAFE INDEXEDDB OPENER + ROLE & ADMIN PIN SECURITY
+    // 1. VERSION-SAFE INDEXEDDB OPENER + IN-MEMORY SANDBOX FALLBACK + ROLE/PIN
     // =========================================================================
     const REQUIRED_STORES = ['products', 'sales', 'meta', 'gasEv', 'pays', 'stk', 'cf'];
-    // Note: adminPin is synced across devices via 'meta' so changing PIN on Tablet updates phones too
     const LOCAL_ONLY_META = new Set(['lastBackup', 'seeded', 'gas2', 'rollingSnapshots', 'preRestoreSnap', 'syncUrl', 'syncSecret', 'lastSyncAt', 'autoSync']);
     let db = null;
     let useMemDb = false;
     const memStore = {};
     REQUIRED_STORES.forEach(n => { memStore[n] = new Map(); });
 
-    // Role & Admin PIN State (Defaults to Staff Mode on boot)
+    // Role & 4-Digit Admin PIN State (Defaults to Staff Mode on boot; PIN defaults to '1234')
     let adminPin = '1234';
     let adminPinCustom = false;
     let adminUnlockedUntil = 0;
@@ -405,7 +415,7 @@
           type: 'password',
           inputmode: 'numeric',
           maxlength: '6',
-          placeholder: 'Admin PIN (ဂဏန်း ၄ လုံး) ရိုက်ထည့်ပါ',
+          placeholder: 'Admin PIN (1234)',
           style: 'font-size:20px;letter-spacing:6px;text-align:center;font-weight:700'
         });
         const verify = () => {
@@ -445,11 +455,15 @@
         if (lockIt) {
           adminUnlockedUntil = 0;
           updateRoleBadge();
-          if (VIEWS[tab]) VIEWS[tab]();
+          if (typeof VIEWS === 'object' && VIEWS[tab]) VIEWS[tab]();
         }
       } else {
         const ok = await promptAdminPin('Admin Mode ဖွင့်ရန် ဂဏန်း ၄ လုံး PIN ရိုက်ထည့်ပါ');
-        if (ok && VIEWS[tab]) VIEWS[tab]();
+        if (ok) {
+          updateRoleBadge();
+          // Immediately re-render the active view so locked inputs (like Sync Secret Key) unlock right away
+          if (typeof VIEWS === 'object' && VIEWS[tab]) VIEWS[tab]();
+        }
       }
     }
 
@@ -702,7 +716,7 @@
     });
 
     // =========================================================================
-    // v24-s14 GOOGLE APPS SCRIPT CORS-SAFE + SECRET KEY CLOUD SYNC
+    // v24-s14.1 GOOGLE APPS SCRIPT CORS-SAFE + SECRET KEY CLOUD SYNC
     // =========================================================================
     async function runCloudSync({ silent = false, pushOnly = false } = {}) {
       const url = getSyncUrl().trim();
@@ -2587,9 +2601,9 @@
     }
 
     // =========================================================================
-    // 6. TAB 5: ဒေတာ (ADMIN PIN, SYNC SECRET KEY, CLOUD SYNC & BACKUP)
+    // 6. TAB 5: ဒေတာ (ADMIN PIN, SYNC SECRET KEY UNLOCKED FIX, CLOUD SYNC & BACKUP)
     // =========================================================================
-    const APP_VER = 'v24-s14 (Role PIN + Sync Secret)';
+    const APP_VER = 'v24-s14.1 (Role PIN + Secret Key Fix)';
     const STORES = ['products', 'sales', 'gasEv', 'pays', 'stk', 'cf', 'meta'];
     const saveBlob = (name, blob) => {
       const u = URL.createObjectURL(blob), a = h('a', { href: u, download: name });
@@ -2680,7 +2694,7 @@
 
       // Admin Role & PIN Management Card
       const pinMsg = h('div');
-      const roleCard = h('div', { class: 'card', style: 'border:2px solid ' + (unlocked ? 'var(--org)' : 'var(--navy)') },
+      const roleCard = h('div', { class: 'card', style: 'border:2px solid ' + (unlocked ? 'var(--ok)' : 'var(--navy)') },
         h('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px' },
           h('b', { style: 'font-size:16px' }, unlocked ? '🔓 Admin Mode (လုပ်ပိုင်ခွင့်အပြည့် ဖွင့်ထားသည်)' : '👤 ဝန်ထမ်း Mode (ကန့်သတ်ထားသည်)'),
           h('button', {
@@ -2692,7 +2706,7 @@
         h('div', { style: 'margin-top:6px' },
           h('small', {}, unlocked
             ? 'စာရင်းပယ်ဖျက်ခြင်း၊ P&L အရှုံး/အမြတ်၊ Month Lock နှင့် Sync URL/Secret Key ပြင်ဆင်ခွင့် ရရှိထားပါသည်။'
-            : 'ဝန်ထမ်း Mode တွင် အရောင်းသွင်းခြင်း၊ အိုးအဝင်/အထွက်နှင့် အကြွေးကောက်ခြင်းသာ လုပ်နိုင်ပါသည်။ စာရင်းဖျက်ရန်နှင့် P&L ကြည့်ရန် Admin PIN လိုအပ်ပါသည်။')
+            : 'ဝန်ထမ်း Mode တွင် အရောင်းသွင်းခြင်း၊ အိုးအဝင်/အထွက်နှင့် အကြွေးကောက်ခြင်းသာ လုပ်နိုင်ပါသည်။ Sync URL နှင့် Secret Key ပြင်ရန် "🔓 Admin PIN ဖွင့်မည်" ကို အရင်နှိပ်ပါ။')
         ),
         unlocked ? h('div', { style: 'margin-top:10px;padding-top:10px;border-top:1px solid var(--ln)' },
           h('button', {
@@ -2713,21 +2727,40 @@
         ) : ''
       );
 
-      // Cloud Sync Card (Google Sheets Web App — v24-s14 CORS Fixed + Secret Key)
+      // Cloud Sync Card (Google Sheets Web App — v24-s14.1 Guaranteed Unlocked when Admin)
       const syncMsg = h('div');
       const urlIn = h('input', {
+        type: 'url',
         placeholder: 'https://script.google.com/macros/s/....../exec',
         value: getSyncUrl(),
-        disabled: !unlocked,
         autocomplete: 'off'
       });
       const secretIn = h('input', {
-        type: unlocked ? 'text' : 'password',
+        type: 'text',
         placeholder: 'Sync Secret Key (ဥပမာ AUNG2026SECRET)',
         value: getSyncSecret(),
-        disabled: !unlocked,
-        autocomplete: 'off'
+        autocomplete: 'off',
+        autocapitalize: 'off',
+        spellcheck: 'false'
       });
+
+      // Explicitly enforce unlocked interactive state whenever Admin mode is active
+      if (unlocked) {
+        urlIn.disabled = false;
+        urlIn.readOnly = false;
+        urlIn.removeAttribute('disabled');
+        urlIn.removeAttribute('readonly');
+
+        secretIn.disabled = false;
+        secretIn.readOnly = false;
+        secretIn.removeAttribute('disabled');
+        secretIn.removeAttribute('readonly');
+      } else {
+        urlIn.disabled = true;
+        secretIn.disabled = true;
+        secretIn.type = 'password';
+      }
+
       const autoCb = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
       autoCb.checked = autoSyncEnabled;
       autoCb.onchange = async () => {
@@ -2737,7 +2770,7 @@
 
       const saveUrlBtn = h('button', {
         class: 'n',
-        style: 'width:100%;margin-top:8px',
+        style: 'width:100%;margin-top:8px;font-weight:700;border-color:var(--ok);color:var(--ok)',
         onclick: async () => {
           if (!(await promptAdminPin('Sync URL နှင့် Secret Key သိမ်းရန် Admin PIN လိုအပ်ပါသည်'))) return;
           const v = urlIn.value.trim();
@@ -2754,15 +2787,15 @@
           await put('meta', { k: 'syncUrl', v });
           await put('meta', { k: 'syncSecret', v: sec });
           updateSyncBadge('', v ? 'Sync' : '');
-          note(syncMsg, v ? 'Sync URL နှင့် Secret Key သိမ်းပြီးပါပြီ။' : 'Sync URL ဖျက်ပြီးပါပြီ။', 1);
+          note(syncMsg, v ? '✓ Sync URL နှင့် Secret Key သိမ်းပြီးပါပြီ။' : 'Sync URL ဖျက်ပြီးပါပြီ။', 1);
         }
-      }, 'URL & Secret Key သိမ်းမည်');
+      }, '✔ URL & Secret Key သိမ်းမည်');
 
       const syncNowBtn = h('button', {
         class: 'o',
         style: 'margin-top:8px',
         onclick: async () => {
-          if (unlocked) {
+          if (isAdmin()) {
             const v = urlIn.value.trim();
             const sec = secretIn.value.trim();
             if (v && v !== getSyncUrl()) {
@@ -2776,7 +2809,7 @@
               await put('meta', { k: 'syncSecret', v: sec });
             }
           }
-          if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Admin ဖြင့် Web App URL ထည့်ပြီး သိမ်းပါ။');
+          if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Admin PIN ဖွင့်ပြီး Web App URL ထည့်၍ သိမ်းပါ။');
           syncNowBtn.disabled = true;
           note(syncMsg, 'Google Sheet နှင့် ချိတ်ဆက်ပြီး Sync လုပ်နေပါသည်...', 1);
           const res = await runCloudSync({ silent: false, pushOnly: false });
@@ -2794,6 +2827,18 @@
         style: 'width:100%;margin-top:8px;border-color:var(--org);color:#9A4308;font-weight:700',
         onclick: async () => {
           if (!(await promptAdminPin('Cloud ပေါ်သို့ ဒေတာအကုန်တင်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+          const v = urlIn.value.trim();
+          const sec = secretIn.value.trim();
+          if (v && v !== getSyncUrl()) {
+            syncUrl = v;
+            try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
+            await put('meta', { k: 'syncUrl', v });
+          }
+          if (sec !== getSyncSecret()) {
+            syncSecret = sec;
+            try { localStorage.setItem('aung_sync_secret', sec); } catch (e) {}
+            await put('meta', { k: 'syncSecret', v: sec });
+          }
           if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Web App URL ထည့်ပြီး သိမ်းပါ။');
           if (!(await uiConfirm('ဒီစက် (ကောင်တာ Tablet) ထဲရှိ စာရင်းအားလုံးကို Google Sheet Cloud ပေါ်သို့ အကုန်တင်မလား?\n(ပထမဆုံးအကြိမ် စက်ချိတ်ဆက်ရာတွင် ပင်မစက်မှ အရင်တင်ရန် သုံးပါ)'))) return;
           pushAllBtn.disabled = true;
@@ -2809,13 +2854,14 @@
       }, '↑ ဒီစက်မှ Cloud ပေါ်သို့ အကုန်တင်မည် (Admin Only)');
 
       const cloudSyncCard = h('div', { class: 'card', style: 'border:2px solid var(--navy);background:#F8FAFC' },
-        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — v24-s14)'),
+        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — v24-s14.1)'),
         h('div', { style: 'margin:4px 0' },
-          h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ — Apps Script Web App URL ထည့်ပြီး ချိတ်ဆက်ပါ')
+          h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ — Admin ဖွင့်ပြီး Web App URL ထည့်၍ ချိတ်ဆက်ပါ')
         ),
-        h('label', {}, 'Google Apps Script Web App URL (/exec)' + (!unlocked ? ' (Admin Only)' : '')),
+        !unlocked ? h('div', { class: 'msg', style: 'background:#FFF3E8;color:#9A4308;font-size:12.5px;padding:7px' }, '🔒 URL နှင့် Secret Key ရိုက်ထည့်ရန် အပေါ်က "🔓 Admin PIN ဖွင့်မည်" ကို အရင်နှိပ်ပါ။') : '',
+        h('label', {}, 'Google Apps Script Web App URL (/exec)' + (!unlocked ? ' (Locked)' : ' (Editable)')),
         urlIn,
-        h('label', {}, 'Sync Secret Key (လျှို့ဝှက်ကုဒ်)' + (!unlocked ? ' (Admin Only)' : '')),
+        h('label', {}, 'Sync Secret Key (လျှို့ဝှက်ကုဒ်)' + (!unlocked ? ' (Locked)' : ' (Editable)')),
         secretIn,
         unlocked ? saveUrlBtn : '',
         h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်းတိုင်း & အင်တာနက်ပြန်မိတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
@@ -2883,7 +2929,7 @@
         const m = {};
         sales.filter(x => !x.voided && creditOf(x) > 0 && x.cust).forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += creditOf(x); });
         pays.forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).p += x.amount; });
-        cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: e.cust, c: 0, p: 0 }).c += e.amt; });
+        cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += e.amt; });
         dlCsv('debts', [['Customer Name', 'ကြွေးယူ', 'ပြန်ပေး', 'ကျန်']].concat(Object.values(m).map(c => [c.n, c.c, c.p, c.c - c.p])));
       };
       const csvExp = () => {
@@ -4883,7 +4929,7 @@
     }
 
     // =========================================================================
-    // 10. NAVIGATION, BOOT & SERVICE WORKER (v24-s14)
+    // 10. NAVIGATION, BOOT & SERVICE WORKER (v24-s14.1)
     // =========================================================================
     const VIEWS = {
       1: viewSale,
@@ -4935,7 +4981,7 @@
         }
         if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-          navigator.serviceWorker.register('sw.js?v=24s14').catch(() => {});
+          navigator.serviceWorker.register('sw.js?v=24s141').catch(() => {});
         }
       } catch (e) {
         hideSplash();
