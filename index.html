@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0B1F3A">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
-  <title>AUNG Gas Solutions POS v24-s14.1</title>
+  <title>AUNG Gas Solutions POS v24-s15</title>
   <style>
     :root {
       --navy: #0B1F3A;
@@ -461,7 +461,6 @@
         const ok = await promptAdminPin('Admin Mode ဖွင့်ရန် ဂဏန်း ၄ လုံး PIN ရိုက်ထည့်ပါ');
         if (ok) {
           updateRoleBadge();
-          // Immediately re-render the active view so locked inputs (like Sync Secret Key) unlock right away
           if (typeof VIEWS === 'object' && VIEWS[tab]) VIEWS[tab]();
         }
       }
@@ -544,7 +543,7 @@
       clearTimeout(syncTimer);
       syncTimer = setTimeout(() => {
         runCloudSync({ silent: true, pushOnly: false });
-      }, 2200);
+      }, 2000);
     };
 
     const makeMemOs = n => ({
@@ -589,6 +588,12 @@
     const put = (s, o) => run(s, 'readwrite', t => t.objectStore(s).put(o));
     const del = (s, k) => run(s, 'readwrite', t => t.objectStore(s).delete(k));
 
+    // v24-s15 Soft-Delete helper: marks record with voided: true & voidedAt so Cloud Sync propagates deletion across all devices
+    const softDelete = async (store, item) => {
+      if (!item || !item.id) return;
+      await put(store, { ...item, voided: true, voidedAt: Date.now() });
+    };
+
     async function seed() {
       const mm = await all('meta');
       if (mm.find(x => x.k === 'seeded')) return;
@@ -610,12 +615,15 @@
     let lockedMonths = [], reopenLog = [], rollingSnapshots = [];
 
     const reload = async () => {
-      products = (await all('products')).sort((a, b) => a.name.localeCompare(b.name));
+      // Filter out soft-deleted (voided: true) records from active in-memory working arrays
+      // Raw IndexedDB still retains voided records with voidedAt so Cloud Sync pushes deletions to Google Sheets & all devices
+      products = (await all('products')).filter(p => !p.voided).sort((a, b) => a.name.localeCompare(b.name));
       sales = (await all('sales')).sort((a, b) => b.at - a.at);
-      gasEv = (await all('gasEv')).sort((a, b) => b.at - a.at);
-      pays = (await all('pays')).sort((a, b) => b.at - a.at);
-      stk = await all('stk');
-      cf = await all('cf');
+      gasEv = (await all('gasEv')).filter(e => !e.voided).sort((a, b) => b.at - a.at);
+      pays = (await all('pays')).filter(p => !p.voided).sort((a, b) => b.at - a.at);
+      stk = (await all('stk')).filter(s => !s.voided);
+      cf = (await all('cf')).filter(c => !c.voided);
+
       const mm = await all('meta');
       const m = mm.find(x => x.k === 'gascfg');
       const r = mm.find(x => x.k === 'rcpt');
@@ -677,8 +685,14 @@
             if (!key || (n === 'meta' && LOCAL_ONLY_META.has(key))) return;
             const loc = memStore[n].get(key);
             if (loc === undefined) { memStore[n].set(key, r); stats.added++; }
-            else if (recTimestamp(n, r) > recTimestamp(n, loc) && JSON.stringify(loc) !== JSON.stringify(r)) {
-              memStore[n].set(key, r); stats.updated++;
+            else {
+              const remTs = recTimestamp(n, r);
+              const locTs = recTimestamp(n, loc);
+              const remVoidWins = r.voided && !loc.voided && remTs >= locTs;
+              if ((remTs > locTs || remVoidWins) && JSON.stringify(loc) !== JSON.stringify(r)) {
+                memStore[n].set(key, r);
+                stats.updated++;
+              }
             }
           });
         });
@@ -703,7 +717,8 @@
             } else {
               const remTs = recTimestamp(n, r);
               const locTs = recTimestamp(n, loc);
-              if (remTs > locTs && JSON.stringify(loc) !== JSON.stringify(r)) {
+              const remVoidWins = r.voided && !loc.voided && remTs >= locTs;
+              if ((remTs > locTs || remVoidWins) && JSON.stringify(loc) !== JSON.stringify(r)) {
                 os.put(r);
                 stats.updated++;
               }
@@ -716,7 +731,7 @@
     });
 
     // =========================================================================
-    // v24-s14.1 GOOGLE APPS SCRIPT CORS-SAFE + SECRET KEY CLOUD SYNC
+    // v24-s15 GOOGLE APPS SCRIPT CORS-SAFE + SECRET KEY + SOFT-DELETE SYNC
     // =========================================================================
     async function runCloudSync({ silent = false, pushOnly = false } = {}) {
       const url = getSyncUrl().trim();
@@ -759,7 +774,7 @@
           cache: 'no-store',
           redirect: 'follow',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ secret, data: localPayload })
+          body: JSON.stringify({ secret, secretKey: secret, data: localPayload })
         });
         if (!postRes.ok) throw new Error('POST HTTP ' + postRes.status);
         const rawPostText = await postRes.text();
@@ -886,7 +901,7 @@
     const agentStats = () => {
       const st = {};
       Object.keys(AGENTS).forEach(k => st[k] = { full: 0, partial: 0, empty: 0, viss: AGENTS[k].viss, kg: AGENTS[k].kg });
-      gasEv.forEach(e => {
+      gasEv.filter(e => !e.voided).forEach(e => {
         const ag = e.agent && st[e.agent] ? e.agent : null;
         if (!ag) return;
         if (e.type === 'recv') st[ag].full += e.qty;
@@ -907,10 +922,10 @@
     const mainVissStock = () => {
       const st = agentStats();
       const fullViss = Object.values(st).reduce((a, x) => a + Math.max(x.full, 0) * x.viss, 0);
-      const liveViss = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'viss').reduce((a, c) => a + Math.max(gasRemOf(c), 0), 0);
+      const liveViss = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'viss').reduce((a, c) => a + Math.max(gasRemOf(c), 0), 0);
       return fullViss + liveViss;
     };
-    const groundO2 = () => stk.filter(e => e.type === 'orecv').reduce((a, e) => a + e.qty, 0) - stk.filter(e => e.type === 'ocyl').length;
+    const groundO2 = () => stk.filter(e => !e.voided && e.type === 'orecv').reduce((a, e) => a + e.qty, 0) - stk.filter(e => !e.voided && e.type === 'ocyl').length;
 
     function pickAgentModal(title, subtitle, allowNeg = false) {
       return new Promise(res => {
@@ -952,7 +967,7 @@
       const R = x => Math.round(x * 100) / 100;
       const F = gas ? R : (x => Math.round(x * 1000) / 10);
       const un = gas ? ' ပိဿာ' : ' %';
-      const live = () => (gas ? gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === l.gasRole) : stk.filter(e => e.type === 'ocyl' && !e.closed))
+      const live = () => (gas ? gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === l.gasRole) : stk.filter(e => !e.voided && e.type === 'ocyl' && !e.closed))
         .filter(e => !ov.closed[e.id])
         .concat(ov.added.filter(x => x.kind === kind && (!gas || x.c.role === l.gasRole)).map(x => x.c))
         .sort((a, b) => a.at - b.at);
@@ -1098,10 +1113,10 @@
     function lowList() {
       const L = [];
       ['can', 'viss'].forEach(r => {
-        const l = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === r).sort((a, b) => a.at - b.at)[0];
+        const l = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === r).sort((a, b) => a.at - b.at)[0];
         if (l) { const rem = gasRemOf(l); if (rem <= cfg.low) L.push({ c: l, kind: 'gas', rem }); }
       });
-      const o = stk.filter(e => e.type === 'ocyl' && !e.closed).sort((a, b) => a.at - b.at)[0];
+      const o = stk.filter(e => !e.voided && e.type === 'ocyl' && !e.closed).sort((a, b) => a.at - b.at)[0];
       if (o) { const rem = o2RemOf(o); if (rem * 100 <= cfg.lowO2) L.push({ c: o, kind: 'o2', rem }); }
       return L;
     }
@@ -1124,7 +1139,7 @@
       });
       for (const x of Object.values(u)) {
         const c = x.k === 'gas' ? gasEv.find(e => e.id === x.id) : stk.find(e => e.id === x.id);
-        if (!c || c.closed) continue;
+        if (!c || c.closed || c.voided) continue;
         const rem = x.k === 'gas' ? gasRemOf(c) : o2RemOf(c), b = rem + x.u;
         const low = x.k === 'gas' ? (rem <= cfg.low && b > cfg.low) : (rem * 100 <= cfg.lowO2 && b * 100 > cfg.lowO2);
         if (low) { await askSwap(c, x.k, () => viewSale()); break; }
@@ -1135,8 +1150,8 @@
       const ps = await all('products'), ss = await all('sales'), byId = {};
       ps.forEach(p => byId[p.id] = p);
       const uf = p => (p.cat === 'အောက်ဆီဂျင်' || /kg/i.test(p.name)) ? 'အိုး' : 'ဗူး';
-      const pp = ps.filter(p => p.unit === 'ဘူး' || p.cat === 'LPG ဘူး');
-      const sl = ss.filter(x => (x.lines || []).some(l => l.unit === 'ဘူး'));
+      const pp = ps.filter(p => !p.voided && (p.unit === 'ဘူး' || p.cat === 'LPG ဘူး'));
+      const sl = ss.filter(x => !x.voided && (x.lines || []).some(l => l.unit === 'ဘူး'));
       if (!pp.length && !sl.length) return;
       await run(['products', 'sales'], 'readwrite', t => {
         pp.forEach(p => t.objectStore('products').put({
@@ -1171,10 +1186,10 @@
     }
 
     function stockOf(p) {
-      const c = stk.filter(e => e.pid === p.id && e.type === 'count').sort((a, b) => b.at - a.at)[0];
+      const c = stk.filter(e => !e.voided && e.pid === p.id && e.type === 'count').sort((a, b) => b.at - a.at)[0];
       if (!c) return null;
       let n = c.qty;
-      stk.forEach(e => { if (e.pid === p.id && !e.voided && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += e.qty; });
+      stk.forEach(e => { if (!e.voided && e.pid === p.id && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += e.qty; });
       sales.forEach(x => { if (!x.voided && x.at > c.at) x.lines.forEach(l => { if (l.pid === p.id) n -= l.qty; }); });
       return n;
     }
@@ -1534,7 +1549,7 @@
           });
         });
 
-        pays.filter(x => x.at >= t0).forEach(x => { col[x.method] += x.amount; });
+        pays.filter(x => !x.voided && x.at >= t0).forEach(x => { col[x.method] += x.amount; });
         const focN = ok.reduce((a, s) => a + s.lines.filter(l => l.foc).length, 0);
         const actualTodaySales = by.cash + by.kpay + by.wave + by.aya + by.credit + by.pending;
         const gasRefundToday = cf.filter(e => e.type === 'gas_ret' && !e.voided && e.at >= t0 && e.m === 'cash').reduce((a, e) => a + e.amt, 0);
@@ -1612,10 +1627,10 @@
     const ck = n => String(n || '').trim().toLowerCase();
     function customers() {
       const m = {}, get = n => { const k = ck(n); return m[k] = m[k] || { key: k, name: String(n).trim(), phone: '', cr: 0, pd: 0 }; };
-      cf.filter(e => e.type === 'cust').sort((a, b) => a.at - b.at).forEach(e => { const c = get(e.name); if (e.phone !== undefined) c.phone = e.phone; });
+      cf.filter(e => !e.voided && e.type === 'cust').sort((a, b) => a.at - b.at).forEach(e => { const c = get(e.name); if (e.phone !== undefined) c.phone = e.phone; });
       [...sales].sort((a, b) => a.at - b.at).forEach(x => { if (x.cust) { const c = get(x.cust); if (!x.voided) c.cr += creditOf(x); } });
       cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { get(e.cust).cr += e.amt; });
-      pays.forEach(x => { get(x.cust).pd += x.amount; });
+      pays.filter(x => !x.voided).forEach(x => { get(x.cust).pd += x.amount; });
       return Object.values(m).map(c => ({ ...c, bal: c.cr - c.pd }));
     }
     const sd_ = t => new Date(t).toLocaleDateString('en-GB') + ' ' + new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -1674,7 +1689,7 @@
           onclick: async () => {
             if (!(await promptAdminPin('ဆိုင်အပိုင်အိုး စာရင်းဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
             if (!(await uiConfirm('ဖျက်မလား?'))) return;
-            await del('cf', o.id);
+            await softDelete('cf', o);
             await reload();
             viewCust();
           }
@@ -1778,7 +1793,7 @@
 
       const obs = cf.filter(e => e.type === 'ob' && !e.voided && ck(e.cust) === key).sort((a, b) => b.at - a.at);
       const cs = sales.filter(x => x.cust && ck(x.cust) === key);
-      const ps = pays.filter(x => ck(x.cust) === key);
+      const ps = pays.filter(x => !x.voided && ck(x.cust) === key);
       const sh = cf.filter(e => e.type === 'shell' && !e.voided && ck(e.cust) === key).sort((a, b) => b.at - a.at);
       const shn = sh.reduce((a, e) => a + e.qty, 0);
 
@@ -1956,7 +1971,7 @@
     }
 
     // =========================================================================
-    // 4. TAB 2: ပစ္စည်းများ
+    // 4. TAB 2: ပစ္စည်းများ (v24-s15 CLOUD SOFT-DELETE FOR DUPLICATES)
     // =========================================================================
     function viewProducts() {
       const app = $('#app');
@@ -2056,8 +2071,13 @@
           class: 'g',
           onclick: async () => {
             if (!(await promptAdminPin('ပစ္စည်းဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
-            if (!(await uiConfirm('"' + p.name + '" ကို ဖျက်မလား? ယခင်ရောင်းချမှုတွေ မပျက်ပါဘူး။'))) return;
-            try { await del('products', p.id); await reload(); draw(); } catch (e) { note(msg, 'မဖျက်နိုင်ပါ: ' + e.message); }
+            if (!(await uiConfirm('"' + p.name + '" ကို ဖျက်မလား? Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။'))) return;
+            try {
+              await softDelete('products', p);
+              await reload();
+              draw();
+              note(msg, '"' + p.name + '" ကို ဖျက်ပြီးပါပြီ (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ ပျက်သွားပါမည်)။', 1);
+            } catch (e) { note(msg, 'မဖျက်နိုင်ပါ: ' + e.message); }
           }
         }, 'ဖျက်');
 
@@ -2105,7 +2125,7 @@
       }, 'ပစ္စည်းအသစ် ထည့်မည်');
 
       app.append(
-        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်း (သို့မဟုတ် အကြွေးဝယ်) ပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),
+        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ နှစ်ခုထပ်နေတဲ့ ပစ္စည်းများကို "ဖျက်" နှိပ်လိုက်ပါက Cloud Sync ဖြင့် စက်အားလုံးတွင် တစ်ခါတည်း ပျက်သွားပါမည်။'),
         h('div', { class: 'card' }, h('b', {}, 'ပစ္စည်းအသစ်'), nn, h('div', { class: 'row' }, nc, nu), addBtn),
         msg, fix,
         h('h2', {}, 'ပစ္စည်းစာရင်း (' + products.length + ')'), sumEl, q, box
@@ -2114,12 +2134,12 @@
     }
 
     // =========================================================================
-    // 5. TAB 3: GAS စာရင်း
+    // 5. TAB 3: GAS စာရင်း (v24-s15 CLOUD SOFT-DELETE FOR HISTORY ROWS)
     // =========================================================================
     function gasBookRecon(dateKey) {
       const [a, b] = dbounds(dateKey);
-      const obEv = gasEv.filter(e => e.type === 'gas_ob' && e.date === dateKey).sort((x, y) => y.at - x.at)[0];
-      const prevClose = gasEv.filter(e => e.type === 'gas_close' && e.date < dateKey).sort((x, y) => x.date < y.date ? 1 : x.date > y.date ? -1 : y.at - x.at)[0];
+      const obEv = gasEv.filter(e => !e.voided && e.type === 'gas_ob' && e.date === dateKey).sort((x, y) => y.at - x.at)[0];
+      const prevClose = gasEv.filter(e => !e.voided && e.type === 'gas_close' && e.date < dateKey).sort((x, y) => x.date < y.date ? 1 : x.date > y.date ? -1 : y.at - x.at)[0];
 
       let openViss = 0;
       if (obEv) {
@@ -2127,7 +2147,7 @@
       } else if (prevClose) {
         const afterPrev = dbounds(prevClose.date)[1] + 1;
         let delta = 0;
-        gasEv.forEach(e => {
+        gasEv.filter(e => !e.voided).forEach(e => {
           if (e.at >= afterPrev && e.at < a) {
             const v = AGENTS[e.agent] ? AGENTS[e.agent].viss : cfg.usable;
             if ((e.type === 'recv' || e.type === 'eswap') && !e.ground) delta += (e.actualViss > 0 ? e.actualViss : e.qty * v);
@@ -2143,7 +2163,7 @@
         openViss = prevClose.groundViss + delta;
       } else {
         let v = 0;
-        gasEv.forEach(e => {
+        gasEv.filter(e => !e.voided).forEach(e => {
           if (e.at < a) {
             const av = AGENTS[e.agent] ? AGENTS[e.agent].viss : cfg.usable;
             if (e.type === 'recv' || e.type === 'eswap') v += (e.actualViss > 0 ? e.actualViss : e.qty * av);
@@ -2161,7 +2181,7 @@
 
       let inViss = 0;
       const inDetails = [];
-      gasEv.forEach(e => {
+      gasEv.filter(e => !e.voided).forEach(e => {
         if (e.at >= a && e.at <= b && (e.type === 'recv' || e.type === 'eswap') && !e.ground) {
           const av = AGENTS[e.agent] ? AGENTS[e.agent].viss : cfg.usable;
           const tot = e.actualViss > 0 ? e.actualViss : e.qty * av;
@@ -2171,7 +2191,7 @@
       });
 
       let retViss = 0;
-      gasEv.forEach(e => {
+      gasEv.filter(e => !e.voided).forEach(e => {
         if (e.at >= a && e.at <= b && e.type === 'gas_ret_viss') retViss += (e.viss || 0);
       });
 
@@ -2184,7 +2204,7 @@
 
       let canSwapViss = 0;
       const canSwapDetails = [];
-      gasEv.forEach(e => {
+      gasEv.filter(e => !e.voided).forEach(e => {
         if (e.at >= a && e.at <= b && e.type === 'cyl' && e.role === 'can' && !e.fromMain) {
           canSwapViss += e.cap;
           canSwapDetails.push((e.agent || 'TT Gas') + ' (' + e.cap + ' viss)');
@@ -2205,7 +2225,7 @@
       const msg = h('div'), r2 = x => Math.round(x * 100) / 100;
       const num = (ph, v) => h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: ph, value: v === undefined ? '' : v });
       const act = async (b, fn) => { b.disabled = true; try { await fn(); await reload(); viewGas(); } catch (e) { b.disabled = false; note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
-      const cyls = gasEv.filter(e => e.type === 'cyl'), live = cyls.filter(c => !c.closed).sort((a, b) => a.at - b.at);
+      const cyls = gasEv.filter(e => !e.voided && e.type === 'cyl'), live = cyls.filter(c => !c.closed).sort((a, b) => a.at - b.at);
       const rem = gasRemOf;
       const agSt = agentStats();
       const fullLeft = groundGas(), partialCnt = partialGasTotal(), emptyWait = emptyGasTotal(), mViss = mainVissStock();
@@ -2503,7 +2523,7 @@
         }
       }, 'သိမ်းမည်');
 
-      const hist = gasEv.filter(e => e.type !== 'gas_ob' && e.type !== 'gas_close').slice().sort((a, b) => b.at - a.at).slice(0, 25).map(e => {
+      const hist = gasEv.filter(e => !e.voided && e.type !== 'gas_ob' && e.type !== 'gas_close').slice().sort((a, b) => b.at - a.at).slice(0, 25).map(e => {
         const totCost = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
         const isCredit = (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.payCh === 'credit' && !e.paid && totCost > 0;
         const labelTxt = e.type === 'recv' ? (e.ground ? 'Ground Stock ညှိ ' : 'အပြည့်ရရှိ ') + e.qty + ' (' + e.agent + ')'
@@ -2526,18 +2546,19 @@
             ));
             const confirmMsg = 'ဒီ Gas မှတ်တမ်းကို ဖျက်မလား?\n' +
               '• ' + stamp(e.at) + ' · ' + labelTxt + '\n' +
-              '• Gas Stock လက်ကျန်ကို အလိုအလျောက် ပြန်ညှိပေးပါမည်။' +
+              '• Gas Stock လက်ကျန်ကို အလိုအလျောက် ပြန်ညှိပေးပြီး Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။' +
               (linkedExps.length ? '\n• တွဲလျက် အသုံးစရိတ် (' + money(linkedExps.reduce((a, x) => a + x.amt, 0)) + ') ကိုပါ ပယ်ဖျက်ပေးပါမည်။' : '');
             if (!(await uiConfirm(confirmMsg))) return;
             try {
+              const now = Date.now();
               await run(['gasEv', 'cf'], 'readwrite', t => {
-                t.objectStore('gasEv').delete(e.id);
+                t.objectStore('gasEv').put({ ...e, voided: true, voidedAt: now });
                 const cfStore = t.objectStore('cf');
-                linkedExps.forEach(expItem => cfStore.put({ ...expItem, voided: true, voidedAt: Date.now() }));
+                linkedExps.forEach(expItem => cfStore.put({ ...expItem, voided: true, voidedAt: now }));
               });
               await reload();
               viewGas();
-              note(msg, 'Gas မှတ်တမ်း ဖျက်ပြီး Stock နှင့် ငွေစာရင်း ပြန်ညှိပြီးပါပြီ။', 1);
+              note(msg, 'Gas မှတ်တမ်း ဖျက်ပြီး Stock နှင့် ငွေစာရင်း ပြန်ညှိပြီးပါပြီ (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ ပျက်သွားပါမည်)။', 1);
             } catch (err) {
               note(msg, 'မဖျက်နိုင်ပါ: ' + (err && err.message || err));
             }
@@ -2603,7 +2624,7 @@
     // =========================================================================
     // 6. TAB 5: ဒေတာ (ADMIN PIN, SYNC SECRET KEY UNLOCKED FIX, CLOUD SYNC & BACKUP)
     // =========================================================================
-    const APP_VER = 'v24-s14.1 (Role PIN + Secret Key Fix)';
+    const APP_VER = 'v24-s15 (Cloud Soft-Delete Sync)';
     const STORES = ['products', 'sales', 'gasEv', 'pays', 'stk', 'cf', 'meta'];
     const saveBlob = (name, blob) => {
       const u = URL.createObjectURL(blob), a = h('a', { href: u, download: name });
@@ -2727,7 +2748,7 @@
         ) : ''
       );
 
-      // Cloud Sync Card (Google Sheets Web App — v24-s14.1 Guaranteed Unlocked when Admin)
+      // Cloud Sync Card (Google Sheets Web App)
       const syncMsg = h('div');
       const urlIn = h('input', {
         type: 'url',
@@ -2744,7 +2765,6 @@
         spellcheck: 'false'
       });
 
-      // Explicitly enforce unlocked interactive state whenever Admin mode is active
       if (unlocked) {
         urlIn.disabled = false;
         urlIn.readOnly = false;
@@ -2854,7 +2874,7 @@
       }, '↑ ဒီစက်မှ Cloud ပေါ်သို့ အကုန်တင်မည် (Admin Only)');
 
       const cloudSyncCard = h('div', { class: 'card', style: 'border:2px solid var(--navy);background:#F8FAFC' },
-        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — v24-s14.1)'),
+        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — v24-s15)'),
         h('div', { style: 'margin:4px 0' },
           h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ — Admin ဖွင့်ပြီး Web App URL ထည့်၍ ချိတ်ဆက်ပါ')
         ),
@@ -2864,7 +2884,7 @@
         h('label', {}, 'Sync Secret Key (လျှို့ဝှက်ကုဒ်)' + (!unlocked ? ' (Locked)' : ' (Editable)')),
         secretIn,
         unlocked ? saveUrlBtn : '',
-        h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်းတိုင်း & အင်တာနက်ပြန်မိတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
+        h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်း/ဖျက်တိုင်း & အင်တာနက်ပြန်မိတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
         syncNowBtn,
         unlocked ? pushAllBtn : '',
         syncMsg
@@ -2928,8 +2948,8 @@
       const csvDebts = () => {
         const m = {};
         sales.filter(x => !x.voided && creditOf(x) > 0 && x.cust).forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += creditOf(x); });
-        pays.forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).p += x.amount; });
-        cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += e.amt; });
+        pays.filter(x => !x.voided).forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).p += x.amount; });
+        cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: e.cust, c: 0, p: 0 }).c += e.amt; });
         dlCsv('debts', [['Customer Name', 'ကြွေးယူ', 'ပြန်ပေး', 'ကျန်']].concat(Object.values(m).map(c => [c.n, c.c, c.p, c.c - c.p])));
       };
       const csvExp = () => {
@@ -3041,7 +3061,7 @@
         const t = partTime(s);
         if (t >= a && t <= b) partsOf(s).forEach(x => { if (x.m === m) i += x.a; });
       });
-      pays.forEach(x => { if (x.method === m && x.at >= a && x.at <= b) i += x.amount; });
+      pays.filter(x => !x.voided).forEach(x => { if (x.method === m && x.at >= a && x.at <= b) i += x.amount; });
       exps().forEach(e => { if (e.m === m && e.at >= a && e.at <= b) o += e.amt; });
       cf.filter(e => e.type === 'cyl_comp' && !e.voided && e.kind === 'pay').forEach(e => { if (e.m === m && e.at >= a && e.at <= b) i += e.amt; });
       cf.filter(e => e.type === 'fac_refund' && !e.voided).forEach(e => { if (e.m === m && e.at >= a && e.at <= b) i += e.amt; });
@@ -3060,7 +3080,7 @@
     }
 
     function opening(m, k) {
-      const R = cf.filter(e => e.type === 'bal' && e.method === m);
+      const R = cf.filter(e => !e.voided && e.type === 'bal' && e.method === m);
       const op = R.filter(r => r.kind === 'open' && r.date === k).sort((a, b) => b.at - a.at)[0];
       if (op) return op.amt;
       const cl = R.filter(r => r.kind === 'close' && r.date < k).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.at - a.at)[0];
@@ -3072,7 +3092,7 @@
     function debtTotal() {
       const m = {};
       sales.filter(x => !x.voided && creditOf(x) > 0 && x.cust).forEach(x => { const k = x.cust.toLowerCase(); m[k] = (m[k] || 0) + creditOf(x); });
-      pays.forEach(x => { const k = x.cust.toLowerCase(); m[k] = (m[k] || 0) - x.amount; });
+      pays.filter(x => !x.voided).forEach(x => { const k = x.cust.toLowerCase(); m[k] = (m[k] || 0) - x.amount; });
       cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); m[k] = (m[k] || 0) + e.amt; });
       return Object.values(m).filter(v => v > 0.5).reduce((a, b) => a + b, 0);
     }
@@ -3081,7 +3101,7 @@
       const inPeriod = t => { if (!t) return false; const dk = dkey(t); return isMonthly ? dk.startsWith(periodKey) : dk === periodKey; };
       const supRates = {};
       Object.keys(AGENTS).forEach(ag => {
-        const recvs = gasEv.filter(e => (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.agent === ag && e.cost > 0).sort((a, b) => b.at - a.at);
+        const recvs = gasEv.filter(e => !e.voided && (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.agent === ag && e.cost > 0).sort((a, b) => b.at - a.at);
         if (recvs.length) {
           const latest = recvs[0];
           const nom = AGENTS[ag].viss;
@@ -3092,7 +3112,7 @@
       });
 
       let netRev = 0, gasCogs = 0, o2Cogs = 0, prodCogs = 0, unidGasWarn = false;
-      const activeVissCyl = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'viss').sort((a, b) => a.at - b.at)[0];
+      const activeVissCyl = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'viss').sort((a, b) => a.at - b.at)[0];
       const fallbackAg = (activeVissCyl && activeVissCyl.agent) || 'TT Gas';
 
       sales.forEach(s => {
@@ -3133,7 +3153,7 @@
       });
 
       let weightVarExp = 0;
-      gasEv.forEach(e => {
+      gasEv.filter(e => !e.voided).forEach(e => {
         if ((e.type === 'recv' || e.type === 'eswap') && !e.ground && inPeriod(e.at) && e.cost > 0 && e.actualViss > 0) {
           const nom = (AGENTS[e.agent] || AGENTS['TT Gas']).viss;
           const expV = e.qty * nom;
@@ -3209,7 +3229,7 @@
         }, 'စရိတ် မှတ်မည်');
 
         const unpaidPayables = [];
-        gasEv.forEach(e => {
+        gasEv.filter(e => !e.voided).forEach(e => {
           const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
           if ((e.type === 'recv' || e.type === 'eswap') && !e.ground && e.payCh === 'credit' && !e.paid && tot > 0) {
             unpaidPayables.push({
@@ -3222,8 +3242,8 @@
             });
           }
         });
-        stk.forEach(e => {
-          if (e.type === 'buy' && !e.voided && !e.paid) {
+        stk.filter(e => !e.voided).forEach(e => {
+          if (e.type === 'buy' && !e.paid) {
             const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
             const isCreditStk = e.payCh === 'credit' || (!e.payCh && tot > 0 && !cf.some(x => !x.voided && x.type === 'exp' && Math.abs((x.at || 0) - (e.at || 0)) <= 2000 && x.amt === tot));
             if (isCreditStk && tot > 0) {
@@ -3289,10 +3309,10 @@
                   onclick: async () => {
                     if (!(await promptAdminPin('အကြွေးဝယ်မှတ်တမ်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
                     if (!(await guardMonthLock(item.at, msg))) return;
-                    if (!(await uiConfirm('ဒီအကြွေးဝယ်မှတ်တမ်း (' + item.title + ') ကို ဖျက်မလား? (Stock လက်ကျန်ကိုပါ ပြန်လျှော့ပေးပါမည်)'))) return;
+                    if (!(await uiConfirm('ဒီအကြွေးဝယ်မှတ်တမ်း (' + item.title + ') ကို ဖျက်မလား? (Cloud Sync ဖြင့် စက်အားလုံးတွင် တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
                     try {
                       const storeName = item.kind === 'gas' ? 'gasEv' : 'stk';
-                      await del(storeName, item.id);
+                      await softDelete(storeName, item.raw);
                       await reload();
                       viewExp(dv, 1);
                       note(msg, 'အကြွေးဝယ်မှတ်တမ်း ဖျက်ပြီး Stock ပြန်ညှိပြီးပါပြီ။', 1);
@@ -3494,7 +3514,7 @@
       sd.forEach(s => partsOf(s).forEach(x => { if (x.m in by) by[x.m] += x.a; }));
       sales.forEach(s => { if (s.voided || isDropoffUnpaid(s)) return; const t = partTime(s); if (t >= a && t <= b) partsOf(s).forEach(x => { if (x.m in pin) pin[x.m] += x.a; }); });
 
-      const col = { cash: 0, kpay: 0, wave: 0, aya: 0 }, pd = pays.filter(x => x.at >= a && x.at <= b).sort((x, y) => x.at - y.at);
+      const col = { cash: 0, kpay: 0, wave: 0, aya: 0 }, pd = pays.filter(x => !x.voided && x.at >= a && x.at <= b).sort((x, y) => x.at - y.at);
       pd.forEach(x => { col[x.method] += x.amount; });
       const compInByM = { cash: 0, kpay: 0, wave: 0, aya: 0 };
       cf.filter(e => e.type === 'cyl_comp' && !e.voided && e.kind === 'pay' && e.at >= a && e.at <= b).forEach(e => { if (e.m in compInByM) compInByM[e.m] += e.amt; });
@@ -3576,7 +3596,7 @@
 
           const card = (m, i) => {
             const op = ops[i], ex = op === null ? null : op + pin[m] + col[m] + compInByM[m] + facRefByM[m] + loanInByM[m] + xferInByM[m] - om[m] - loanOutByM[m] - gasRefByM[m] - xferOutByM[m];
-            const cl = cf.filter(e => e.type === 'bal' && e.kind === 'close' && e.method === m && e.date === k).sort((x, y) => y.at - x.at)[0];
+            const cl = cf.filter(e => !e.voided && e.type === 'bal' && e.kind === 'close' && e.method === m && e.date === k).sort((x, y) => y.at - x.at)[0];
             const ia = h('input', { type: 'number', inputmode: 'numeric', placeholder: op === null ? 'စတင်လက်ကျန် (ကိုယ်တိုင်ရေထား)' : 'ရေတွက်ထားတဲ့ ငွေ' });
             const go = async (rec, q) => { if (!(await uiConfirm(q))) return; try { await add('cf', { id: uuid(), at: Date.now(), type: 'bal', date: k, method: m, ...rec }); await reload(); viewReport(k); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
             const setOpen = h('button', { class: 'n', onclick: () => { const v = parseFloat(ia.value); if (isNaN(v) || v < 0) return note(msg, 'ပမာဏ ထည့်ပါ။'); go({ kind: 'open', amt: v }, PAY[m] + ' အဖွင့်ငွေကို ' + money(v) + ' အဖြစ် မှတ်မလား? (' + k + ')'); } }, op === null ? 'အဖွင့်ငွေ မှတ်မည်' : 'အဖွင့်ငွေ ပြင်မည်');
@@ -3640,8 +3660,8 @@
           const totCashBook = expCash.reduce((x, y) => x + y, 0);
           const cashInputs = MTH.map((m, i) => h('input', { type: 'number', inputmode: 'numeric', placeholder: PAY[m] + ' မြေပြင်လက်ကျန်', value: Math.round(expCash[i]) }));
 
-          const vissCyl = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'viss').sort((x, y) => x.at - y.at)[0];
-          const canCyl = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'can').sort((x, y) => x.at - y.at)[0];
+          const vissCyl = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'viss').sort((x, y) => x.at - y.at)[0];
+          const canCyl = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'can').sort((x, y) => x.at - y.at)[0];
           const vissCylBook = vissCyl ? gasRemOf(vissCyl) : 0;
           const canCylBook = canCyl ? gasRemOf(canCyl) : 0;
 
@@ -3649,7 +3669,7 @@
           const canPhysIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: 'ဗူးဖြည့်အိုး လက်ကျန်ချိန် (ပိဿာ)', value: r2(canCylBook) });
           const stCheck = h('select', {}, h('option', { value: 'ok' }, 'ပစ္စည်းလက်ကျန် စာရင်းအတိုင်း ကိုက်ညီပါသည်'), h('option', { value: 'diff' }, 'ကွာဟချက် ရှိပါသည် (မှတ်ချက်ထည့်မည်)'));
           const closeNote = h('input', { placeholder: 'မှတ်ချက် / ကွာဟရသည့် အကြောင်းရင်း (မရှိရင် ဗလာထား)' });
-          const prevClose = cf.filter(e => e.type === 'dayclose' && e.date === k).sort((x, y) => y.at - x.at)[0];
+          const prevClose = cf.filter(e => !e.voided && e.type === 'dayclose' && e.date === k).sort((x, y) => y.at - x.at)[0];
 
           const closeDayBtn = h('button', {
             class: 'o',
@@ -3728,7 +3748,7 @@
     }
 
     // =========================================================================
-    // 8. TAB 6: OXYGEN
+    // 8. TAB 6: OXYGEN (v24-s15 CLOUD SOFT-DELETE FOR FACTORY & OWN ROWS)
     // =========================================================================
     let o2Month = null;
     let o2LedgerTab = 1;
@@ -3928,23 +3948,23 @@
       let ledgerSection;
 
       if (isFac) {
-        const obRec = stk.filter(e => e.type === 'o2_fac_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
+        const obRec = stk.filter(e => !e.voided && e.type === 'o2_fac_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
         let open40 = 0, open47 = 0;
         if (obRec) {
           open40 = Number(obRec.s40) || 0;
           open47 = Number(obRec.s47) || 0;
         } else {
-          const priorOb = stk.filter(e => e.type === 'o2_fac_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
+          const priorOb = stk.filter(e => !e.voided && e.type === 'o2_fac_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
           const startYm = priorOb ? priorOb.month : '0000-00';
           open40 = priorOb ? (Number(priorOb.s40) || 0) : 0;
           open47 = priorOb ? (Number(priorOb.s47) || 0) : 0;
-          stk.filter(e => e.type === 'o2_fac' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
+          stk.filter(e => !e.voided && e.type === 'o2_fac' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
             if (e.o2type === '40L') open40 += (e.fullQty || 0) - (e.emptyQty || 0);
             if (e.o2type === '47L') open47 += (e.fullQty || 0) - (e.emptyQty || 0);
           });
         }
 
-        const rawFac = stk.filter(e => e.type === 'o2_fac' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
+        const rawFac = stk.filter(e => !e.voided && e.type === 'o2_fac' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
         const rows = [];
         for (let i = 0; i < rawFac.length; i++) {
           const cur = rawFac[i];
@@ -3953,7 +3973,7 @@
             const r40 = cur.o2type === '40L' ? cur : nxt;
             const r47 = cur.o2type === '47L' ? cur : nxt;
             rows.push({
-              ids: [r40.id, r47.id], at: r40.at, dk: dkey(r40.at),
+              items: [r40, r47], at: r40.at, dk: dkey(r40.at),
               e40: r40.emptyQty || 0, e47: r47.emptyQty || 0,
               f40: r40.fullQty || 0, f47: r47.fullQty || 0,
               note: r40.note || r47.note || ''
@@ -3962,7 +3982,7 @@
           } else {
             const is40 = cur.o2type === '40L';
             rows.push({
-              ids: [cur.id], at: cur.at, dk: dkey(cur.at),
+              items: [cur], at: cur.at, dk: dkey(cur.at),
               e40: is40 ? (cur.emptyQty || 0) : 0, e47: !is40 ? (cur.emptyQty || 0) : 0,
               f40: is40 ? (cur.fullQty || 0) : 0, f47: !is40 ? (cur.fullQty || 0) : 0,
               note: cur.note || ''
@@ -3998,8 +4018,12 @@
                 onclick: async () => {
                   if (!(await promptAdminPin('စက်ရုံအိုး စာရင်းကြောင်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
                   if (!(await guardMonthLock(r.at, msg))) return;
-                  if (!(await uiConfirm(fmtLogDate(r.dk) + ' စာရင်းကြောင်းကို ဖျက်မလား?'))) return;
-                  for (const id of r.ids) await del('stk', id);
+                  if (!(await uiConfirm(fmtLogDate(r.dk) + ' စာရင်းကြောင်းကို ဖျက်မလား? (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
+                  const now = Date.now();
+                  await run('stk', 'readwrite', t => {
+                    const os = t.objectStore('stk');
+                    r.items.forEach(it => os.put({ ...it, voided: true, voidedAt: now }));
+                  });
                   await reload();
                   viewOxy();
                 }
@@ -4123,22 +4147,22 @@
           ];
         };
 
-        const obOwn = stk.filter(e => e.type === 'o2_own_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
+        const obOwn = stk.filter(e => !e.voided && e.type === 'o2_own_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
         let open40 = 0, openOver = 0;
         if (obOwn) {
           open40 = Number(obOwn.s40) || 0;
           openOver = Number(obOwn.sOver) || 0;
         } else {
-          const priorOb = stk.filter(e => e.type === 'o2_own_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
+          const priorOb = stk.filter(e => !e.voided && e.type === 'o2_own_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
           const startYm = priorOb ? priorOb.month : '0000-00';
           open40 = priorOb ? (Number(priorOb.s40) || 0) : 0;
           openOver = priorOb ? (Number(priorOb.sOver) || 0) : 0;
-          stk.filter(e => e.type === 'o2_own' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
+          stk.filter(e => !e.voided && e.type === 'o2_own' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
             [open40, openOver] = applyOwnDelta(open40, openOver, e);
           });
         }
 
-        const ownRows = stk.filter(e => e.type === 'o2_own' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
+        const ownRows = stk.filter(e => !e.voided && e.type === 'o2_own' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
         let run40 = open40, runOver = openOver;
         let sumE40 = 0, sumEOver = 0, sumF40 = 0, sumFOver = 0;
         let paidTotal = 0, unpaidTotal = 0;
@@ -4205,8 +4229,8 @@
                 onclick: async () => {
                   if (!(await promptAdminPin('အပိုင်အိုး စာရင်းကြောင်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
                   if (!(await guardMonthLock(r.at, msg))) return;
-                  if (!(await uiConfirm(fmtLogDate(dkey(r.at)) + ' အပိုင်အိုး စာရင်းကြောင်းကို ဖျက်မလား?'))) return;
-                  await del('stk', r.id);
+                  if (!(await uiConfirm(fmtLogDate(dkey(r.at)) + ' အပိုင်အိုး စာရင်းကြောင်းကို ဖျက်မလား? (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
+                  await softDelete('stk', r);
                   await reload();
                   viewOxy();
                 }
@@ -4215,7 +4239,7 @@
           );
         });
 
-        const allUnpaidOwn = stk.filter(e => e.type === 'o2_own' && !e.damagedReturn && !e.paid && (Number(e.billAmt) || 0) > 0);
+        const allUnpaidOwn = stk.filter(e => !e.voided && e.type === 'o2_own' && !e.damagedReturn && !e.paid && (Number(e.billAmt) || 0) > 0);
         const allUnpaidSum = allUnpaidOwn.reduce((a, e) => a + (Number(e.billAmt) || 0), 0);
 
         const setObOwnBtn = h('button', {
@@ -4295,10 +4319,10 @@
       const o2 = products.filter(p => p.cat === 'အောက်ဆီဂျင်'), now = new Date(), t0 = dbounds(dkey(Date.now()))[0], m0 = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
       const cnt = (p, t) => { let q = 0, v = 0; sales.forEach(s => { if (!s.voided && s.at >= t) s.lines.forEach(l => { if (l.pid === p.id) { q += l.qty; v += amt(l); } }); }); return { q, v }; };
       const emptO2 = p => {
-        const c = stk.filter(e => e.pid === p.id && e.type === 'ecount').sort((x, y) => y.at - x.at)[0];
+        const c = stk.filter(e => !e.voided && e.pid === p.id && e.type === 'ecount').sort((x, y) => y.at - x.at)[0];
         if (!c) return null;
         let n = c.qty;
-        stk.forEach(e => { if (e.pid === p.id && e.at > c.at && e.type === 'eret') n -= e.qty; });
+        stk.forEach(e => { if (!e.voided && e.pid === p.id && e.at > c.at && e.type === 'eret') n -= e.qty; });
         sales.forEach(s => { if (!s.voided && s.at > c.at) s.lines.forEach(l => { if (l.pid === p.id) n += l.qty; }); });
         return n;
       };
@@ -4383,8 +4407,8 @@
       };
 
       const stp = t => new Date(t).toLocaleDateString('en-GB') + ' ' + tm(t), pc = x => Math.round(x * 1000) / 10;
-      const oc = stk.filter(e => e.type === 'ocyl'), liveO = oc.filter(c => !c.closed).sort((x, y) => x.at - y.at);
-      const orc = stk.filter(e => e.type === 'orecv').reduce((a, e) => a + e.qty, 0), ort = stk.filter(e => e.type === 'oret').reduce((a, e) => a + e.qty, 0);
+      const oc = stk.filter(e => !e.voided && e.type === 'ocyl'), liveO = oc.filter(c => !c.closed).sort((x, y) => x.at - y.at);
+      const orc = stk.filter(e => !e.voided && e.type === 'orecv').reduce((a, e) => a + e.qty, 0), ort = stk.filter(e => !e.voided && e.type === 'oret').reduce((a, e) => a + e.qty, 0);
       const fullO = orc - oc.length, emptyO = oc.filter(c => c.closed).length - ort;
       const goS = async (rec, q) => { if (q && !(await uiConfirm(q))) return; try { await add('stk', { id: uuid(), at: Date.now(), ...rec }); await reload(); viewOxy(); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
       const pcIn = h('input', { type: 'number', inputmode: 'decimal', placeholder: 'စတင်ကျန် % (မထည့်ရင် 100)' }), xq = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'အိုးအရေအတွက်' });
@@ -4421,7 +4445,7 @@
     }
 
     // =========================================================================
-    // 9. TAB 9: O2 DELIVERY
+    // 9. TAB 9: O2 DELIVERY (v24-s15 CLOUD SOFT-DELETE FOR SITE LEDGER)
     // =========================================================================
     let selectedSiteKey = '';
 
@@ -4851,12 +4875,13 @@
                         onclick: async () => {
                           if (!(await promptAdminPin('ဆိုဒ်ပို့စာရင်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
                           if (!(await guardMonthLock(r.at, msg))) return;
-                          if (!(await uiConfirm('ဒီမှတ်တမ်းကို ဖျက်မလား? (ချိတ်ဆက်ထားသော အရောင်း/အကြွေးကိုပါ ပယ်ဖျက်ပါမည်)'))) return;
+                          if (!(await uiConfirm('ဒီမှတ်တမ်းကို ဖျက်မလား? (Cloud Sync ဖြင့် ကျန်ဖုန်းများနှင့် အရောင်း/အကြွေးတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
+                          const now = Date.now();
                           await run(['cf', 'sales'], 'readwrite', t => {
-                            t.objectStore('cf').delete(r.id);
+                            t.objectStore('cf').put({ ...r, voided: true, voidedAt: now });
                             if (r.saleId) {
                               const linked = sales.find(s => s.id === r.saleId);
-                              if (linked) t.objectStore('sales').put({ ...linked, voided: true, voidedAt: Date.now() });
+                              if (linked) t.objectStore('sales').put({ ...linked, voided: true, voidedAt: now });
                             }
                           });
                           await reload();
@@ -4929,7 +4954,7 @@
     }
 
     // =========================================================================
-    // 10. NAVIGATION, BOOT & SERVICE WORKER (v24-s14.1)
+    // 10. NAVIGATION, BOOT & SERVICE WORKER (v24-s15)
     // =========================================================================
     const VIEWS = {
       1: viewSale,
@@ -4981,7 +5006,7 @@
         }
         if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-          navigator.serviceWorker.register('sw.js?v=24s141').catch(() => {});
+          navigator.serviceWorker.register('sw.js').catch(() => {});
         }
       } catch (e) {
         hideSplash();
