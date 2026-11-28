@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0B1F3A">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
-  <title>AUNG Gas Solutions POS v24-s15</title>
+  <title>AUNG Gas Solutions POS v24-s17</title>
   <style>
     :root {
       --navy: #0B1F3A;
@@ -38,7 +38,7 @@
       align-items: center;
       justify-content: center;
       z-index: 999;
-      transition: opacity .35s ease, visibility .35s ease;
+      transition: opacity .45s ease, visibility .45s ease;
     }
     #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
     header {
@@ -52,28 +52,21 @@
       top: 0;
       z-index: 15;
       border-bottom: 3px solid var(--org);
-      gap: 6px;
     }
-    header b { font-size: 16px; white-space: nowrap; }
+    header b { font-size: 16px; }
     header b span { color: #FF9E58; }
-    .hdr-badges { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+    .hdr-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
     #roleBadge {
       font-size: 11.5px;
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 12px;
       background: #16325B;
-      color: #FFD8B8;
-      border: 1px solid rgba(255, 158, 88, 0.5);
+      color: #FFE9D6;
       font-weight: 700;
       cursor: pointer;
-      white-space: nowrap;
-      user-select: none;
+      border: 1px solid rgba(255,255,255,0.22);
     }
-    #roleBadge.admin {
-      background: var(--ok);
-      color: #fff;
-      border-color: #fff;
-    }
+    #roleBadge.admin { background: var(--ok); color: #fff; border-color: #fff; }
     #syncBadge {
       font-size: 11.5px;
       padding: 2px 9px;
@@ -88,7 +81,7 @@
     #syncBadge.busy { background: var(--org); color: #fff; }
     #syncBadge.ok { background: #1B7F3B; color: #fff; }
     #syncBadge.err { background: var(--red); color: #fff; }
-    #net { font-size: 11.5px; padding: 2px 9px; border-radius: 12px; background: var(--ok); font-weight: 700; white-space: nowrap; }
+    #net { font-size: 11.5px; padding: 2px 9px; border-radius: 12px; background: var(--ok); font-weight: 700; }
     #net.off { background: var(--org); }
     main { padding: 12px; max-width: 760px; margin: auto; }
     h2 { font-size: 17px; margin: 14px 0 6px; color: var(--navy); }
@@ -110,11 +103,6 @@
       background: #fff;
       color: var(--navy);
       margin-top: 3px;
-    }
-    input:disabled, input[readonly] {
-      background: #EEF2F6;
-      color: #6B7C93;
-      cursor: not-allowed;
     }
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
     .row > * { flex: 1 1 120px; min-width: 0; }
@@ -259,7 +247,7 @@
   <header>
     <b>AUNG <span>Gas Solutions</span></b>
     <div class="hdr-badges">
-      <span id="roleBadge" onclick="toggleRoleModal()">👤 ဝန်ထမ်း</span>
+      <span id="roleBadge" onclick="toggleRole()">👤 ဝန်ထမ်း</span>
       <span id="syncBadge" onclick="show(5)">Sync</span>
       <span id="net"></span>
     </div>
@@ -282,27 +270,11 @@
   <div id="rcpt"></div>
 
   <script>
-    // Ensure splash screen always hides cleanly within 700ms so no blank/stuck screen ever occurs
     const hideSplash = () => {
       const sp = document.getElementById('splash');
       if (sp) sp.classList.add('hide');
     };
-    setTimeout(hideSplash, 700);
-
-    window.addEventListener('error', e => {
-      hideSplash();
-      const appEl = document.getElementById('app');
-      if (appEl && !appEl.innerHTML.trim()) {
-        appEl.innerHTML = '<div class="msg e">App Error: ' + String(e && e.message || e) + '</div>';
-      }
-    });
-    window.addEventListener('unhandledrejection', e => {
-      hideSplash();
-      const appEl = document.getElementById('app');
-      if (appEl && !appEl.innerHTML.trim()) {
-        appEl.innerHTML = '<div class="msg e">Async Error: ' + String(e && e.reason && e.reason.message || e.reason || e) + '</div>';
-      }
-    });
+    setTimeout(hideSplash, 750);
 
     const $ = s => document.querySelector(s);
     const h = (t, a = {}, ...c) => {
@@ -310,17 +282,13 @@
       for (const k in a) {
         if (k === 'class') e.className = a[k];
         else if (k.startsWith('on')) e[k] = a[k];
-        else if (k === 'disabled' || k === 'readOnly' || k === 'checked') {
-          if (a[k]) e[k] = true;
-        } else {
-          e.setAttribute(k, a[k]);
-        }
+        else e.setAttribute(k, a[k]);
       }
       c.flat().forEach(x => { if (x !== null && x !== undefined && x !== '') e.append(x); });
       return e;
     };
     const money = n => Math.round(n).toLocaleString('en-US') + ' ကျပ်';
-    const uuid = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 's' + Date.now() + Math.random().toString(36).slice(2);
+    const uuid = () => crypto.randomUUID ? crypto.randomUUID() : 's' + Date.now() + Math.random().toString(36).slice(2);
     const AUTO_EXP_EFFECTIVE_DATE = '2026-11-26';
 
     const CATS = ['LPG ဓာတ်ငွေ့', 'LPG အိုး/ဗူး', 'အောက်ဆီဂျင်', 'မီးဖို', 'Regulator/Valve', 'ဆက်စပ်ပစ္စည်း'];
@@ -373,7 +341,7 @@
     };
 
     // =========================================================================
-    // 1. VERSION-SAFE INDEXEDDB OPENER + IN-MEMORY SANDBOX FALLBACK + ROLE/PIN
+    // 1. VERSION-SAFE INDEXEDDB OPENER + SANDBOX MEMORY FALLBACK + CLOUD SYNC
     // =========================================================================
     const REQUIRED_STORES = ['products', 'sales', 'meta', 'gasEv', 'pays', 'stk', 'cf'];
     const LOCAL_ONLY_META = new Set(['lastBackup', 'seeded', 'gas2', 'rollingSnapshots', 'preRestoreSnap', 'syncUrl', 'syncSecret', 'lastSyncAt', 'autoSync']);
@@ -382,96 +350,9 @@
     const memStore = {};
     REQUIRED_STORES.forEach(n => { memStore[n] = new Map(); });
 
-    // Role & 4-Digit Admin PIN State (Defaults to Staff Mode on boot; PIN defaults to '1234')
-    let adminPin = '1234';
-    let adminPinCustom = false;
-    let adminUnlockedUntil = 0;
-    const ADMIN_SESSION_MS = 15 * 60 * 1000; // 15 minutes auto-lock
-
-    const isAdmin = () => Date.now() < adminUnlockedUntil;
-    const updateRoleBadge = () => {
-      const el = $('#roleBadge');
-      if (!el) return;
-      if (isAdmin()) {
-        el.className = 'admin';
-        el.textContent = '🔓 Admin';
-      } else {
-        el.className = '';
-        el.textContent = '👤 ဝန်ထမ်း';
-      }
-    };
-    setInterval(updateRoleBadge, 15000);
-
-    function promptAdminPin(reasonText = 'Admin လုပ်ပိုင်ခွင့် လိုအပ်ပါသည်') {
-      if (isAdmin()) {
-        adminUnlockedUntil = Date.now() + ADMIN_SESSION_MS;
-        updateRoleBadge();
-        return Promise.resolve(true);
-      }
-      return new Promise(res => {
-        const bg = h('div', { class: 'modal-bg' });
-        const errEl = h('div', { style: 'color:var(--red);font-size:13px;margin-top:6px;font-weight:700' }, '');
-        const inp = h('input', {
-          type: 'password',
-          inputmode: 'numeric',
-          maxlength: '6',
-          placeholder: 'Admin PIN (1234)',
-          style: 'font-size:20px;letter-spacing:6px;text-align:center;font-weight:700'
-        });
-        const verify = () => {
-          const val = inp.value.trim();
-          if (val === String(adminPin)) {
-            adminUnlockedUntil = Date.now() + ADMIN_SESSION_MS;
-            updateRoleBadge();
-            bg.remove();
-            res(true);
-          } else {
-            errEl.textContent = '⚠ PIN မှားနေပါသည် (ထပ်ကြိုးစားပါ)';
-            inp.value = '';
-            inp.focus();
-          }
-        };
-        inp.onkeydown = e => { if (e.key === 'Enter') verify(); };
-        const box = h('div', { class: 'modal-box' },
-          h('b', { style: 'font-size:16.5px;color:var(--navy);display:block;margin-bottom:4px' }, '🔒 Admin PIN စစ်ဆေးခြင်း'),
-          h('div', { style: 'font-size:13.5px;color:#5A6B82;margin-bottom:8px' }, reasonText),
-          !adminPinCustom ? h('div', { class: 'msg', style: 'background:#FFF3E8;color:#9A4308;font-size:12.5px;padding:7px' }, 'မူလ PIN: 1234 ("ဒေတာ" tab တွင် PIN အသစ် ပြောင်းနိုင်ပါသည်)') : '',
-          inp,
-          errEl,
-          h('div', { class: 'row', style: 'margin-top:12px' },
-            h('button', { class: 'n', style: 'padding:10px', onclick: () => { bg.remove(); res(false); } }, 'မလုပ်ပါ'),
-            h('button', { class: 'o', style: 'margin-top:0;padding:10px', onclick: verify }, 'အတည်ပြုမည်')
-          )
-        );
-        bg.append(box);
-        document.body.appendChild(bg);
-        setTimeout(() => inp.focus(), 40);
-      });
-    }
-
-    async function toggleRoleModal() {
-      if (isAdmin()) {
-        const lockIt = await uiConfirm('လက်ရှိ Admin Mode ဖွင့်ထားပါသည်။\nဝန်ထမ်း Mode သို့ ပြန်ပိတ် (Lock) မလား?', 'Lock (ဝန်ထမ်း Mode ပြန်ပိတ်)', 'Admin ဆက်သုံးမည်');
-        if (lockIt) {
-          adminUnlockedUntil = 0;
-          updateRoleBadge();
-          if (typeof VIEWS === 'object' && VIEWS[tab]) VIEWS[tab]();
-        }
-      } else {
-        const ok = await promptAdminPin('Admin Mode ဖွင့်ရန် ဂဏန်း ၄ လုံး PIN ရိုက်ထည့်ပါ');
-        if (ok) {
-          updateRoleBadge();
-          if (typeof VIEWS === 'object' && VIEWS[tab]) VIEWS[tab]();
-        }
-      }
-    }
-
     const open = () => new Promise(ok => {
       try {
-        if (!window.indexedDB) {
-          useMemDb = true;
-          return ok(null);
-        }
+        if (!window.indexedDB) { useMemDb = true; return ok(null); }
         const probe = indexedDB.open('aung-gas-pos');
         probe.onerror = () => { useMemDb = true; ok(null); };
         probe.onblocked = () => { useMemDb = true; ok(null); };
@@ -486,10 +367,7 @@
         probe.onsuccess = () => {
           const d = probe.result;
           const missing = REQUIRED_STORES.filter(n => !d.objectStoreNames.contains(n));
-          if (missing.length === 0) {
-            ok(d);
-            return;
-          }
+          if (missing.length === 0) { ok(d); return; }
           const nextVer = (d.version || 4) + 1;
           d.close();
           const upg = indexedDB.open('aung-gas-pos', nextVer);
@@ -517,6 +395,48 @@
     let lastSyncAt = null;
     let autoSyncEnabled = true;
 
+    let isAdmin = false;
+    let adminPin = '1234';
+
+    const updateRoleBadge = () => {
+      const el = $('#roleBadge');
+      if (!el) return;
+      if (isAdmin) {
+        el.className = 'admin';
+        el.textContent = '🔓 Admin';
+      } else {
+        el.className = '';
+        el.textContent = '👤 ဝန်ထမ်း';
+      }
+    };
+
+    async function requireAdmin(actionLabel = 'ဒီလုပ်ဆောင်ချက်') {
+      if (isAdmin) return true;
+      const entered = await uiPrompt(actionLabel + ' အတွက် Admin PIN (ဂဏန်း ၄ လုံး) ရိုက်ထည့်ပါ', '', 'password', 'PIN');
+      if (entered === null) return false;
+      if (String(entered).trim() === String(adminPin)) {
+        isAdmin = true;
+        updateRoleBadge();
+        return true;
+      }
+      await uiAlert('Admin PIN မှားနေပါသည်။');
+      return false;
+    }
+
+    async function toggleRole() {
+      if (isAdmin) {
+        if (await uiConfirm('ဝန်ထမ်း Mode (👤 ဝန်ထမ်း) သို့ ပြန်ပြောင်းမလား?')) {
+          isAdmin = false;
+          updateRoleBadge();
+          if (VIEWS[tab]) VIEWS[tab]();
+        }
+      } else {
+        if (await requireAdmin('Admin Mode ဝင်ရန်')) {
+          if (VIEWS[tab]) VIEWS[tab]();
+        }
+      }
+    }
+
     const getSyncUrl = () => {
       if (syncUrl) return syncUrl;
       try { return localStorage.getItem('aung_sync_url') || ''; } catch (e) { return ''; }
@@ -543,7 +463,7 @@
       clearTimeout(syncTimer);
       syncTimer = setTimeout(() => {
         runCloudSync({ silent: true, pushOnly: false });
-      }, 2000);
+      }, 2200);
     };
 
     const makeMemOs = n => ({
@@ -583,16 +503,9 @@
       q.onsuccess = () => ok(q.result);
       q.onerror = () => no(q.error);
     });
-
     const add = (s, o) => run(s, 'readwrite', t => t.objectStore(s).add(o));
     const put = (s, o) => run(s, 'readwrite', t => t.objectStore(s).put(o));
     const del = (s, k) => run(s, 'readwrite', t => t.objectStore(s).delete(k));
-
-    // v24-s15 Soft-Delete helper: marks record with voided: true & voidedAt so Cloud Sync propagates deletion across all devices
-    const softDelete = async (store, item) => {
-      if (!item || !item.id) return;
-      await put(store, { ...item, voided: true, voidedAt: Date.now() });
-    };
 
     async function seed() {
       const mm = await all('meta');
@@ -615,15 +528,12 @@
     let lockedMonths = [], reopenLog = [], rollingSnapshots = [];
 
     const reload = async () => {
-      // Filter out soft-deleted (voided: true) records from active in-memory working arrays
-      // Raw IndexedDB still retains voided records with voidedAt so Cloud Sync pushes deletions to Google Sheets & all devices
       products = (await all('products')).filter(p => !p.voided).sort((a, b) => a.name.localeCompare(b.name));
       sales = (await all('sales')).sort((a, b) => b.at - a.at);
       gasEv = (await all('gasEv')).filter(e => !e.voided).sort((a, b) => b.at - a.at);
       pays = (await all('pays')).filter(p => !p.voided).sort((a, b) => b.at - a.at);
       stk = (await all('stk')).filter(s => !s.voided);
-      cf = (await all('cf')).filter(c => !c.voided);
-
+      cf = await all('cf');
       const mm = await all('meta');
       const m = mm.find(x => x.k === 'gascfg');
       const r = mm.find(x => x.k === 'rcpt');
@@ -633,21 +543,14 @@
       lockedMonths = (mm.find(x => x.k === 'lockedMonths') || {}).v || [];
       reopenLog = (mm.find(x => x.k === 'reopenLog') || {}).v || [];
       rollingSnapshots = (mm.find(x => x.k === 'rollingSnapshots') || {}).v || [];
-
-      const pinRec = mm.find(x => x.k === 'adminPin');
-      if (pinRec && pinRec.v) {
-        adminPin = String(pinRec.v);
-        adminPinCustom = true;
-      }
-
+      const pinMeta = (mm.find(x => x.k === 'adminPin') || {}).v;
+      if (pinMeta) adminPin = String(pinMeta);
       const su = (mm.find(x => x.k === 'syncUrl') || {}).v;
       if (su !== undefined) syncUrl = su || '';
       else syncUrl = getSyncUrl();
-
       const ss = (mm.find(x => x.k === 'syncSecret') || {}).v;
       if (ss !== undefined) syncSecret = ss || '';
       else syncSecret = getSyncSecret();
-
       lastSyncAt = (mm.find(x => x.k === 'lastSyncAt') || {}).v || lastSyncAt;
       const asv = (mm.find(x => x.k === 'autoSync') || {}).v;
       if (asv !== undefined) autoSyncEnabled = !!asv;
@@ -658,7 +561,7 @@
     const recTimestamp = (store, r) => {
       if (!r || typeof r !== 'object') return 0;
       if (store === 'meta') return Number(r.at || 0);
-      return Number(r.voidedAt || r.repaidAt || r.paidAt || r.closedAt || r.at || 0);
+      return Number(r.voidedAt || r.returnedAt || r.repaidAt || r.paidAt || r.closedAt || r.at || 0);
     };
 
     async function buildSyncPayload() {
@@ -688,8 +591,7 @@
             else {
               const remTs = recTimestamp(n, r);
               const locTs = recTimestamp(n, loc);
-              const remVoidWins = r.voided && !loc.voided && remTs >= locTs;
-              if ((remTs > locTs || remVoidWins) && JSON.stringify(loc) !== JSON.stringify(r)) {
+              if (remTs > locTs && JSON.stringify(loc) !== JSON.stringify(r)) {
                 memStore[n].set(key, r);
                 stats.updated++;
               }
@@ -717,8 +619,7 @@
             } else {
               const remTs = recTimestamp(n, r);
               const locTs = recTimestamp(n, loc);
-              const remVoidWins = r.voided && !loc.voided && remTs >= locTs;
-              if ((remTs > locTs || remVoidWins) && JSON.stringify(loc) !== JSON.stringify(r)) {
+              if (remTs > locTs && JSON.stringify(loc) !== JSON.stringify(r)) {
                 os.put(r);
                 stats.updated++;
               }
@@ -730,9 +631,6 @@
       t.onabort = () => no(t.error);
     });
 
-    // =========================================================================
-    // v24-s15 GOOGLE APPS SCRIPT CORS-SAFE + SECRET KEY + SOFT-DELETE SYNC
-    // =========================================================================
     async function runCloudSync({ silent = false, pushOnly = false } = {}) {
       const url = getSyncUrl().trim();
       const secret = getSyncSecret().trim();
@@ -748,43 +646,27 @@
       try {
         let pulled = { added: 0, updated: 0 };
         if (!pushOnly) {
-          const getUrl = secret ? (url + (url.includes('?') ? '&' : '?') + 'secret=' + encodeURIComponent(secret)) : url;
-          const getRes = await fetch(getUrl, {
-            method: 'GET',
-            mode: 'cors',
-            cache: 'no-store',
-            redirect: 'follow'
-          });
+          const getUrl = secret ? (url + (url.includes('?') ? '&' : '?') + 'key=' + encodeURIComponent(secret)) : url;
+          const getRes = await fetch(getUrl, { method: 'GET', mode: 'cors', cache: 'no-store', redirect: 'follow' });
           if (!getRes.ok) throw new Error('GET HTTP ' + getRes.status);
-          const rawGetText = await getRes.text();
-          let getJson;
-          try {
-            getJson = JSON.parse(rawGetText);
-          } catch (e) {
-            throw new Error('Apps Script GET မှ JSON အဖြေ မဟုတ်ပါ (Deploy > New deployment > Anyone စစ်ပါ)');
-          }
-          if (!getJson || !getJson.ok) throw new Error((getJson && getJson.error) || 'Invalid server response / Secret Key မှားနေပါသည်');
+          const getJson = await getRes.json();
+          if (!getJson || !getJson.ok) throw new Error((getJson && getJson.error) || 'Invalid server response');
           pulled = await mergeRemoteStoreData(getJson.data || {});
         }
 
         const localPayload = await buildSyncPayload();
+        const postBody = secret ? { key: secret, data: localPayload } : { data: localPayload };
         const postRes = await fetch(url, {
           method: 'POST',
           mode: 'cors',
           cache: 'no-store',
           redirect: 'follow',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ secret, secretKey: secret, data: localPayload })
+          body: JSON.stringify(postBody)
         });
         if (!postRes.ok) throw new Error('POST HTTP ' + postRes.status);
-        const rawPostText = await postRes.text();
-        let postJson;
-        try {
-          postJson = JSON.parse(rawPostText);
-        } catch (e) {
-          throw new Error('Apps Script POST မှ JSON အဖြေ မဟုတ်ပါ (doPost(e) နှင့် New deployment စစ်ပါ)');
-        }
-        if (!postJson || !postJson.ok) throw new Error((postJson && postJson.error) || 'POST failed / Secret Key မှားနေပါသည်');
+        const postJson = await postRes.json();
+        if (!postJson || !postJson.ok) throw new Error((postJson && postJson.error) || 'POST failed');
 
         const now = Date.now();
         await put('meta', { k: 'lastSyncAt', v: now });
@@ -800,11 +682,7 @@
       } catch (err) {
         syncInProgress = false;
         updateSyncBadge('err', 'Sync !');
-        const rawErr = String(err && err.message || err);
-        const friendlyErr = /failed to fetch|networkerror/i.test(rawErr)
-          ? 'Failed to fetch — Google Apps Script တွင် (၁) Deploy > New deployment > Web app ဖြင့် ထုတ်ထားခြင်း ရှိ/မရှိ၊ (၂) Who has access ကို "Anyone" ရွေးထားခြင်း ရှိ/မရှိ၊ (၃) URL အဆုံးသည် /exec ဖြစ်ခြင်း ရှိ/မရှိ စစ်ဆေးပါ။'
-          : rawErr;
-        return { ok: false, error: friendlyErr };
+        return { ok: false, error: String(err && err.message || err) };
       }
     }
 
@@ -901,7 +779,7 @@
     const agentStats = () => {
       const st = {};
       Object.keys(AGENTS).forEach(k => st[k] = { full: 0, partial: 0, empty: 0, viss: AGENTS[k].viss, kg: AGENTS[k].kg });
-      gasEv.filter(e => !e.voided).forEach(e => {
+      gasEv.forEach(e => {
         const ag = e.agent && st[e.agent] ? e.agent : null;
         if (!ag) return;
         if (e.type === 'recv') st[ag].full += e.qty;
@@ -910,8 +788,11 @@
         else if (e.type === 'ecount') st[ag].empty += e.qty;
         else if (e.type === 'cyl') {
           if (!e.fromMain) st[ag].full -= 1;
-          if (e.closed) st[ag].empty += 1;
-          else st[ag].partial += 1;
+          if (e.closed) {
+            if (!e.isOwnCanTransfer) st[ag].empty += 1;
+          } else {
+            st[ag].partial += 1;
+          }
         }
       });
       return st;
@@ -919,13 +800,15 @@
     const groundGas = () => Object.values(agentStats()).reduce((a, x) => a + x.full, 0);
     const partialGasTotal = () => Object.values(agentStats()).reduce((a, x) => a + x.partial, 0);
     const emptyGasTotal = () => Object.values(agentStats()).reduce((a, x) => a + x.empty, 0);
+    const liveOwnGasFills = () => gasEv.filter(e => e.type === 'own_gas_fill' && !e.voided && e.status === 'full').sort((a, b) => a.at - b.at);
     const mainVissStock = () => {
       const st = agentStats();
       const fullViss = Object.values(st).reduce((a, x) => a + Math.max(x.full, 0) * x.viss, 0);
-      const liveViss = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'viss').reduce((a, c) => a + Math.max(gasRemOf(c), 0), 0);
-      return fullViss + liveViss;
+      const liveViss = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'viss').reduce((a, c) => a + Math.max(gasRemOf(c), 0), 0);
+      const ownFillViss = liveOwnGasFills().reduce((a, e) => a + (Number(e.viss) || 0), 0);
+      return fullViss + liveViss + ownFillViss;
     };
-    const groundO2 = () => stk.filter(e => !e.voided && e.type === 'orecv').reduce((a, e) => a + e.qty, 0) - stk.filter(e => !e.voided && e.type === 'ocyl').length;
+    const groundO2 = () => stk.filter(e => e.type === 'orecv').reduce((a, e) => a + e.qty, 0) - stk.filter(e => e.type === 'ocyl').length;
 
     function pickAgentModal(title, subtitle, allowNeg = false) {
       return new Promise(res => {
@@ -967,7 +850,7 @@
       const R = x => Math.round(x * 100) / 100;
       const F = gas ? R : (x => Math.round(x * 1000) / 10);
       const un = gas ? ' ပိဿာ' : ' %';
-      const live = () => (gas ? gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === l.gasRole) : stk.filter(e => !e.voided && e.type === 'ocyl' && !e.closed))
+      const live = () => (gas ? gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === l.gasRole) : stk.filter(e => e.type === 'ocyl' && !e.closed))
         .filter(e => !ov.closed[e.id])
         .concat(ov.added.filter(x => x.kind === kind && (!gas || x.c.role === l.gasRole)).map(x => x.c))
         .sort((a, b) => a.at - b.at);
@@ -993,7 +876,7 @@
             const nextC = L[1];
             const ok = await uiConfirm(
               GL[c.role] + ' (' + (c.agent || 'TT Gas') + ') ကျန် ' + F(use) + ' viss ပဲ ရှိတော့ပါတယ်။\n\n' +
-              '• လက်ရှိအိုးထဲက ကျန် ' + F(use) + ' viss ကို အရင်ကုန်အောင်နှုတ်ပြီး အခွံစာရင်းထဲ ထည့်ပါမယ်။\n' +
+              '• လက်ရှိအိုးထဲက ကျန် ' + F(use) + ' viss ကို အရင်ကုန်အောင်နှုတ်ပြီး ' + (c.isOwnCanTransfer ? 'ပိတ်လိုက်ပါမယ်။\n' : 'အခွံစာရင်းထဲ ထည့်ပါမယ်။\n') +
               '• လိုအပ်နေတဲ့ ' + F(need - use) + ' viss ကို ဆက်သုံးမယ့်အိုး (' + (nextC.agent || '') + ') ကနေ ဆက်နှုတ်ပါမယ်။',
               'အိုးလဲပြီး ခွဲနှုတ်မည်', 'အိုးမလဲဘဲ ဆက်နှုတ်မည်'
             );
@@ -1014,7 +897,7 @@
             ov.ops.push({ k: 'put', st: 'gasEv', obj: { ...c, closed: true, closedAt: now, leftover: 0, gain: Math.round(gain * 1000) / 1000 } });
           } else {
             const sub = GL[c.role] + ' (' + (c.agent || 'TT Gas') + ') ကျန် ' + F(use) + ' viss ပဲ ရှိတော့တယ် (လိုအပ်ချက် ' + F(need) + ' viss)။\n' +
-              '• လက်ရှိအိုးထဲက ကျန် ' + F(use) + ' viss ကို အရင်ကုန်အောင်နှုတ်ပြီး အခွံစာရင်းထဲ ထည့်ပါမယ်။\n' +
+              '• လက်ရှိအိုးထဲက ကျန် ' + F(use) + ' viss ကို အရင်ကုန်အောင်နှုတ်ပြီး ' + (c.isOwnCanTransfer ? 'ပိတ်လိုက်ပါမယ်။\n' : 'အခွံစာရင်းထဲ ထည့်ပါမယ်။\n') +
               '• ကျန် ' + F(need - use) + ' viss ကို အောက်ကရွေးမယ့် အိုးအသစ်ကနေ နှုတ်ပါမယ်။' +
               (gs <= 0 ? '\n(သတိ: Ground Stock မှာ အပြည့်အိုး မကျန်တော့ပါ)' : '');
             const pick = await pickAgentModal('Gas အိုးကုန်သွားပြီ — ခွဲနှုတ်ရန်', sub, true);
@@ -1071,11 +954,11 @@
       const gas = kind === 'gas', rem = gas ? gasRemOf(c) : o2RemOf(c), R = x => Math.round(x * 100) / 100, lab = gas ? GL[c.role] : 'Oxygen အိုးကြီး';
       const cansUsed = gas ? Math.round((c.cap + (c.adj || 0) - rem) * cfg.cans) : 0;
       let warn = '';
-      if (gas && c.role === 'can' && (cansUsed < cfg.canMin || cansUsed > cfg.canMax)) {
+      if (gas && c.role === 'can' && !c.isOwnCanTransfer && (cansUsed < cfg.canMin || cansUsed > cfg.canMax)) {
         warn = ' (သတိ: ထွက်ရှိ ' + cansUsed + ' ဗူး — သတ်မှတ်ချက် ' + cfg.canMin + '~' + cfg.canMax + ' ဗူး ပြင်ပ)';
       }
       const hasLeftover = rem > 0.05;
-      const subTxt = (!hasLeftover ? 'လက်ရှိအိုး ကုန်သွားပါပြီ → အခွံစာရင်းထဲ ဝင်ပါမယ်။' : 'လက်ရှိအိုး ကျန် ' + R(rem) + (gas ? ' viss' : ' %') + ' ရှိသေးလို့ လက်ကျန်အိုး (လ/က) စာရင်းထဲ ဆက်ရှိနေပါမယ်။') + warn;
+      const subTxt = (!hasLeftover ? (c.isOwnCanTransfer ? 'ဆိုင်ပိုင်ဗူးဖြည့်အိုး ကုန်သွားပါပြီ → ပိတ်လိုက်ပါမယ် (ကိုယ်စားလှယ်အခွံထဲ မပေါင်းပါ)။' : 'လက်ရှိအိုး ကုန်သွားပါပြီ → အခွံစာရင်းထဲ ဝင်ပါမယ်။') : 'လက်ရှိအိုး ကျန် ' + R(rem) + (gas ? ' viss' : ' %') + ' ရှိသေးလို့ လက်ကျန်အိုး (လ/က) စာရင်းထဲ ဆက်ရှိနေပါမယ်။') + warn;
 
       if (!gas) {
         if (!(await uiConfirm(lab + ' အိုးသစ်လဲမလား?'))) return;
@@ -1113,10 +996,10 @@
     function lowList() {
       const L = [];
       ['can', 'viss'].forEach(r => {
-        const l = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === r).sort((a, b) => a.at - b.at)[0];
+        const l = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === r).sort((a, b) => a.at - b.at)[0];
         if (l) { const rem = gasRemOf(l); if (rem <= cfg.low) L.push({ c: l, kind: 'gas', rem }); }
       });
-      const o = stk.filter(e => !e.voided && e.type === 'ocyl' && !e.closed).sort((a, b) => a.at - b.at)[0];
+      const o = stk.filter(e => e.type === 'ocyl' && !e.closed).sort((a, b) => a.at - b.at)[0];
       if (o) { const rem = o2RemOf(o); if (rem * 100 <= cfg.lowO2) L.push({ c: o, kind: 'o2', rem }); }
       return L;
     }
@@ -1139,7 +1022,7 @@
       });
       for (const x of Object.values(u)) {
         const c = x.k === 'gas' ? gasEv.find(e => e.id === x.id) : stk.find(e => e.id === x.id);
-        if (!c || c.closed || c.voided) continue;
+        if (!c || c.closed) continue;
         const rem = x.k === 'gas' ? gasRemOf(c) : o2RemOf(c), b = rem + x.u;
         const low = x.k === 'gas' ? (rem <= cfg.low && b > cfg.low) : (rem * 100 <= cfg.lowO2 && b * 100 > cfg.lowO2);
         if (low) { await askSwap(c, x.k, () => viewSale()); break; }
@@ -1150,8 +1033,8 @@
       const ps = await all('products'), ss = await all('sales'), byId = {};
       ps.forEach(p => byId[p.id] = p);
       const uf = p => (p.cat === 'အောက်ဆီဂျင်' || /kg/i.test(p.name)) ? 'အိုး' : 'ဗူး';
-      const pp = ps.filter(p => !p.voided && (p.unit === 'ဘူး' || p.cat === 'LPG ဘူး'));
-      const sl = ss.filter(x => !x.voided && (x.lines || []).some(l => l.unit === 'ဘူး'));
+      const pp = ps.filter(p => p.unit === 'ဘူး' || p.cat === 'LPG ဘူး');
+      const sl = ss.filter(x => (x.lines || []).some(l => l.unit === 'ဘူး'));
       if (!pp.length && !sl.length) return;
       await run(['products', 'sales'], 'readwrite', t => {
         pp.forEach(p => t.objectStore('products').put({
@@ -1186,10 +1069,10 @@
     }
 
     function stockOf(p) {
-      const c = stk.filter(e => !e.voided && e.pid === p.id && e.type === 'count').sort((a, b) => b.at - a.at)[0];
+      const c = stk.filter(e => e.pid === p.id && e.type === 'count').sort((a, b) => b.at - a.at)[0];
       if (!c) return null;
       let n = c.qty;
-      stk.forEach(e => { if (!e.voided && e.pid === p.id && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += e.qty; });
+      stk.forEach(e => { if (e.pid === p.id && !e.voided && e.at > c.at && (e.type === 'buy' || e.type === 'ret')) n += e.qty; });
       sales.forEach(x => { if (!x.voided && x.at > c.at) x.lines.forEach(l => { if (l.pid === p.id) n -= l.qty; }); });
       return n;
     }
@@ -1218,6 +1101,57 @@
         h('div', { class: 'dd' }),
         h('div', { class: 'c ft' }, rc.foot || 'ကျေးဇူးတင်ပါတယ်')
       );
+      setTimeout(() => window.print(), 80);
+    }
+
+    function printO2RentalReceipt(r, retInfo = null) {
+      const R = $('#rcpt');
+      R.style.fontSize = [16, 20, 26, 32][(rc.size || 3) - 1] + 'px';
+      const line = (a, b, c) => h('div', { class: 'r' + (c ? ' ' + c : '') }, h('span', {}, a), h('span', {}, b));
+      const dStart = new Date(r.at);
+      const startFmt = dStart.toLocaleDateString('en-GB');
+      if (!retInfo) {
+        R.replaceChildren(
+          h('div', { class: 'c big' }, 'AUNG Gas Solutions'),
+          rc.head ? h('div', { class: 'c' }, rc.head) : '',
+          h('div', { class: 'c', style: 'font-weight:700;margin-top:4px' }, 'O2 40L အပိုင်အိုး စဘော်ဘောင်ချာ'),
+          h('div', { class: 'dd' }),
+          line('ဘောင်ချာ', '#' + r.id.slice(-6).toUpperCase()),
+          line('စငှားသည့်ရက်', startFmt),
+          line('ငှားသူအမည်', r.renter),
+          r.phone ? line('ဖုန်းနံပါတ်', r.phone) : '',
+          line('အိုးအမျိုးအစား', 'O2 40L အပိုင် (' + (r.qty || 1) + ' လုံး)'),
+          h('div', { class: 'dd' }),
+          line('စဘော်ငွေ (' + (PAY[r.m] || r.m) + ')', money(r.deposit), 'tt'),
+          h('div', { class: 'dd' }),
+          h('div', { style: 'font-size:0.85em' }, '• ၁၀ ရက်အတွင်း အိုးငှားခ အခမဲ့ဖြစ်ပါသည်။\n• ၁၀ ရက်ကျော်ပါက တစ်ရက် ၅၀၀ ကျပ် ကောက်ခံပါမည်။\n• ၁ လ (ရက် ၃၀) ကျော်ပါက စငှားသည့်ရက်မှစ၍ တစ်ရက် ၅၀၀ ကျပ် ကောက်ခံပါမည်။'),
+          h('div', { class: 'dd' }),
+          h('div', { class: 'c ft' }, rc.foot || 'ကျေးဇူးတင်ပါတယ်')
+        );
+      } else {
+        const dEnd = new Date(retInfo.returnedAt);
+        R.replaceChildren(
+          h('div', { class: 'c big' }, 'AUNG Gas Solutions'),
+          rc.head ? h('div', { class: 'c' }, rc.head) : '',
+          h('div', { class: 'c', style: 'font-weight:700;margin-top:4px' }, 'O2 40L အိုးပြန်အပ် ငွေရှင်းဘောင်ချာ'),
+          h('div', { class: 'dd' }),
+          line('ဘောင်ချာ', '#' + r.id.slice(-6).toUpperCase()),
+          line('ငှားသူအမည်', r.renter),
+          r.phone ? line('ဖုန်းနံပါတ်', r.phone) : '',
+          line('စငှားသည့်ရက်', startFmt),
+          line('ပြန်အပ်သည့်ရက်', dEnd.toLocaleDateString('en-GB')),
+          line('ကြာမြင့်ရက်', retInfo.days + ' ရက်'),
+          h('div', { class: 'dd' }),
+          line('စဘော်တင်ငွေ', money(r.deposit)),
+          line('အိုးငှားခ (' + retInfo.ruleLabel + ')', money(retInfo.rentFee), 'b'),
+          h('div', { class: 'ss' }),
+          retInfo.refund >= 0
+            ? line('စဘော် ပြန်အမ်းငွေ', money(retInfo.refund), 'tt')
+            : line('ထပ်မံပေးချေရန်ငွေ', money(Math.abs(retInfo.refund)), 'tt'),
+          h('div', { class: 'dd' }),
+          h('div', { class: 'c ft' }, rc.foot || 'ကျေးဇူးတင်ပါတယ်')
+        );
+      }
       setTimeout(() => window.print(), 80);
     }
 
@@ -1445,10 +1379,33 @@
             if (q + inCart > st && !(await uiConfirm('"' + p.name + '" လက်ကျန် ' + Math.round(st * 100) / 100 + ' ' + p.unit + ' ပဲ ရှိတယ်။ ဆက်ထည့်မလား?'))) return;
           }
         }
+        let chosenOwnFill = null;
+        if (p.gas === 'viss') {
+          const usedIds = new Set(lines.filter(l => l.ownFillId).map(l => l.ownFillId));
+          const availFills = liveOwnGasFills().filter(x => !usedIds.has(x.id));
+          if (availFills.length) {
+            const matchFill = availFills.find(x => Math.abs(Number(x.viss) - g) < 0.05) || availFills[0];
+            const choice = await uiPrompt(
+              'ဆိုင်ပိုင်အိုးအပြည့် (' + availFills.map(x => x.label).join(', ') + ') အသင့်ရှိနေပါသည်။\nဘယ်အိုးမှ ထုတ်ပေးမလဲ? (နံပါတ်ရိုက်ပါ)\n\n' +
+              '1 = ဆိုင်ပိုင်အိုး (' + matchFill.label + ') မှ ပေးမည် (ပိဿာအိုးမှ မနှုတ်ဘဲ ဆိုင်ပိုင်အိုး +1 မှတ်မည်)\n' +
+              '2 = ပုံမှန် ပိဿာဖြည့်အိုးမှ ချိန်ပေးမည်',
+              Math.abs(Number(matchFill.viss) - g) < 0.05 ? '1' : '2',
+              'number'
+            );
+            if (choice === null) return;
+            if (String(choice).trim() === '1') {
+              chosenOwnFill = matchFill;
+            }
+          }
+        }
         const buyPriceAtSale = (!p.gas && p.o2 !== 'refill') ? (Number(p.buyPrice) || 0) : 0;
         lines.push({
-          pid: p.id, name: p.name, qty: q, unit: un.value, price: isNaN(pc) ? 0 : pc, foc: f || pc === 0,
-          gasViss: g, gasRole: p.gas || null, o2use: (p.o2 === 'refill' && p.use > 0) ? q * p.use : 0,
+          pid: p.id, name: chosenOwnFill ? (p.name + ' [' + chosenOwnFill.label + ']') : p.name,
+          qty: q, unit: un.value, price: isNaN(pc) ? 0 : pc, foc: f || pc === 0,
+          gasViss: g, gasRole: p.gas || null,
+          ownFillId: chosenOwnFill ? chosenOwnFill.id : null,
+          ownFillLabel: chosenOwnFill ? chosenOwnFill.label : null,
+          o2use: (p.o2 === 'refill' && p.use > 0) ? q * p.use : 0,
           buyPriceAtSale
         });
         msg.replaceChildren();
@@ -1490,9 +1447,14 @@
         const hist = isPast(dIn.value) && hCb.checked;
         try {
           const pend = { g: {}, o: {} }, ov = { closed: {}, added: [], ops: [] }, asg = [];
+          const consumedOwnFills = [];
           for (const l0 of lines) {
             const l = { ...l0 };
-            if (!hist) {
+            if (l.ownFillId) {
+              const fillRec = gasEv.find(e => e.id === l.ownFillId);
+              if (fillRec) consumedOwnFills.push(fillRec);
+              l.alloc = [{ cyl: null, viss: l.gasViss, ownFillId: l.ownFillId }];
+            } else if (!hist) {
               if (l.gasViss) l.alloc = await allocLine('gas', l, pend.g, ov);
               if (l.o2use) l.o2alloc = await allocLine('o2', l, pend.o, ov);
             }
@@ -1501,14 +1463,22 @@
             asg.push(l);
           }
           const sale = { id: saleId, at, hist, pay: parts.length > 1 ? 'split' : parts[0].m, parts, cust: c || null, tag: tg || null, lines: asg, total };
-          await run(['sales', 'gasEv', 'stk'], 'readwrite', t => {
+          await run(['sales', 'gasEv', 'stk', 'cf'], 'readwrite', t => {
             t.objectStore('sales').add(sale);
             ov.ops.forEach(o => t.objectStore(o.st)[o.k](o.obj));
+            const gos = t.objectStore('gasEv');
+            const cfStore = t.objectStore('cf');
+            consumedOwnFills.forEach((fRec, idx) => {
+              gos.put({ ...fRec, status: 'delivered', deliveredAt: at, deliveredTo: c || tg || 'Customer', saleId });
+              if (c) {
+                cfStore.add({ id: uuid(), at: at + idx + 1, type: 'shell', cust: c, qty: 1, note: fRec.label + ' (ပို့ပေး)' });
+              }
+            });
           });
           done = asg;
           if (newCust) await add('cf', { id: uuid(), at: Date.now(), type: 'cust', name: c, phone: '' });
           if (prt.checked && !isPast(dIn.value)) pa = sale;
-          const nm = !hist && asg.some(l => (l.alloc || []).some(x => !x.cyl) || (l.o2alloc || []).some(x => !x.cyl));
+          const nm = !hist && asg.some(l => !l.ownFillId && ((l.alloc || []).some(x => !x.cyl) || (l.o2alloc || []).some(x => !x.cyl)));
           lines = [];
           saleId = uuid();
           pay.value = 'cash';
@@ -1549,7 +1519,7 @@
           });
         });
 
-        pays.filter(x => !x.voided && x.at >= t0).forEach(x => { col[x.method] += x.amount; });
+        pays.filter(x => x.at >= t0).forEach(x => { col[x.method] += x.amount; });
         const focN = ok.reduce((a, s) => a + s.lines.filter(l => l.foc).length, 0);
         const actualTodaySales = by.cash + by.kpay + by.wave + by.aya + by.credit + by.pending;
         const gasRefundToday = cf.filter(e => e.type === 'gas_ret' && !e.voided && e.at >= t0 && e.m === 'cash').reduce((a, e) => a + e.amt, 0);
@@ -1581,7 +1551,7 @@
                 s.voided ? '' : h('button', {
                   class: 'g',
                   onclick: async () => {
-                    if (!(await promptAdminPin('အရောင်းစာရင်း ပယ်ဖျက် (Void) လုပ်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                    if (!(await requireAdmin('ရောင်းချမှု ပယ်ဖျက်ခြင်း'))) return;
                     if (!(await guardMonthLock(saleEffAt(s), msg))) return;
                     if (!(await uiConfirm('ဒီရောင်းချမှုကို ပယ်ဖျက်မလား?'))) return;
                     s.voided = true;
@@ -1627,10 +1597,10 @@
     const ck = n => String(n || '').trim().toLowerCase();
     function customers() {
       const m = {}, get = n => { const k = ck(n); return m[k] = m[k] || { key: k, name: String(n).trim(), phone: '', cr: 0, pd: 0 }; };
-      cf.filter(e => !e.voided && e.type === 'cust').sort((a, b) => a.at - b.at).forEach(e => { const c = get(e.name); if (e.phone !== undefined) c.phone = e.phone; });
+      cf.filter(e => e.type === 'cust' && !e.voided).sort((a, b) => a.at - b.at).forEach(e => { const c = get(e.name); if (e.phone !== undefined) c.phone = e.phone; });
       [...sales].sort((a, b) => a.at - b.at).forEach(x => { if (x.cust) { const c = get(x.cust); if (!x.voided) c.cr += creditOf(x); } });
       cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { get(e.cust).cr += e.amt; });
-      pays.filter(x => !x.voided).forEach(x => { get(x.cust).pd += x.amount; });
+      pays.forEach(x => { get(x.cust).pd += x.amount; });
       return Object.values(m).map(c => ({ ...c, bal: c.cr - c.pd }));
     }
     const sd_ = t => new Date(t).toLocaleDateString('en-GB') + ' ' + new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -1687,9 +1657,9 @@
         ...ownRegs.map(o => h('div', { class: 'li' }, h('span', {}, o.size + ' (စုစုပေါင်း ' + o.qty + ' လုံး)' + (o.note ? ' · ' + o.note : '')), h('button', {
           class: 'g',
           onclick: async () => {
-            if (!(await promptAdminPin('ဆိုင်အပိုင်အိုး စာရင်းဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+            if (!(await requireAdmin('ဆိုင်အပိုင်အိုး စာရင်းဖျက်ခြင်း'))) return;
             if (!(await uiConfirm('ဖျက်မလား?'))) return;
-            await softDelete('cf', o);
+            await put('cf', { ...o, voided: true, voidedAt: Date.now() });
             await reload();
             viewCust();
           }
@@ -1766,7 +1736,7 @@
       const obB = h('button', {
         class: 'n',
         onclick: async () => {
-          if (!(await promptAdminPin('ကြွေးအဟောင်း ထည့်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+          if (!(await requireAdmin('ကြွေးအဟောင်း ထည့်ခြင်း'))) return;
           const v = parseFloat(await uiPrompt('ကြွေးအဟောင်း ပမာဏ (စတင်မှတ်တာ)', '', 'number'));
           if (!(v > 0)) return;
           const nt = ((await uiPrompt('မှတ်ချက် (ဥပမာ ဘယ်လ/ဘာအတွက်၊ မထည့်လည်းရ)')) || '').trim();
@@ -1793,7 +1763,7 @@
 
       const obs = cf.filter(e => e.type === 'ob' && !e.voided && ck(e.cust) === key).sort((a, b) => b.at - a.at);
       const cs = sales.filter(x => x.cust && ck(x.cust) === key);
-      const ps = pays.filter(x => !x.voided && ck(x.cust) === key);
+      const ps = pays.filter(x => ck(x.cust) === key);
       const sh = cf.filter(e => e.type === 'shell' && !e.voided && ck(e.cust) === key).sort((a, b) => b.at - a.at);
       const shn = sh.reduce((a, e) => a + e.qty, 0);
 
@@ -1955,7 +1925,7 @@
               class: 'g',
               style: 'padding:2px 8px;font-size:12px',
               onclick: async () => {
-                if (!(await promptAdminPin('ဘောင်ချာ ပယ်ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                if (!(await requireAdmin('ရောင်းချမှု ပယ်ဖျက်ခြင်း'))) return;
                 if (!(await guardMonthLock(saleEffAt(x), msg))) return;
                 if (!(await uiConfirm('ဒီအရောင်းဘောင်ချာကို ပယ်ဖျက် (Void) လုပ်မလား? (ကြွေးစာရင်းထဲမှ အလိုအလျောက် ပြန်နှုတ်သွားပါမည်)'))) return;
                 await put('sales', { ...x, voided: true, voidedAt: Date.now() });
@@ -1971,7 +1941,7 @@
     }
 
     // =========================================================================
-    // 4. TAB 2: ပစ္စည်းများ (v24-s15 CLOUD SOFT-DELETE FOR DUPLICATES)
+    // 4. TAB 2: ပစ္စည်းများ
     // =========================================================================
     function viewProducts() {
       const app = $('#app');
@@ -2070,14 +2040,9 @@
         const dl_ = h('button', {
           class: 'g',
           onclick: async () => {
-            if (!(await promptAdminPin('ပစ္စည်းဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+            if (!(await requireAdmin('ပစ္စည်း ဖျက်ခြင်း'))) return;
             if (!(await uiConfirm('"' + p.name + '" ကို ဖျက်မလား? Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။'))) return;
-            try {
-              await softDelete('products', p);
-              await reload();
-              draw();
-              note(msg, '"' + p.name + '" ကို ဖျက်ပြီးပါပြီ (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ ပျက်သွားပါမည်)။', 1);
-            } catch (e) { note(msg, 'မဖျက်နိုင်ပါ: ' + e.message); }
+            try { await put('products', { ...p, voided: true, voidedAt: Date.now() }); await reload(); draw(); } catch (e) { note(msg, 'မဖျက်နိုင်ပါ: ' + e.message); }
           }
         }, 'ဖျက်');
 
@@ -2088,7 +2053,7 @@
             const u = UNITS[parseInt(v) - 1];
             if (!u) return;
             if (!(await uiConfirm(p.name + ' ယူနစ်ကို "' + u + '" ပြောင်းမလား?'))) return;
-            try { await put('products', { ...p, unit: u }); await reload(); draw(); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); }
+            try { await put('products', { ...p, unit: u, at: Date.now() }); await reload(); draw(); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); }
           }
         }, 'ယူနစ်');
 
@@ -2125,7 +2090,7 @@
       }, 'ပစ္စည်းအသစ် ထည့်မည်');
 
       app.append(
-        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ နှစ်ခုထပ်နေတဲ့ ပစ္စည်းများကို "ဖျက်" နှိပ်လိုက်ပါက Cloud Sync ဖြင့် စက်အားလုံးတွင် တစ်ခါတည်း ပျက်သွားပါမည်။'),
+        h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, 'ပစ္စည်းတစ်ခုချင်းမှာ "ရေတွက်" နှိပ်ပြီး စတင်လက်ကျန် ထည့်ပါ။ "ဝယ်" နှိပ်ရင် ဝယ်ဈေး၊ ရောင်းဈေးနဲ့ ငွေထွက်စာရင်း (သို့မဟုတ် အကြွေးဝယ်) ပါ တစ်ခါတည်း မှတ်ပေးပါတယ်။'),
         h('div', { class: 'card' }, h('b', {}, 'ပစ္စည်းအသစ်'), nn, h('div', { class: 'row' }, nc, nu), addBtn),
         msg, fix,
         h('h2', {}, 'ပစ္စည်းစာရင်း (' + products.length + ')'), sumEl, q, box
@@ -2134,12 +2099,12 @@
     }
 
     // =========================================================================
-    // 5. TAB 3: GAS စာရင်း (v24-s15 CLOUD SOFT-DELETE FOR HISTORY ROWS)
+    // 5. TAB 3: GAS စာရင်း (INCLUDES CUSTOM-VISS OWN-CYLINDER CAN TRANSFER)
     // =========================================================================
     function gasBookRecon(dateKey) {
       const [a, b] = dbounds(dateKey);
-      const obEv = gasEv.filter(e => !e.voided && e.type === 'gas_ob' && e.date === dateKey).sort((x, y) => y.at - x.at)[0];
-      const prevClose = gasEv.filter(e => !e.voided && e.type === 'gas_close' && e.date < dateKey).sort((x, y) => x.date < y.date ? 1 : x.date > y.date ? -1 : y.at - x.at)[0];
+      const obEv = gasEv.filter(e => e.type === 'gas_ob' && e.date === dateKey).sort((x, y) => y.at - x.at)[0];
+      const prevClose = gasEv.filter(e => e.type === 'gas_close' && e.date < dateKey).sort((x, y) => x.date < y.date ? 1 : x.date > y.date ? -1 : y.at - x.at)[0];
 
       let openViss = 0;
       if (obEv) {
@@ -2147,7 +2112,7 @@
       } else if (prevClose) {
         const afterPrev = dbounds(prevClose.date)[1] + 1;
         let delta = 0;
-        gasEv.filter(e => !e.voided).forEach(e => {
+        gasEv.forEach(e => {
           if (e.at >= afterPrev && e.at < a) {
             const v = AGENTS[e.agent] ? AGENTS[e.agent].viss : cfg.usable;
             if ((e.type === 'recv' || e.type === 'eswap') && !e.ground) delta += (e.actualViss > 0 ? e.actualViss : e.qty * v);
@@ -2163,7 +2128,7 @@
         openViss = prevClose.groundViss + delta;
       } else {
         let v = 0;
-        gasEv.filter(e => !e.voided).forEach(e => {
+        gasEv.forEach(e => {
           if (e.at < a) {
             const av = AGENTS[e.agent] ? AGENTS[e.agent].viss : cfg.usable;
             if (e.type === 'recv' || e.type === 'eswap') v += (e.actualViss > 0 ? e.actualViss : e.qty * av);
@@ -2181,7 +2146,7 @@
 
       let inViss = 0;
       const inDetails = [];
-      gasEv.filter(e => !e.voided).forEach(e => {
+      gasEv.forEach(e => {
         if (e.at >= a && e.at <= b && (e.type === 'recv' || e.type === 'eswap') && !e.ground) {
           const av = AGENTS[e.agent] ? AGENTS[e.agent].viss : cfg.usable;
           const tot = e.actualViss > 0 ? e.actualViss : e.qty * av;
@@ -2191,7 +2156,7 @@
       });
 
       let retViss = 0;
-      gasEv.filter(e => !e.voided).forEach(e => {
+      gasEv.forEach(e => {
         if (e.at >= a && e.at <= b && e.type === 'gas_ret_viss') retViss += (e.viss || 0);
       });
 
@@ -2204,7 +2169,7 @@
 
       let canSwapViss = 0;
       const canSwapDetails = [];
-      gasEv.filter(e => !e.voided).forEach(e => {
+      gasEv.forEach(e => {
         if (e.at >= a && e.at <= b && e.type === 'cyl' && e.role === 'can' && !e.fromMain) {
           canSwapViss += e.cap;
           canSwapDetails.push((e.agent || 'TT Gas') + ' (' + e.cap + ' viss)');
@@ -2225,7 +2190,7 @@
       const msg = h('div'), r2 = x => Math.round(x * 100) / 100;
       const num = (ph, v) => h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: ph, value: v === undefined ? '' : v });
       const act = async (b, fn) => { b.disabled = true; try { await fn(); await reload(); viewGas(); } catch (e) { b.disabled = false; note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
-      const cyls = gasEv.filter(e => !e.voided && e.type === 'cyl'), live = cyls.filter(c => !c.closed).sort((a, b) => a.at - b.at);
+      const cyls = gasEv.filter(e => e.type === 'cyl'), live = cyls.filter(c => !c.closed).sort((a, b) => a.at - b.at);
       const rem = gasRemOf;
       const agSt = agentStats();
       const fullLeft = groundGas(), partialCnt = partialGasTotal(), emptyWait = emptyGasTotal(), mViss = mainVissStock();
@@ -2280,8 +2245,206 @@
         }
       }, '↩ Gas လက်ကျန်ပြန်ဝယ် / အမ်းငွေ မှတ်မည်');
 
+      const ownCanTransferBtn = h('button', {
+        class: 'n',
+        style: 'width:100%;margin-bottom:10px;padding:11px;font-weight:700;border-color:var(--navy);color:var(--navy);background:#E8EEF7',
+        onclick: async () => {
+          const vissCyl = live.filter(c => c.role === 'viss')[0];
+          if (!vissCyl) {
+            return note(msg, 'လက်ရှိဖွင့်သုံးနေသော ပိဿာဖြည့်အိုး မရှိသေးပါ။ ပိဿာဖြည့်အိုး အရင်ဖွင့်ပါ။');
+          }
+          const curVissRem = rem(vissCyl);
+          const vStr = await uiPrompt(
+            'ဆိုင်ပိုင်အိုးထဲသို့ Gas ဖြည့်ထားမည် (ဗူးဖြည့်ပြောင်းသုံးရန် သို့မဟုတ် ဆိုဒ်/ဖောက်သည်ပို့ရန်)\n(လက်ရှိ ပိဿာဖြည့်အိုး လက်ကျန်: ' + r2(curVissRem) + ' viss)\n\nထည့်မည့် ပိဿာ (viss) ရိုက်ထည့်ပါ (ဥပမာ 5, 8, 10, 15)',
+            curVissRem >= 10 ? '10' : String(Math.max(r2(curVissRem), 1)),
+            'number'
+          );
+          if (vStr === null) return;
+          const transferViss = parseFloat(vStr);
+          if (!(transferViss > 0 && transferViss <= 35)) {
+            return note(msg, 'ပိဿာပမာဏကို 0 ထက်ကြီးပြီး မှန်ကန်အောင် ထည့်ပါ။');
+          }
+          if (transferViss > curVissRem + 1e-6) {
+            if (!(await uiConfirm('သတိ: လက်ရှိ ပိဿာဖြည့်အိုးမှာ ' + r2(curVissRem) + ' viss ပဲ ရှိပါတယ်။ ဆက်လုပ်မလား?'))) return;
+          }
+
+          const labelName = 'AUNG ' + r2(transferViss) + ' viss';
+          const confirmTxt = 'ဆိုင်ပိုင်အိုးထဲ Gas ' + r2(transferViss) + ' viss ဖြည့်ထားမလား?\n\n' +
+            '• ပိဿာဖြည့်အိုး (' + (vissCyl.agent || 'TT Gas') + ') ထဲမှ −' + r2(transferViss) + ' viss နှုတ်ပါမည်။\n' +
+            '• ဆိုင်ပိုင် Gas အိုးအပြည့် လက်ကျန်ထဲသို့ "' + labelName + '" အဖြစ် သိမ်းဆည်းပေးပါမည်။\n' +
+            '• နောက်ပိုင်း ဗူးဖြည့်အိုး ပြောင်းသုံးခြင်း (သို့မဟုတ်) ဆိုဒ်/ဖောက်သည်ဆိုင်သို့ ပို့ခြင်း နှစ်မျိုးလုံး သုံးနိုင်ပါမည်။';
+          if (!(await uiConfirm(confirmTxt))) return;
+
+          const now = Date.now();
+          if (!(await guardMonthLock(now, msg))) return;
+
+          await run('gasEv', 'readwrite', t => {
+            const os = t.objectStore('gasEv');
+            os.put({
+              ...vissCyl,
+              adj: (vissCyl.adj || 0) - transferViss,
+              log: [...(vissCyl.log || []), { at: now, t: 'fill own cylinder −' + r2(transferViss) + ' viss (' + labelName + ')' }]
+            });
+            os.add({
+              id: uuid(),
+              at: now,
+              type: 'own_gas_fill',
+              label: labelName,
+              viss: transferViss,
+              status: 'full',
+              fromCylId: vissCyl.id
+            });
+          });
+
+          await reload();
+          viewGas();
+          note(msg, '"' + labelName + '" ကို ဆိုင်ပိုင် Gas အိုးအပြည့် လက်ကျန်ထဲ ထည့်သွင်းပြီးပါပြီ (ဗူးဖြည့်ပြောင်းသုံးရန် သို့မဟုတ် ဆိုဒ်/ဖောက်သည်ပို့ရန် ရွေးချယ်နိုင်ပါပြီ)။', 1);
+        }
+      }, '🔄 ဆိုင်ပိုင်အိုးထဲ Gas ဖြည့်မည် (AUNG Own)');
+
+      const openDispatchOwnGasModal = fillRec => {
+        const bg = h('div', { class: 'modal-bg' });
+        const siteMap = siteHoldingsMap();
+        const dl = h('datalist', { id: 'owngas-dest-dl' },
+          [...new Set([...customers().map(c => c.name), ...Array.from(siteMap.values()).map(s => s.name)])].map(n => h('option', { value: n }))
+        );
+        const destIn = h('input', { list: 'owngas-dest-dl', placeholder: 'ဖောက်သည် / ဆိုဒ်အမည် (ဥပမာ ကောင်းကွေ့တယို၊ ကိုကျော်မိုးဝင်း)' });
+        const dtIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
+        const rateIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', placeholder: '၁ ပိဿာဈေး (0 ထည့်နိုင်သည်)' });
+        const paySel = h('select', {},
+          h('option', { value: 'credit' }, 'အကြွေး (Credit — ဖောက်သည် အကြွေးစာရင်းထဲ တန်းဝင်မည်)'),
+          h('option', { value: 'cash' }, 'ငွေသား (Cash)'),
+          h('option', { value: 'kpay' }, 'KPay'),
+          h('option', { value: 'wave' }, 'Wave Pay'),
+          h('option', { value: 'aya' }, 'AyA Pay')
+        );
+        const isSiteCb = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
+        const ntIn = h('input', { placeholder: 'မှတ်ချက် (မထည့်လည်းရ)' });
+        const totLbl = h('div', { class: 'tot', style: 'font-size:16px' }, 'ကျသင့်ငွေ: 0 ကျပ်');
+
+        rateIn.oninput = () => {
+          const rVal = parseFloat(rateIn.value) || 0;
+          totLbl.textContent = 'ကျသင့်ငွေ (' + r2(fillRec.viss) + ' viss): ' + money(rVal * fillRec.viss);
+        };
+
+        const dispatchBtn = h('button', {
+          class: 'o',
+          style: 'margin-top:0',
+          onclick: async () => {
+            const rawDest = destIn.value.trim();
+            if (!rawDest) return uiAlert('ဖောက်သည် သို့မဟုတ် ဆိုဒ်အမည် ထည့်ပါ။');
+            const rRaw = parseFloat(rateIn.value);
+            if (isNaN(rRaw) || rRaw < 0) return uiAlert('၁ ပိဿာဈေး ထည့်ပါ (0 သို့မဟုတ် အထက်)။');
+            const effAt = stampAt(dtIn.value);
+            if (!(await guardMonthLock(effAt))) return;
+
+            const exCust = customers().find(x => x.key === ck(rawDest));
+            const canonDest = exCust ? exCust.name : rawDest;
+            const totalBill = Math.round(fillRec.viss * rRaw);
+            const pm = paySel.value;
+
+            dispatchBtn.disabled = true;
+            const linkedSaleId = totalBill > 0 ? uuid() : null;
+            await run(['gasEv', 'sales', 'cf'], 'readwrite', t => {
+              const gos = t.objectStore('gasEv');
+              const cfStore = t.objectStore('cf');
+              gos.put({ ...fillRec, status: 'delivered', deliveredAt: effAt, deliveredTo: canonDest, saleId: linkedSaleId });
+              if (!exCust) cfStore.add({ id: uuid(), at: effAt, type: 'cust', name: canonDest, phone: '' });
+              cfStore.add({ id: uuid(), at: effAt + 1, type: 'shell', cust: canonDest, qty: 1, note: fillRec.label + (ntIn.value.trim() ? ' · ' + ntIn.value.trim() : '') });
+              if (isSiteCb.checked) {
+                cfStore.add({
+                  id: uuid(), at: effAt + 2, type: 'o2site', site: canonDest,
+                  del40Fac: 0, del47Fac: 0, del40Own: 0, delGas: 1, delGasViss: fillRec.viss,
+                  emp40Fac: 0, emp47Fac: 0, emp40Own: 0, empGas: 0,
+                  o2Price: 0, gasPrice: rRaw, totalBill, pay: totalBill > 0 ? pm : 'none',
+                  saleId: linkedSaleId, note: fillRec.label + (ntIn.value.trim() ? ' · ' + ntIn.value.trim() : '')
+                });
+              }
+              if (linkedSaleId) {
+                t.objectStore('sales').add({
+                  id: linkedSaleId, at: effAt, hist: isPast(dtIn.value), pay: pm,
+                  parts: [{ m: pm, a: totalBill }],
+                  cust: canonDest, tag: fillRec.label,
+                  lines: [{
+                    name: 'Gas (' + fillRec.label + ')',
+                    qty: fillRec.viss, unit: 'viss', price: rRaw, foc: rRaw === 0,
+                    gasViss: fillRec.viss, gasRole: 'viss', ownFillId: fillRec.id,
+                    alloc: [{ cyl: null, viss: fillRec.viss, ownFillId: fillRec.id }], cylId: null
+                  }],
+                  total: totalBill
+                });
+              }
+            });
+            bg.remove();
+            await reload();
+            viewGas();
+            note(msg, fillRec.label + ' ကို ' + canonDest + ' သို့ ပို့ဆောင်မှတ်တမ်းတင်ပြီးပါပြီ (ဆိုင်ပိုင် Gas အိုး +1 မှတ်ပြီးပါပြီ)။', 1);
+          }
+        }, '✔ ပို့ဆောင်မှု အတည်ပြုမည်');
+
+        bg.append(dl, h('div', { class: 'modal-box' },
+          h('b', { style: 'font-size:16.5px;color:var(--navy)' }, '🚚 ' + fillRec.label + ' — ဆိုဒ် / ဖောက်သည်သို့ ပို့မည်'),
+          h('small', {}, 'ပိဿာဖြည့်အိုးထဲမှ ထပ်မနှုတ်ဘဲ ဖြည့်ထားသော ' + fillRec.label + ' ကို အသုံးပြုပြီး ဖောက်သည်လက်ဝယ်ရှိ ဆိုင်ပိုင်အိုး (+1) တိုးပေးပါမည်။'),
+          h('label', {}, 'ဖောက်သည် / ဆိုဒ်အမည်'), destIn,
+          h('label', {}, 'ရက်စွဲ'), dtIn,
+          h('label', {}, 'Gas ၁ ပိဿာဈေး (ကျပ်)'), rateIn,
+          h('label', {}, 'ငွေပေးချေမှု'), paySel,
+          h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, isSiteCb, 'O2 Delivery ဆိုဒ်ဇယားထဲပါ တစ်ခါတည်း ထည့်မည်'),
+          h('label', {}, 'မှတ်ချက်'), ntIn,
+          totLbl,
+          h('div', { class: 'row', style: 'margin-top:12px' },
+            h('button', { class: 'n', onclick: () => bg.remove() }, 'မလုပ်ပါ'),
+            dispatchBtn
+          )
+        ));
+        document.body.appendChild(bg);
+      };
+
+      const availOwnFills = liveOwnGasFills();
+      const ownFillPoolCard = availOwnFills.length ? h('div', { class: 'card', style: 'border:2px solid var(--org);background:#FFFDF9' },
+        h('b', { style: 'color:#9A4308;font-size:15px' }, '🛢️ ဆိုင်ပိုင် Gas အိုးအပြည့် လက်ကျန် (' + availOwnFills.length + ' လုံး)'),
+        h('div', {}, h('small', {}, 'ဖြည့်ထားပြီး အသင့်ရှိနေသော ဆိုင်ပိုင်အိုးများ — ဗူးဖြည့်အိုး ပြောင်းသုံးနိုင်သလို ဆိုဒ်/ဖောက်သည်ဆိုင်သို့လည်း ပို့နိုင်ပါသည်။')),
+        ...availOwnFills.map(f => h('div', { class: 'li', style: 'flex-wrap:wrap;padding:8px 0' },
+          h('span', { style: 'flex:1 1 48%' },
+            h('b', { style: 'font-size:15px;color:var(--navy)' }, f.label),
+            h('br'),
+            h('small', {}, 'ဖြည့်ချိန်: ' + stamp(f.at))
+          ),
+          h('span', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
+            h('button', {
+              class: 'n',
+              style: 'padding:5px 9px;font-size:12.5px;border-color:var(--navy);font-weight:700',
+              onclick: async () => {
+                if (!(await uiConfirm(f.label + ' (' + r2(f.viss) + ' viss) ကို ဆိုင်မှာ ဗူးဖြည့်အိုး (Can-Refill) အဖြစ် ပြောင်းဖွင့်သုံးမလား?'))) return;
+                const now = Date.now();
+                const existingCan = live.filter(c => c.role === 'can')[0];
+                const targetAt = existingCan ? (existingCan.at + 5) : now;
+                await run('gasEv', 'readwrite', t => {
+                  const os = t.objectStore('gasEv');
+                  os.put({ ...f, status: 'used_can', usedAt: now });
+                  os.add({
+                    id: uuid(), at: targetAt, type: 'cyl', role: 'can',
+                    agent: f.label, cap: f.viss, fromMain: true, isOwnCanTransfer: true,
+                    cost: null, closed: false, adj: 0, gain: 0,
+                    log: [{ at: now, t: 'Converted ' + f.label + ' to can-refill' }]
+                  });
+                });
+                await reload();
+                viewGas();
+                note(msg, f.label + ' ကို ဗူးဖြည့်အိုး စာရင်းထဲ ပြောင်းဖွင့်ပြီးပါပြီ။', 1);
+              }
+            }, '📦 ဗူးဖြည့်ပြောင်းသုံးမည်'),
+            h('button', {
+              style: 'padding:5px 9px;font-size:12.5px;background:var(--org)',
+              onclick: () => openDispatchOwnGasModal(f)
+            }, '🚚 ဆိုဒ် / ဖောက်သည်သို့ ပို့မည်')
+          )
+        ))
+      ) : '';
+
       const recon = gasBookRecon(gasReconDate);
       const liveVissCyls = live.filter(c => c.role === 'viss');
+      const liveOwnCanCyls = live.filter(c => c.role === 'can' && c.isOwnCanTransfer);
       const groundBreakdown = [];
       Object.entries(agSt).forEach(([ag, s]) => {
         if (s.full > 0) groundBreakdown.push({ label: 'Full · ' + ag, desc: s.full + ' × ' + s.viss + ' viss', viss: s.full * s.viss });
@@ -2289,6 +2452,13 @@
       liveVissCyls.forEach(c => {
         const rm = Math.max(rem(c), 0);
         groundBreakdown.push({ label: 'လ/က · ' + (c.agent || 'TT Gas'), desc: '1 × ' + r2(rm) + ' viss', viss: rm });
+      });
+      liveOwnCanCyls.forEach(c => {
+        const rm = Math.max(rem(c), 0);
+        groundBreakdown.push({ label: (c.agent || 'AUNG Own') + ' (ဗူးဖြည့်အိုး)', desc: 'ကျန် ' + r2(rm) + ' viss', viss: rm });
+      });
+      availOwnFills.forEach(f => {
+        groundBreakdown.push({ label: f.label + ' (ဆိုင်ပိုင်အပြည့်အိုး)', desc: '1 × ' + r2(f.viss) + ' viss', viss: Number(f.viss) || 0 });
       });
       const groundVissTotal = groundBreakdown.reduce((a, x) => a + x.viss, 0);
       const variance = groundVissTotal - recon.bookViss;
@@ -2392,11 +2562,16 @@
         const otherPartials = L.slice(1);
         return h('div', { class: 'card' },
           h('b', {}, GL[r] + ' (လက်ရှိသုံးနေတာ) · ' + (c.agent || 'TT Gas')),
+          c.isOwnCanTransfer ? h('span', { class: 'tag navy' }, 'ဆိုင်ပိုင်အိုး ဗူးဖြည့်') : '',
           h('div', { class: 'tot', style: 'text-align:left;color:' + (rm <= cfg.low ? 'var(--red)' : 'var(--navy)') }, r2(rm) + ' ပိဿာ'),
           r === 'can' ? h('div', { style: 'margin:6px 0;padding:8px;background:#F4F6F9;border-radius:6px;font-size:13px' },
-            h('div', {}, 'ထွက်ရှိဗူး စုစုပေါင်း: ', h('b', { style: 'color:' + (cansOut > cfg.canMax ? 'var(--red)' : 'var(--navy)') }, cansOut + ' ဗူး'), ' (သတ်မှတ်ချက် ' + cfg.canMin + '~' + cfg.canMax + ' ဗူး)'),
-            h('div', {}, '• ငွေရှင်းပြီးဗူး: ', h('b', {}, Math.max(paidCans, 0) + ' ဗူး'), ' · ထားခဲ့ဗူး (လာယူရန်ကျန်): ', h('b', { style: 'color:#9A4308' }, dropoffCans + ' ဗူး')),
-            h('div', {}, '• လက်ကျန် ခန့်မှန်း: ≈ ', h('b', {}, Math.floor(Math.max(rm, 0) * cfg.cans) + ' ဗူး'))
+            c.isOwnCanTransfer
+              ? h('div', {}, 'ဆိုင်ပိုင်အိုးဖြည့် ပမာဏ: ', h('b', {}, r2(c.cap) + ' viss'), ' · ထွက်ရှိဗူး: ', h('b', {}, cansOut + ' ဗူး'), ' · ကျန်ခန့်မှန်း: ≈ ', h('b', {}, Math.floor(Math.max(rm, 0) * cfg.cans) + ' ဗူး'))
+              : h('div', {},
+                  h('div', {}, 'ထွက်ရှိဗူး စုစုပေါင်း: ', h('b', { style: 'color:' + (cansOut > cfg.canMax ? 'var(--red)' : 'var(--navy)') }, cansOut + ' ဗူး'), ' (သတ်မှတ်ချက် ' + cfg.canMin + '~' + cfg.canMax + ' ဗူး)'),
+                  h('div', {}, '• ငွေရှင်းပြီးဗူး: ', h('b', {}, Math.max(paidCans, 0) + ' ဗူး'), ' · ထားခဲ့ဗူး (လာယူရန်ကျန်): ', h('b', { style: 'color:#9A4308' }, dropoffCans + ' ဗူး')),
+                  h('div', {}, '• လက်ကျန် ခန့်မှန်း: ≈ ', h('b', {}, Math.floor(Math.max(rm, 0) * cfg.cans) + ' ဗူး'))
+                )
           ) : h('small', {}, '≈ Gas ဗူး ' + Math.floor(Math.max(rm, 0) * cfg.cans) + ' ဗူး'),
           (rm <= cfg.low ? h('div', { class: 'msg e' }, rm <= 0 ? 'ကုန်သွားပါပြီ — အိုးလဲပါ' : 'ကျန်နည်းပြီ — အိုးလဲဖို့ ပြင်ပါ') : ''),
           h('div', { class: 'row', style: 'margin-top:8px' },
@@ -2515,15 +2690,14 @@
 
       const cu = num('', cfg.usable), cc = num('', cfg.cans), cn = num('', cfg.nominal), cl_ = num('', cfg.low), co_ = num('', cfg.lowO2), cmin = num('', cfg.canMin), cmax = num('', cfg.canMax);
       const sb = h('button', {
-        onclick: async () => {
-          if (!(await promptAdminPin('Gas သတ်မှတ်ချက်များ ပြင်ဆင်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+        onclick: () => {
           const u = parseFloat(cu.value), c = parseFloat(cc.value), n = parseFloat(cn.value), lw = parseFloat(cl_.value), lo = parseFloat(co_.value), mn = parseInt(cmin.value), mx = parseInt(cmax.value);
           if (!(u > 0 && c > 0 && n >= u)) return note(msg, 'တန်ဖိုးတွေ မှန်အောင် ထည့်ပါ။');
           act(sb, () => put('meta', { k: 'gascfg', v: { ...cfg, usable: u, cans: c, nominal: n, low: lw, lowO2: lo, canMin: mn || 197, canMax: mx || 203 } }));
         }
       }, 'သိမ်းမည်');
 
-      const hist = gasEv.filter(e => !e.voided && e.type !== 'gas_ob' && e.type !== 'gas_close').slice().sort((a, b) => b.at - a.at).slice(0, 25).map(e => {
+      const hist = gasEv.filter(e => e.type !== 'gas_ob' && e.type !== 'gas_close').slice().sort((a, b) => b.at - a.at).slice(0, 25).map(e => {
         const totCost = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
         const isCredit = (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.payCh === 'credit' && !e.paid && totCost > 0;
         const labelTxt = e.type === 'recv' ? (e.ground ? 'Ground Stock ညှိ ' : 'အပြည့်ရရှိ ') + e.qty + ' (' + e.agent + ')'
@@ -2531,6 +2705,8 @@
           : e.type === 'eswap' ? 'အိုးလဲ ' + e.qty + ' (' + e.agent + ')'
           : e.type === 'ecount' ? 'အခွံရေတွက် ' + (e.qty > 0 ? '+' : '') + e.qty + ' (' + e.agent + ')'
           : e.type === 'gas_ret_viss' ? 'Gas ပြန်ဝယ်/အပ် +' + e.viss + ' viss (' + e.agent + ')'
+          : e.type === 'own_can_xfer' ? 'ဆိုင်ပိုင်ဗူးဖြည့်ပြောင်း: ' + (e.agent || 'AUNG Own') + ' (' + r2(e.viss) + ' viss)'
+          : e.type === 'own_gas_fill' ? 'ဆိုင်ပိုင်အိုးဖြည့်: ' + (e.label || 'AUNG Own') + ' [' + (e.status === 'full' ? 'အပြည့်ကျန်' : e.status === 'used_can' ? 'ဗူးဖြည့်သုံးပြီး' : 'ပို့ပြီး: ' + (e.deliveredTo || '')) + ']'
           : e.type === 'cyl' ? 'ဖွင့်: ' + RL[e.role] + ' (' + (e.agent || '') + ') ' + e.cap + ' viss' + (e.closed ? ' · ပိတ်ပြီး' + (e.gain > 0 ? ' (Gain +' + e.gain + ')' : '') : '')
           : 'ယခင်စနစ်';
 
@@ -2538,7 +2714,7 @@
           class: 'g',
           style: 'padding:2px 8px;font-size:12px;min-height:28px',
           onclick: async () => {
-            if (!(await promptAdminPin('Gas မှတ်တမ်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+            if (!(await requireAdmin('Gas မှတ်တမ်း ဖျက်ခြင်း'))) return;
             if (!(await guardMonthLock(e.at, msg))) return;
             const linkedExps = cf.filter(x => !x.voided && x.type === 'exp' && (
               x.linkedGasEvId === e.id ||
@@ -2546,7 +2722,7 @@
             ));
             const confirmMsg = 'ဒီ Gas မှတ်တမ်းကို ဖျက်မလား?\n' +
               '• ' + stamp(e.at) + ' · ' + labelTxt + '\n' +
-              '• Gas Stock လက်ကျန်ကို အလိုအလျောက် ပြန်ညှိပေးပြီး Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။' +
+              '• Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။' +
               (linkedExps.length ? '\n• တွဲလျက် အသုံးစရိတ် (' + money(linkedExps.reduce((a, x) => a + x.amt, 0)) + ') ကိုပါ ပယ်ဖျက်ပေးပါမည်။' : '');
             if (!(await uiConfirm(confirmMsg))) return;
             try {
@@ -2558,7 +2734,7 @@
               });
               await reload();
               viewGas();
-              note(msg, 'Gas မှတ်တမ်း ဖျက်ပြီး Stock နှင့် ငွေစာရင်း ပြန်ညှိပြီးပါပြီ (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ ပျက်သွားပါမည်)။', 1);
+              note(msg, 'Gas မှတ်တမ်း ဖျက်ပြီး Stock နှင့် Cloud Sync ပြန်ညှိပြီးပါပြီ။', 1);
             } catch (err) {
               note(msg, 'မဖျက်နိုင်ပါ: ' + (err && err.message || err));
             }
@@ -2595,6 +2771,8 @@
           )
         ),
         gasReturnBtn,
+        ownCanTransferBtn,
+        ownFillPoolCard,
         slot('viss'),
         slot('can'),
         reconCard,
@@ -2607,9 +2785,9 @@
           h('div', { class: 'row', style: 'margin-top:8px' }, rb, swb, tb)
         ),
         h('details', { class: 'card', open: true },
-          h('summary', { style: 'font-weight:700;padding:4px 0;cursor:pointer' }, 'Gas အဝင်/အထွက် မှတ်တမ်းများ & သတ်မှတ်ချက်'),
+          h('summary', { style: 'font-weight:700;padding:4px 0;cursor:pointer' }, 'Gas အဝင်/အထွက် မှတ်တမ်းများ (မှားရင် ဖျက်မည် × နှိပ်နိုင်သည်) & သတ်မှတ်ချက်'),
           h('h2', {}, 'မှတ်တမ်းများ'), h('div', { class: 'card' }, hist.length ? hist : h('small', {}, 'မှတ်တမ်း မရှိသေးပါ။')),
-          h('div', { class: 'card' }, h('b', {}, 'သတ်မှတ်ချက် (Admin Only)'),
+          h('div', { class: 'card' }, h('b', {}, 'သတ်မှတ်ချက်'),
             h('label', {}, '48kg အိုးတစ်လုံး ထုတ်လို့ရတဲ့ ပိဿာ'), cu,
             h('label', {}, '၁ ပိဿာ = Gas ဗူး (ဗူး)'), cc,
             h('label', {}, 'ဗူးအိုး အနည်းဆုံး ဗူးသတ်မှတ်ချက် (Min)'), cmin,
@@ -2622,9 +2800,9 @@
     }
 
     // =========================================================================
-    // 6. TAB 5: ဒေတာ (ADMIN PIN, SYNC SECRET KEY UNLOCKED FIX, CLOUD SYNC & BACKUP)
+    // 6. TAB 5: ဒေတာ
     // =========================================================================
-    const APP_VER = 'v24-s15 (Cloud Soft-Delete Sync)';
+    const APP_VER = 'v24-s17 (Flexible AUNG Own Gas Pool + O2 Rental)';
     const STORES = ['products', 'sales', 'gasEv', 'pays', 'stk', 'cf', 'meta'];
     const saveBlob = (name, blob) => {
       const u = URL.createObjectURL(blob), a = h('a', { href: u, download: name });
@@ -2711,74 +2889,56 @@
       const msg = h('div');
       const st = t => new Date(t).toLocaleDateString('en-GB') + ' ' + new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       const days = bk ? (Date.now() - bk) / 864e5 : null;
-      const unlocked = isAdmin();
 
-      // Admin Role & PIN Management Card
-      const pinMsg = h('div');
-      const roleCard = h('div', { class: 'card', style: 'border:2px solid ' + (unlocked ? 'var(--ok)' : 'var(--navy)') },
-        h('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px' },
-          h('b', { style: 'font-size:16px' }, unlocked ? '🔓 Admin Mode (လုပ်ပိုင်ခွင့်အပြည့် ဖွင့်ထားသည်)' : '👤 ဝန်ထမ်း Mode (ကန့်သတ်ထားသည်)'),
-          h('button', {
-            class: unlocked ? 'g' : 'o',
-            style: unlocked ? '' : 'width:auto;margin-top:0;padding:7px 12px',
-            onclick: () => toggleRoleModal()
-          }, unlocked ? '🔒 Lock ပြန်ပိတ်မည်' : '🔓 Admin PIN ဖွင့်မည်')
-        ),
-        h('div', { style: 'margin-top:6px' },
-          h('small', {}, unlocked
-            ? 'စာရင်းပယ်ဖျက်ခြင်း၊ P&L အရှုံး/အမြတ်၊ Month Lock နှင့် Sync URL/Secret Key ပြင်ဆင်ခွင့် ရရှိထားပါသည်။'
-            : 'ဝန်ထမ်း Mode တွင် အရောင်းသွင်းခြင်း၊ အိုးအဝင်/အထွက်နှင့် အကြွေးကောက်ခြင်းသာ လုပ်နိုင်ပါသည်။ Sync URL နှင့် Secret Key ပြင်ရန် "🔓 Admin PIN ဖွင့်မည်" ကို အရင်နှိပ်ပါ။')
-        ),
-        unlocked ? h('div', { style: 'margin-top:10px;padding-top:10px;border-top:1px solid var(--ln)' },
-          h('button', {
-            class: 'n',
-            style: 'width:100%;font-weight:700',
-            onclick: async () => {
-              const newPin = ((await uiPrompt('Admin PIN အသစ် (ဂဏန်း ၄ လုံး မှ ၆ လုံး) ရိုက်ထည့်ပါ', '', 'number')) || '').trim();
-              if (!/^\d{4,6}$/.test(newPin)) return note(pinMsg, 'PIN သည် ဂဏန်း ၄ လုံး မှ ၆ လုံး အတွင်း ဖြစ်ရပါမည်။');
-              const confPin = ((await uiPrompt('PIN အသစ်ကို နောက်တစ်ကြိမ် ထပ်ရိုက်ပါ', '', 'number')) || '').trim();
-              if (newPin !== confPin) return note(pinMsg, 'PIN နှစ်ကြိမ် မတူညီပါ။');
-              await put('meta', { k: 'adminPin', v: newPin, at: Date.now() });
-              adminPin = newPin;
-              adminPinCustom = true;
-              note(pinMsg, '✓ Admin PIN အသစ် ပြောင်းလဲသိမ်းဆည်းပြီးပါပြီ (Cloud Sync ဖြင့် ကျန်ဖုန်းများသို့လည်း အလိုအလျောက် ရောက်ရှိပါမည်)။', 1);
-            }
-          }, '🔑 Admin PIN ပြောင်းလဲသတ်မှတ်မည်' + (!adminPinCustom ? ' (လက်ရှိ မူလ PIN: 1234)' : '')),
-          pinMsg
-        ) : ''
+      const roleCard = h('div', { class: 'card', style: 'border:2px solid ' + (isAdmin ? 'var(--ok)' : 'var(--org)') },
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap' },
+          h('div', {},
+            h('b', { style: 'font-size:15.5px' }, isAdmin ? '🔓 Admin Mode ဖွင့်ထားပါသည်' : '👤 ဝန်ထမ်း Mode (ကန့်သတ်ထားသည်)'),
+            h('br'),
+            h('small', {}, isAdmin ? 'စာရင်းဖျက်ခြင်း၊ P&L ကြည့်ခြင်းနှင့် Cloud Sync ပြင်ဆင်ခွင့် ရရှိထားပါသည်။' : 'Cloud Sync ပြင်ဆင်ရန်နှင့် စာရင်းဖျက်ရန် အပေါ်ညာဘက်က "👤 ဝန်ထမ်း" ကို နှိပ်ပြီး PIN ထည့်ပါ။')
+          ),
+          h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
+            h('button', { class: isAdmin ? 'n' : 'o', style: 'margin-top:0;padding:8px 12px', onclick: () => toggleRole() }, isAdmin ? 'ဝန်ထမ်း Mode ပြန်ပိတ်မည်' : '🔓 Admin ဝင်မည်'),
+            isAdmin ? h('button', {
+              class: 'n',
+              style: 'padding:8px 12px',
+              onclick: async () => {
+                const p1 = await uiPrompt('Admin PIN အသစ် (ဂဏန်း ၄ လုံး မှ ၈ လုံး) ရိုက်ထည့်ပါ', '', 'password', 'PIN အသစ်');
+                if (p1 === null) return;
+                const clean = String(p1).trim();
+                if (clean.length < 4) return note(msg, 'PIN သည် အနည်းဆုံး ၄ လုံး ရှိရပါမည်။');
+                const p2 = await uiPrompt('Admin PIN အသစ်ကို နောက်တစ်ကြိမ် ထပ်ရိုက်ပါ', '', 'password', 'အတည်ပြု PIN');
+                if (p2 !== clean) return note(msg, 'PIN နှစ်ကြိမ် မတူပါ။ မပြောင်းလဲသေးပါ။');
+                await put('meta', { k: 'adminPin', v: clean, at: Date.now() });
+                adminPin = clean;
+                note(msg, '✓ Admin PIN အသစ် ပြောင်းလဲပြီးပါပြီ (Cloud Sync ဖြင့် ကျန်ဖုန်းများသို့ပါ ရောက်ရှိပါမည်)။', 1);
+              }
+            }, 'PIN ပြောင်းမည်') : ''
+          )
+        )
       );
 
-      // Cloud Sync Card (Google Sheets Web App)
       const syncMsg = h('div');
       const urlIn = h('input', {
-        type: 'url',
         placeholder: 'https://script.google.com/macros/s/....../exec',
         value: getSyncUrl(),
         autocomplete: 'off'
       });
-      const secretIn = h('input', {
-        type: 'text',
-        placeholder: 'Sync Secret Key (ဥပမာ AUNG2026SECRET)',
+      const keyIn = h('input', {
+        placeholder: 'Apps Script SECRET_KEY (မထည့်ရင် ဗလာထား)',
         value: getSyncSecret(),
-        autocomplete: 'off',
-        autocapitalize: 'off',
-        spellcheck: 'false'
+        autocomplete: 'off'
       });
-
-      if (unlocked) {
-        urlIn.disabled = false;
-        urlIn.readOnly = false;
-        urlIn.removeAttribute('disabled');
-        urlIn.removeAttribute('readonly');
-
-        secretIn.disabled = false;
-        secretIn.readOnly = false;
-        secretIn.removeAttribute('disabled');
-        secretIn.removeAttribute('readonly');
+      if (!isAdmin) {
+        urlIn.readOnly = true;
+        keyIn.readOnly = true;
+        urlIn.style.background = '#F4F6F9';
+        keyIn.style.background = '#F4F6F9';
       } else {
-        urlIn.disabled = true;
-        secretIn.disabled = true;
-        secretIn.type = 'password';
+        urlIn.removeAttribute('disabled');
+        keyIn.removeAttribute('disabled');
+        urlIn.readOnly = false;
+        keyIn.readOnly = false;
       }
 
       const autoCb = h('input', { type: 'checkbox', style: 'width:auto;margin-right:8px' });
@@ -2790,46 +2950,49 @@
 
       const saveUrlBtn = h('button', {
         class: 'n',
-        style: 'width:100%;margin-top:8px;font-weight:700;border-color:var(--ok);color:var(--ok)',
         onclick: async () => {
-          if (!(await promptAdminPin('Sync URL နှင့် Secret Key သိမ်းရန် Admin PIN လိုအပ်ပါသည်'))) return;
+          if (!(await requireAdmin('Cloud Sync ပြင်ဆင်ခြင်း'))) return;
           const v = urlIn.value.trim();
-          const sec = secretIn.value.trim();
+          const kVal = keyIn.value.trim();
           if (v && !v.startsWith('https://script.google.com/')) {
             return note(syncMsg, 'Google Apps Script Web App URL (https://script.google.com/...) အမှန်ကို ထည့်ပါ။');
           }
           syncUrl = v;
-          syncSecret = sec;
+          syncSecret = kVal;
           try {
             localStorage.setItem('aung_sync_url', v);
-            localStorage.setItem('aung_sync_secret', sec);
+            localStorage.setItem('aung_sync_secret', kVal);
           } catch (e) {}
-          await put('meta', { k: 'syncUrl', v });
-          await put('meta', { k: 'syncSecret', v: sec });
-          updateSyncBadge('', v ? 'Sync' : '');
-          note(syncMsg, v ? '✓ Sync URL နှင့် Secret Key သိမ်းပြီးပါပြီ။' : 'Sync URL ဖျက်ပြီးပါပြီ။', 1);
+          await run('meta', 'readwrite', t => {
+            t.objectStore('meta').put({ k: 'syncUrl', v });
+            t.objectStore('meta').put({ k: 'syncSecret', v: kVal });
+          });
+          updateSyncBadge(v ? '' : '', v ? 'Sync' : '');
+          note(syncMsg, v ? 'Sync URL နှင့် Secret Key သိမ်းပြီးပါပြီ။' : 'Sync URL ဖျက်ပြီးပါပြီ။', 1);
         }
-      }, '✔ URL & Secret Key သိမ်းမည်');
+      }, 'URL & Key သိမ်းမည်');
 
       const syncNowBtn = h('button', {
         class: 'o',
         style: 'margin-top:8px',
         onclick: async () => {
-          if (isAdmin()) {
+          if (isAdmin) {
             const v = urlIn.value.trim();
-            const sec = secretIn.value.trim();
-            if (v && v !== getSyncUrl()) {
+            const kVal = keyIn.value.trim();
+            if (v && (v !== getSyncUrl() || kVal !== getSyncSecret())) {
               syncUrl = v;
-              try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
-              await put('meta', { k: 'syncUrl', v });
-            }
-            if (sec !== getSyncSecret()) {
-              syncSecret = sec;
-              try { localStorage.setItem('aung_sync_secret', sec); } catch (e) {}
-              await put('meta', { k: 'syncSecret', v: sec });
+              syncSecret = kVal;
+              try {
+                localStorage.setItem('aung_sync_url', v);
+                localStorage.setItem('aung_sync_secret', kVal);
+              } catch (e) {}
+              await run('meta', 'readwrite', t => {
+                t.objectStore('meta').put({ k: 'syncUrl', v });
+                t.objectStore('meta').put({ k: 'syncSecret', v: kVal });
+              });
             }
           }
-          if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Admin PIN ဖွင့်ပြီး Web App URL ထည့်၍ သိမ်းပါ။');
+          if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Admin ဝင်ပြီး Web App URL ထည့်ပါ။');
           syncNowBtn.disabled = true;
           note(syncMsg, 'Google Sheet နှင့် ချိတ်ဆက်ပြီး Sync လုပ်နေပါသည်...', 1);
           const res = await runCloudSync({ silent: false, pushOnly: false });
@@ -2837,30 +3000,31 @@
           if (res.ok) {
             note(syncMsg, '✓ Sync ပြီးပါပြီ! (Cloud မှ အသစ်ဝင် ' + res.pulled.added + ' · ပြင်ဆင် ' + res.pulled.updated + ' · Cloud ပေါ်တင် ' + res.upserted + ')', 1);
           } else {
-            note(syncMsg, 'Sync မအောင်မြင်ပါ:\n' + res.error);
+            note(syncMsg, 'Sync မအောင်မြင်ပါ: ' + res.error);
           }
         }
       }, '⇄ Sync ယခုလုပ်မည် (Pull + Push)');
 
-      const pushAllBtn = h('button', {
+      const pushAllBtn = isAdmin ? h('button', {
         class: 'n',
         style: 'width:100%;margin-top:8px;border-color:var(--org);color:#9A4308;font-weight:700',
         onclick: async () => {
-          if (!(await promptAdminPin('Cloud ပေါ်သို့ ဒေတာအကုန်တင်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
           const v = urlIn.value.trim();
-          const sec = secretIn.value.trim();
-          if (v && v !== getSyncUrl()) {
+          const kVal = keyIn.value.trim();
+          if (v && (v !== getSyncUrl() || kVal !== getSyncSecret())) {
             syncUrl = v;
-            try { localStorage.setItem('aung_sync_url', v); } catch (e) {}
-            await put('meta', { k: 'syncUrl', v });
-          }
-          if (sec !== getSyncSecret()) {
-            syncSecret = sec;
-            try { localStorage.setItem('aung_sync_secret', sec); } catch (e) {}
-            await put('meta', { k: 'syncSecret', v: sec });
+            syncSecret = kVal;
+            try {
+              localStorage.setItem('aung_sync_url', v);
+              localStorage.setItem('aung_sync_secret', kVal);
+            } catch (e) {}
+            await run('meta', 'readwrite', t => {
+              t.objectStore('meta').put({ k: 'syncUrl', v });
+              t.objectStore('meta').put({ k: 'syncSecret', v: kVal });
+            });
           }
           if (!getSyncUrl()) return note(syncMsg, 'အရင်ဆုံး Web App URL ထည့်ပြီး သိမ်းပါ။');
-          if (!(await uiConfirm('ဒီစက် (ကောင်တာ Tablet) ထဲရှိ စာရင်းအားလုံးကို Google Sheet Cloud ပေါ်သို့ အကုန်တင်မလား?\n(ပထမဆုံးအကြိမ် စက်ချိတ်ဆက်ရာတွင် ပင်မစက်မှ အရင်တင်ရန် သုံးပါ)'))) return;
+          if (!(await uiConfirm('ဒီစက် ထဲရှိ စာရင်းအားလုံးကို Google Sheet Cloud ပေါ်သို့ အကုန်တင်မလား?'))) return;
           pushAllBtn.disabled = true;
           note(syncMsg, 'ဒီစက်မှ ဒေတာအားလုံး Cloud ပေါ်တင်နေပါသည်...', 1);
           const res = await runCloudSync({ silent: false, pushOnly: true });
@@ -2868,25 +3032,24 @@
           if (res.ok) {
             note(syncMsg, '✓ ဒီစက်မှ စာရင်း ' + res.upserted + ' ခုလုံး Google Sheet ပေါ် တင်ပြီးပါပြီ!', 1);
           } else {
-            note(syncMsg, 'Upload မအောင်မြင်ပါ:\n' + res.error);
+            note(syncMsg, 'Upload မအောင်မြင်ပါ: ' + res.error);
           }
         }
-      }, '↑ ဒီစက်မှ Cloud ပေါ်သို့ အကုန်တင်မည် (Admin Only)');
+      }, '↑ ဒီစက်မှ Cloud ပေါ်သို့ အကုန်တင်မည် (Admin)') : '';
 
       const cloudSyncCard = h('div', { class: 'card', style: 'border:2px solid var(--navy);background:#F8FAFC' },
-        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets — v24-s15)'),
+        h('b', { style: 'font-size:16px;color:var(--navy)' }, '☁ Cloud Sync (Google Sheets)'),
         h('div', { style: 'margin:4px 0' },
-          h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ — Admin ဖွင့်ပြီး Web App URL ထည့်၍ ချိတ်ဆက်ပါ')
+          h('small', {}, lastSyncAt ? ('နောက်ဆုံး Sync လုပ်ချိန်: ' + st(lastSyncAt)) : 'မချိတ်ဆက်ရသေးပါ')
         ),
-        !unlocked ? h('div', { class: 'msg', style: 'background:#FFF3E8;color:#9A4308;font-size:12.5px;padding:7px' }, '🔒 URL နှင့် Secret Key ရိုက်ထည့်ရန် အပေါ်က "🔓 Admin PIN ဖွင့်မည်" ကို အရင်နှိပ်ပါ။') : '',
-        h('label', {}, 'Google Apps Script Web App URL (/exec)' + (!unlocked ? ' (Locked)' : ' (Editable)')),
+        !isAdmin ? h('small', { style: 'color:var(--red)' }, '🔒 URL နှင့် Secret Key ပြင်ဆင်ရန် 🔓 Admin ဝင်ပါ။') : '',
+        h('label', {}, 'Google Apps Script Web App URL'),
         urlIn,
-        h('label', {}, 'Sync Secret Key (လျှို့ဝှက်ကုဒ်)' + (!unlocked ? ' (Locked)' : ' (Editable)')),
-        secretIn,
-        unlocked ? saveUrlBtn : '',
-        h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်း/ဖျက်တိုင်း & အင်တာနက်ပြန်မိတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
+        h('label', {}, 'Sync Secret Key (လျှို့ဝှက်ကုဒ်)'),
+        h('div', { class: 'row' }, keyIn, isAdmin ? saveUrlBtn : ''),
+        h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, autoCb, 'Auto-Sync (စာရင်းသိမ်းတိုင်း အလိုအလျောက် Sync လုပ်မည်)'),
         syncNowBtn,
-        unlocked ? pushAllBtn : '',
+        pushAllBtn,
         syncMsg
       );
 
@@ -2900,24 +3063,23 @@
             await put('meta', { k: 'lastBackup', v: Date.now() });
             await reload();
             viewData();
-            note($('#bmsg'), 'Backup ဖိုင် ထုတ်ပြီးပါပြီ။ ဖုန်း Downloads ထဲ ရှိမရှိ စစ်ပြီး Google Drive/Telegram စတာတွေကို ပို့သိမ်းပါ။', 1);
+            note($('#bmsg'), 'Backup ဖိုင် ထုတ်ပြီးပါပြီ။', 1);
           } catch (e) { bkb.disabled = false; note(msg, 'Backup မထုတ်နိုင်ပါ: ' + (e && e.message || e)); }
         }
       }, 'Backup ဖိုင် ထုတ်မည် (JSON)');
 
       const fi = h('input', { type: 'file', accept: '.json,application/json' });
       fi.onchange = async () => {
+        if (!(await requireAdmin('Backup ဖိုင်မှ Restore ပြန်ထည့်ခြင်း'))) { fi.value = ''; return; }
         const f = fi.files[0];
         if (!f) return;
-        if (!(await promptAdminPin('Restore လုပ်ရန် Admin PIN လိုအပ်ပါသည်'))) { fi.value = ''; return; }
         let d;
         try { d = JSON.parse(await f.text()); }
-        catch (e) { fi.value = ''; return note(msg, 'ဖိုင်ကို ဖတ်မရပါ (JSON မဟုတ်ဘူး/ပျက်နေတယ်)။ ဘာမှ မပြောင်းလဲပါဘူး။'); }
+        catch (e) { fi.value = ''; return note(msg, 'ဖိုင်ကို ဖတ်မရပါ (JSON မဟုတ်ဘူး/ပျက်နေတယ်)။'); }
         const er = checkBk(d);
-        if (er) { fi.value = ''; return note(msg, er + ' ဘာမှ မပြောင်းလဲပါဘူး။'); }
+        if (er) { fi.value = ''; return note(msg, er); }
         const c = n => (d.data[n] || []).length, fresh = !sales.length && !stk.length && !pays.length && !gasEv.length;
-        const q = 'Backup (' + (d.exportedAt ? st(d.exportedAt) : '') + '): ရောင်းချမှု ' + c('sales') + '၊ ပစ္စည်း ' + c('products') + '၊ လက်ကျန်မှတ်တမ်း ' + c('stk') + '၊ ကြွေးပြန်ပေး ' + c('pays') + '၊ Gas မှတ်တမ်း ' + c('gasEv') + '။\n\n' +
-          (fresh ? 'ဒီဖုန်းမှာ ရောင်းချမှု မရှိသေးလို့ လက်ရှိ (နမူနာ) ပစ္စည်းစာရင်းကို backup ထဲကဟာနဲ့ အစားထိုးပါမယ်။\n' : 'ဒီဖုန်းထဲ ဒေတာ ရှိပြီးသားမို့ မရှိတာတွေပဲ ထပ်ထည့်ပါမယ်၊ ရှိပြီးသားကို မထိပါဘူး။\n') + 'ဆက်လုပ်မလား?';
+        const q = 'Backup (' + (d.exportedAt ? st(d.exportedAt) : '') + '): ရောင်းချမှု ' + c('sales') + '၊ ပစ္စည်း ' + c('products') + '၊ လက်ကျန်မှတ်တမ်း ' + c('stk') + '၊ ကြွေးပြန်ပေး ' + c('pays') + '၊ Gas မှတ်တမ်း ' + c('gasEv') + '။\n\nဆက်လုပ်မလား?';
         if (!(await uiConfirm(q))) { fi.value = ''; return; }
         try {
           const pre = await dumpAll();
@@ -2928,7 +3090,7 @@
           fi.value = '';
           viewData();
           note($('#bmsg'), 'Restore ပြီးပါပြီ။ ထပ်ထည့်တာ ' + r.added + '၊ ရှိပြီးသားမို့ ကျော်တာ ' + r.same + '၊ မတူလို့ လက်ရှိကို ထားခဲ့တာ ' + r.diff + '။', 1);
-        } catch (e) { fi.value = ''; note(msg, 'Restore မအောင်မြင်ပါ: ' + (e && e.message || e) + '။ ဘာမှ မပြောင်းလဲပါဘူး။'); }
+        } catch (e) { fi.value = ''; note(msg, 'Restore မအောင်မြင်ပါ: ' + (e && e.message || e)); }
       };
 
       const dlCsv = (name, rows) => saveBlob(name + '-' + fstamp() + '.csv', new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8' }));
@@ -2948,7 +3110,7 @@
       const csvDebts = () => {
         const m = {};
         sales.filter(x => !x.voided && creditOf(x) > 0 && x.cust).forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).c += creditOf(x); });
-        pays.filter(x => !x.voided).forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).p += x.amount; });
+        pays.forEach(x => { const k = x.cust.toLowerCase(); (m[k] = m[k] || { n: x.cust, c: 0, p: 0 }).p += x.amount; });
         cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); (m[k] = m[k] || { n: e.cust, c: 0, p: 0 }).c += e.amt; });
         dlCsv('debts', [['Customer Name', 'ကြွေးယူ', 'ပြန်ပေး', 'ကျန်']].concat(Object.values(m).map(c => [c.n, c.c, c.p, c.c - c.p])));
       };
@@ -2977,7 +3139,7 @@
         class: 'n',
         style: 'margin-top:8px',
         onclick: async () => {
-          if (!(await promptAdminPin('Month Hard Lock ပြင်ဆင်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+          if (!(await requireAdmin('Month Lock / Reopen ပြင်ဆင်ခြင်း'))) return;
           const mk = lockIn.value;
           if (!mk) return;
           const cur = lockedMonths.includes(mk);
@@ -2995,7 +3157,7 @@
           await reload();
           viewData();
         }
-      }, 'Lock / Reopen ပြောင်းမည် (Admin Only)');
+      }, 'Lock / Reopen ပြောင်းမည်');
 
       app.append(
         roleCard,
@@ -3004,7 +3166,6 @@
           h('b', {}, 'Backup (ဒေတာ လုံခြုံရေး)'),
           h('div', { class: 'tot', style: 'text-align:left;font-size:16px;color:' + (days === null || days >= 1 ? 'var(--red)' : 'var(--ok)') }, bk ? 'နောက်ဆုံး backup ဖိုင်ထုတ်ချိန်: ' + st(bk) : 'Backup တစ်ခါမှ မလုပ်ရသေးပါ'),
           h('div', {}, h('small', {}, 'Auto Daily Snapshots: ' + rollingSnapshots.length + ' / 3 (နေ့စဉ် အလိုအလျောက် သိမ်းဆည်းထားသည်)')),
-          h('small', {}, 'Telegram/Drive သို့ ပို့ရန်: ဖုန်း Files app → Downloads → backup ဖိုင်ကို ကြာကြာဖိ → Share → Telegram သို့ Drive'),
           bkb
         ),
         h('div', { id: 'bmsg' }), msg,
@@ -3021,7 +3182,7 @@
                   const rs = await navigator.serviceWorker.getRegistrations();
                   await Promise.all(rs.map(r => r.unregister()));
                 }
-                if (window.caches) {
+                if ('caches' in window) {
                   const ks = await caches.keys();
                   await Promise.all(ks.filter(k => k.startsWith('aung')).map(k => caches.delete(k)));
                 }
@@ -3030,15 +3191,15 @@
             }
           }, 'App အသစ်ယူမည်')
         ),
-        h('div', { class: 'card' }, h('b', {}, 'Restore (backup ဖိုင်ကနေ ပြန်ထည့် · Admin Only)'), h('br'), h('small', {}, 'ရှိပြီးသားကို ဘယ်တော့မှ မထပ်ရေးပါဘူး။ Restore မလုပ်မီ Pre-Restore Snapshot သိမ်းပေးပါတယ်။'), fi),
-        h('div', { class: 'card' }, h('b', {}, 'Month Hard Lock (လချုပ် စာရင်းပိတ်ခြင်း)'), lockIn, lockBtn, h('div', { style: 'margin-top:6px' }, h('small', {}, 'ပိတ်ထားသော လများ: ' + (lockedMonths.length ? lockedMonths.join(', ') : 'မရှိသေးပါ')))),
+        h('div', { class: 'card' }, h('b', {}, 'Restore (backup ဖိုင်ကနေ ပြန်ထည့် · Admin)'), h('br'), h('small', {}, 'Admin PIN လိုအပ်ပါသည်။'), fi),
+        h('div', { class: 'card' }, h('b', {}, 'Month Hard Lock (လချုပ် စာရင်းပိတ်ခြင်း · Admin)'), lockIn, lockBtn, h('div', { style: 'margin-top:6px' }, h('small', {}, 'ပိတ်ထားသော လများ: ' + (lockedMonths.length ? lockedMonths.join(', ') : 'မရှိသေးပါ')))),
         h('div', { class: 'card' }, h('b', {}, 'ဘောင်ချာ ဆက်တင်'), h('label', {}, 'ခေါင်းစာ (ဖုန်း/လိပ်စာ)'), rh, h('label', {}, 'အောက်စာ'), rf, h('label', {}, 'စာလုံးအရွယ်'), rz, h('div', { class: 'row', style: 'margin-top:8px' }, rsb, rtb)),
         h('div', { class: 'card' }, h('b', {}, 'CSV ထုတ်ရန် (Google Sheets/Excel အတွက်)'), h('br'), cb('ရောင်းချမှု', csvSales), cb('ပစ္စည်း/လက်ကျန်', csvProducts), cb('ကြွေးစာရင်း', csvDebts), cb('စရိတ်', csvExp))
       );
     }
 
     // =========================================================================
-    // 7. TAB 7 & 8: CASH FLOW, PAYABLES, LOANS, REPORTS & P&L
+    // 7. TAB 7 & 8: CASH FLOW, REPORTS & P&L
     // =========================================================================
     const ECAT = {
       factory: 'စက်ရုံ / ကုန်ပစ္စည်းဝယ်စရိတ်',
@@ -3055,13 +3216,13 @@
     const tm = t => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
     function flows(m, a, b) {
-      let i = 0, o = 0, lin = 0, lout = 0, trin = 0, trout = 0, gref = 0;
+      let i = 0, o = 0, lin = 0, lout = 0, trin = 0, trout = 0, gref = 0, depIn = 0, depOut = 0, rentIn = 0;
       sales.forEach(s => {
         if (s.voided || isDropoffUnpaid(s)) return;
         const t = partTime(s);
         if (t >= a && t <= b) partsOf(s).forEach(x => { if (x.m === m) i += x.a; });
       });
-      pays.filter(x => !x.voided).forEach(x => { if (x.method === m && x.at >= a && x.at <= b) i += x.amount; });
+      pays.forEach(x => { if (x.method === m && x.at >= a && x.at <= b) i += x.amount; });
       exps().forEach(e => { if (e.m === m && e.at >= a && e.at <= b) o += e.amt; });
       cf.filter(e => e.type === 'cyl_comp' && !e.voided && e.kind === 'pay').forEach(e => { if (e.m === m && e.at >= a && e.at <= b) i += e.amt; });
       cf.filter(e => e.type === 'fac_refund' && !e.voided).forEach(e => { if (e.m === m && e.at >= a && e.at <= b) i += e.amt; });
@@ -3072,15 +3233,31 @@
       cf.filter(e => e.type === 'gas_ret' && !e.voided).forEach(e => {
         if (e.m === m && e.at >= a && e.at <= b) { o += e.amt; gref += e.amt; }
       });
+      cf.filter(e => e.type === 'o2_rent' && !e.voided).forEach(e => {
+        if (e.m === m && e.at >= a && e.at <= b && (e.deposit || 0) > 0) {
+          i += e.deposit;
+          depIn += e.deposit;
+        }
+        if (e.returned && e.retMethod === m && e.returnedAt >= a && e.returnedAt <= b) {
+          if ((e.refund || 0) > 0) {
+            o += e.refund;
+            depOut += e.refund;
+          } else if ((e.refund || 0) < 0) {
+            const extra = Math.abs(e.refund);
+            i += extra;
+            rentIn += extra;
+          }
+        }
+      });
       cf.filter(e => e.type === 'xfer' && !e.voided).forEach(e => {
         if (e.to === m && e.at >= a && e.at <= b) { i += e.amt; trin += e.amt; }
         if (e.from === m && e.at >= a && e.at <= b) { o += e.amt; trout += e.amt; }
       });
-      return { i, o, lin, lout, trin, trout, gref };
+      return { i, o, lin, lout, trin, trout, gref, depIn, depOut, rentIn };
     }
 
     function opening(m, k) {
-      const R = cf.filter(e => !e.voided && e.type === 'bal' && e.method === m);
+      const R = cf.filter(e => e.type === 'bal' && e.method === m);
       const op = R.filter(r => r.kind === 'open' && r.date === k).sort((a, b) => b.at - a.at)[0];
       if (op) return op.amt;
       const cl = R.filter(r => r.kind === 'close' && r.date < k).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.at - a.at)[0];
@@ -3092,7 +3269,7 @@
     function debtTotal() {
       const m = {};
       sales.filter(x => !x.voided && creditOf(x) > 0 && x.cust).forEach(x => { const k = x.cust.toLowerCase(); m[k] = (m[k] || 0) + creditOf(x); });
-      pays.filter(x => !x.voided).forEach(x => { const k = x.cust.toLowerCase(); m[k] = (m[k] || 0) - x.amount; });
+      pays.forEach(x => { const k = x.cust.toLowerCase(); m[k] = (m[k] || 0) - x.amount; });
       cf.filter(e => e.type === 'ob' && !e.voided).forEach(e => { const k = e.cust.toLowerCase(); m[k] = (m[k] || 0) + e.amt; });
       return Object.values(m).filter(v => v > 0.5).reduce((a, b) => a + b, 0);
     }
@@ -3101,7 +3278,7 @@
       const inPeriod = t => { if (!t) return false; const dk = dkey(t); return isMonthly ? dk.startsWith(periodKey) : dk === periodKey; };
       const supRates = {};
       Object.keys(AGENTS).forEach(ag => {
-        const recvs = gasEv.filter(e => !e.voided && (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.agent === ag && e.cost > 0).sort((a, b) => b.at - a.at);
+        const recvs = gasEv.filter(e => (e.type === 'recv' || e.type === 'eswap') && !e.ground && e.agent === ag && e.cost > 0).sort((a, b) => b.at - a.at);
         if (recvs.length) {
           const latest = recvs[0];
           const nom = AGENTS[ag].viss;
@@ -3112,7 +3289,7 @@
       });
 
       let netRev = 0, gasCogs = 0, o2Cogs = 0, prodCogs = 0, unidGasWarn = false;
-      const activeVissCyl = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'viss').sort((a, b) => a.at - b.at)[0];
+      const activeVissCyl = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'viss').sort((a, b) => a.at - b.at)[0];
       const fallbackAg = (activeVissCyl && activeVissCyl.agent) || 'TT Gas';
 
       sales.forEach(s => {
@@ -3152,8 +3329,12 @@
         });
       });
 
+      cf.filter(e => e.type === 'o2_rent' && !e.voided && e.returned && (e.rentFee || 0) > 0).forEach(e => {
+        if (inPeriod(e.returnedAt)) netRev += Number(e.rentFee) || 0;
+      });
+
       let weightVarExp = 0;
-      gasEv.filter(e => !e.voided).forEach(e => {
+      gasEv.forEach(e => {
         if ((e.type === 'recv' || e.type === 'eswap') && !e.ground && inPeriod(e.at) && e.cost > 0 && e.actualViss > 0) {
           const nom = (AGENTS[e.agent] || AGENTS['TT Gas']).viss;
           const expV = e.qty * nom;
@@ -3229,32 +3410,18 @@
         }, 'စရိတ် မှတ်မည်');
 
         const unpaidPayables = [];
-        gasEv.filter(e => !e.voided).forEach(e => {
+        gasEv.forEach(e => {
           const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
           if ((e.type === 'recv' || e.type === 'eswap') && !e.ground && e.payCh === 'credit' && !e.paid && tot > 0) {
-            unpaidPayables.push({
-              kind: 'gas',
-              id: e.id,
-              at: e.at,
-              title: 'Gas ဝယ်ယူမှု: ' + (e.agent || 'Gas') + ' × ' + e.qty + ' လုံး',
-              amt: tot,
-              raw: e
-            });
+            unpaidPayables.push({ kind: 'gas', id: e.id, at: e.at, title: 'Gas ဝယ်ယူမှု: ' + (e.agent || 'Gas') + ' × ' + e.qty + ' လုံး', amt: tot, raw: e });
           }
         });
-        stk.filter(e => !e.voided).forEach(e => {
-          if (e.type === 'buy' && !e.paid) {
+        stk.forEach(e => {
+          if (e.type === 'buy' && !e.voided && !e.paid) {
             const tot = e.totalCost !== undefined ? Number(e.totalCost) : ((Number(e.qty) || 0) * (Number(e.cost) || 0));
             const isCreditStk = e.payCh === 'credit' || (!e.payCh && tot > 0 && !cf.some(x => !x.voided && x.type === 'exp' && Math.abs((x.at || 0) - (e.at || 0)) <= 2000 && x.amt === tot));
             if (isCreditStk && tot > 0) {
-              unpaidPayables.push({
-                kind: 'stk',
-                id: e.id,
-                at: e.at,
-                title: 'ပစ္စည်းဝယ်: ' + e.name + ' × ' + e.qty,
-                amt: tot,
-                raw: e
-              });
+              unpaidPayables.push({ kind: 'stk', id: e.id, at: e.at, title: 'ပစ္စည်းဝယ်: ' + e.name + ' × ' + e.qty, amt: tot, raw: e });
             }
           }
         });
@@ -3268,11 +3435,7 @@
           ),
           unpaidPayables.length ? h('div', { style: 'margin-top:6px' },
             ...unpaidPayables.map(item => h('div', { class: 'li', style: 'flex-wrap:wrap' },
-              h('span', { style: 'flex:1 1 55%' },
-                h('b', {}, item.title),
-                h('br'),
-                h('small', {}, dkey(item.at) + ' ' + tm(item.at) + ' · ' + money(item.amt))
-              ),
+              h('span', { style: 'flex:1 1 55%' }, h('b', {}, item.title), h('br'), h('small', {}, dkey(item.at) + ' ' + tm(item.at) + ' · ' + money(item.amt))),
               h('span', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
                 h('button', {
                   class: 'n',
@@ -3307,12 +3470,12 @@
                   class: 'g',
                   style: 'padding:4px 8px;font-size:12px',
                   onclick: async () => {
-                    if (!(await promptAdminPin('အကြွေးဝယ်မှတ်တမ်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                    if (!(await requireAdmin('အကြွေးဝယ်မှတ်တမ်း ဖျက်ခြင်း'))) return;
                     if (!(await guardMonthLock(item.at, msg))) return;
-                    if (!(await uiConfirm('ဒီအကြွေးဝယ်မှတ်တမ်း (' + item.title + ') ကို ဖျက်မလား? (Cloud Sync ဖြင့် စက်အားလုံးတွင် တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
+                    if (!(await uiConfirm('ဒီအကြွေးဝယ်မှတ်တမ်း (' + item.title + ') ကို ဖျက်မလား?'))) return;
                     try {
                       const storeName = item.kind === 'gas' ? 'gasEv' : 'stk';
-                      await softDelete(storeName, item.raw);
+                      await put(storeName, { ...item.raw, voided: true, voidedAt: Date.now() });
                       await reload();
                       viewExp(dv, 1);
                       note(msg, 'အကြွေးဝယ်မှတ်တမ်း ဖျက်ပြီး Stock ပြန်ညှိပြီးပါပြီ။', 1);
@@ -3352,7 +3515,7 @@
             h('span', {}, h('b', { class: e.voided ? 'void' : '' }, money(e.amt)), ' ', e.voided ? '' : h('button', {
               class: 'g',
               onclick: async () => {
-                if (!(await promptAdminPin('စရိတ်ပယ်ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                if (!(await requireAdmin('စရိတ် ပယ်ဖျက်ခြင်း'))) return;
                 if (!(await guardMonthLock(e.at, msg))) return;
                 if (!(await uiConfirm('ဒီစရိတ်ကို ပယ်ဖျက်မလား?'))) return;
                 try { await put('cf', { ...e, voided: true, voidedAt: Date.now() }); await reload(); viewExp(dv, 1); } catch (x) { note(msg, 'မပယ်ဖျက်နိုင်ပါ: ' + (x && x.message || x)); }
@@ -3428,7 +3591,7 @@
               h('button', {
                 class: 'g',
                 onclick: async () => {
-                  if (!(await promptAdminPin('ချေးငွေမှတ်တမ်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                  if (!(await requireAdmin('ချေးငွေမှတ်တမ်း ဖျက်ခြင်း'))) return;
                   if (!(await uiConfirm('ဒီမှတ်တမ်းကို ပယ်ဖျက်မလား?'))) return;
                   await put('cf', { ...ln, voided: true, voidedAt: Date.now() });
                   await reload();
@@ -3486,7 +3649,7 @@
             h('span', {}, h('b', {}, money(x.amt)), ' ', h('button', {
               class: 'g',
               onclick: async () => {
-                if (!(await promptAdminPin('ငွေလွှဲမှတ်တမ်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                if (!(await requireAdmin('ငွေလွှဲမှတ်တမ်း ဖျက်ခြင်း'))) return;
                 if (!(await uiConfirm('ဒီငွေလွှဲမှတ်တမ်းကို ပယ်ဖျက်မလား?'))) return;
                 await put('cf', { ...x, voided: true, voidedAt: Date.now() });
                 await reload();
@@ -3514,7 +3677,7 @@
       sd.forEach(s => partsOf(s).forEach(x => { if (x.m in by) by[x.m] += x.a; }));
       sales.forEach(s => { if (s.voided || isDropoffUnpaid(s)) return; const t = partTime(s); if (t >= a && t <= b) partsOf(s).forEach(x => { if (x.m in pin) pin[x.m] += x.a; }); });
 
-      const col = { cash: 0, kpay: 0, wave: 0, aya: 0 }, pd = pays.filter(x => !x.voided && x.at >= a && x.at <= b).sort((x, y) => x.at - y.at);
+      const col = { cash: 0, kpay: 0, wave: 0, aya: 0 }, pd = pays.filter(x => x.at >= a && x.at <= b).sort((x, y) => x.at - y.at);
       pd.forEach(x => { col[x.method] += x.amount; });
       const compInByM = { cash: 0, kpay: 0, wave: 0, aya: 0 };
       cf.filter(e => e.type === 'cyl_comp' && !e.voided && e.kind === 'pay' && e.at >= a && e.at <= b).forEach(e => { if (e.m in compInByM) compInByM[e.m] += e.amt; });
@@ -3532,6 +3695,14 @@
       cf.filter(e => e.type === 'gas_ret' && !e.voided).forEach(e => {
         if (e.at >= a && e.at <= b && (e.m in gasRefByM)) gasRefByM[e.m] += e.amt;
       });
+      const depInByM = { cash: 0, kpay: 0, wave: 0, aya: 0 }, depOutByM = { cash: 0, kpay: 0, wave: 0, aya: 0 }, rentInByM = { cash: 0, kpay: 0, wave: 0, aya: 0 };
+      cf.filter(e => e.type === 'o2_rent' && !e.voided).forEach(e => {
+        if (e.m in depInByM && e.at >= a && e.at <= b) depInByM[e.m] += (e.deposit || 0);
+        if (e.returned && e.retMethod in depOutByM && e.returnedAt >= a && e.returnedAt <= b) {
+          if ((e.refund || 0) > 0) depOutByM[e.retMethod] += e.refund;
+          else if ((e.refund || 0) < 0) rentInByM[e.retMethod] += Math.abs(e.refund);
+        }
+      });
       const xferInByM = { cash: 0, kpay: 0, wave: 0, aya: 0 }, xferOutByM = { cash: 0, kpay: 0, wave: 0, aya: 0 };
       cf.filter(e => e.type === 'xfer' && !e.voided).forEach(e => {
         if (e.at >= a && e.at <= b) {
@@ -3542,30 +3713,15 @@
 
       const row = (l, v, c) => h('div', { class: 'li' }, h('span', {}, l), h('b', { style: c ? 'color:' + c : '' }, v));
       const tr = (c1, c2, c3, c4, cls) => h('div', { class: 'tr' + (cls ? ' ' + cls : '') }, h('span', {}, ...(Array.isArray(c1) ? c1 : [c1])), h('span', {}, c2), h('span', {}, c3), h('span', {}, c4));
-      const tabs = h('div', { class: 'row', style: 'margin-bottom:8px;flex-wrap:wrap' }, ...[['ရောင်းချမှု', 1], ['ငွေစာရင်း 🔒', 2], ['စရိတ်', 3], ['ကြွေး', 4], ['စာရင်းပိတ် 🔒', 5], ['အရှုံး/အမြတ် 🔒', 6]].map(([t, i]) => h('button', {
+      const tabs = h('div', { class: 'row', style: 'margin-bottom:8px;flex-wrap:wrap' }, ...[['ရောင်းချမှု', 1], ['ငွေစာရင်း', 2], ['စရိတ်', 3], ['ကြွေး', 4], ['စာရင်းပိတ်', 5], ['အရှုံး/အမြတ် (P&L)', 6]].map(([t, i]) => h('button', {
         class: i === repTab ? '' : 'n',
         style: 'padding:9px 4px;font-size:12px',
         onclick: async () => {
-          if ([2, 5, 6].includes(i) && !isAdmin()) {
-            const ok = await promptAdminPin('ဒီအပိုင်းကို ကြည့်ရှုရန် Admin PIN လိုအပ်ပါသည်');
-            if (!ok) return;
-          }
+          if ([2, 5, 6].includes(i) && !(await requireAdmin(t + ' ကြည့်ရှုခြင်း'))) return;
           viewReport(k, i);
         }
       }, t)));
       let body = [];
-
-      const adminLockCard = label => h('div', { class: 'card', style: 'border:2px solid var(--org);text-align:center;padding:20px 14px' },
-        h('b', { style: 'font-size:16px;display:block;margin-bottom:6px' }, '🔒 ' + label + ' (Admin Only)'),
-        h('small', { style: 'display:block;margin-bottom:12px' }, 'ဝန်ထမ်း Mode တွင် ငွေစာရင်းချုပ်၊ စာရင်းပိတ်နှင့် အရှုံး/အမြတ် (P&L) ကို ကန့်သတ်ထားပါသည်။'),
-        h('button', {
-          class: 'o',
-          style: 'margin-top:0',
-          onclick: async () => {
-            if (await promptAdminPin(label + ' ကြည့်ရှုရန် Admin PIN ရိုက်ထည့်ပါ')) viewReport(k, repTab);
-          }
-        }, '🔓 Admin PIN ရိုက်ထည့်ပြီး ကြည့်ရှုမည်')
-      );
 
       if (repTab === 1) {
         const rows = [];
@@ -3586,59 +3742,62 @@
           Object.keys(agg).length ? h('div', { class: 'card' }, h('b', {}, 'ပစ္စည်းအလိုက် စုစုပေါင်း'), tr('ပစ္စည်းအမည်', 'အရေအတွက်', '', 'သင့်ငွေ', 'h'), ...Object.entries(agg).map(([n, o]) => tr(n, r2(o.q) + ' ' + o.u, '', num(o.v)))) : ''
         ];
       } else if (repTab === 2) {
-        if (!isAdmin()) {
-          body = [adminLockCard('ငွေစာရင်း (Cash Flow)')];
-        } else {
-          const ops = MTH.map(m => opening(m, k)), sumOp = ops.reduce((x, o) => x + (o || 0), 0), unset = ops.filter(o => o === null).length;
-          const sIn = MTH.reduce((x, m) => x + pin[m], 0), cIn = MTH.reduce((x, m) => x + col[m] + compInByM[m] + facRefByM[m], 0), lIn = MTH.reduce((x, m) => x + loanInByM[m], 0);
-          const oOut = MTH.reduce((x, m) => x + om[m], 0), lOut = MTH.reduce((x, m) => x + loanOutByM[m], 0), gOut = MTH.reduce((x, m) => x + gasRefByM[m], 0);
-          const clo = sumOp + sIn + cIn + lIn - oOut - lOut - gOut;
+        const ops = MTH.map(m => opening(m, k)), sumOp = ops.reduce((x, o) => x + (o || 0), 0), unset = ops.filter(o => o === null).length;
+        const sIn = MTH.reduce((x, m) => x + pin[m], 0), cIn = MTH.reduce((x, m) => x + col[m] + compInByM[m] + facRefByM[m], 0), lIn = MTH.reduce((x, m) => x + loanInByM[m], 0);
+        const dIn = MTH.reduce((x, m) => x + depInByM[m], 0), rIn = MTH.reduce((x, m) => x + rentInByM[m], 0);
+        const oOut = MTH.reduce((x, m) => x + om[m], 0), lOut = MTH.reduce((x, m) => x + loanOutByM[m], 0), gOut = MTH.reduce((x, m) => x + gasRefByM[m], 0), dOut = MTH.reduce((x, m) => x + depOutByM[m], 0);
+        const clo = sumOp + sIn + cIn + lIn + dIn + rIn - oOut - lOut - gOut - dOut;
 
-          const card = (m, i) => {
-            const op = ops[i], ex = op === null ? null : op + pin[m] + col[m] + compInByM[m] + facRefByM[m] + loanInByM[m] + xferInByM[m] - om[m] - loanOutByM[m] - gasRefByM[m] - xferOutByM[m];
-            const cl = cf.filter(e => !e.voided && e.type === 'bal' && e.kind === 'close' && e.method === m && e.date === k).sort((x, y) => y.at - x.at)[0];
-            const ia = h('input', { type: 'number', inputmode: 'numeric', placeholder: op === null ? 'စတင်လက်ကျန် (ကိုယ်တိုင်ရေထား)' : 'ရေတွက်ထားတဲ့ ငွေ' });
-            const go = async (rec, q) => { if (!(await uiConfirm(q))) return; try { await add('cf', { id: uuid(), at: Date.now(), type: 'bal', date: k, method: m, ...rec }); await reload(); viewReport(k); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
-            const setOpen = h('button', { class: 'n', onclick: () => { const v = parseFloat(ia.value); if (isNaN(v) || v < 0) return note(msg, 'ပမာဏ ထည့်ပါ။'); go({ kind: 'open', amt: v }, PAY[m] + ' အဖွင့်ငွေကို ' + money(v) + ' အဖြစ် မှတ်မလား? (' + k + ')'); } }, op === null ? 'အဖွင့်ငွေ မှတ်မည်' : 'အဖွင့်ငွေ ပြင်မည်');
-            const setClose = h('button', { class: 'n', onclick: () => { const v = parseFloat(ia.value); if (isNaN(v) || v < 0) return note(msg, 'ရေတွက်ထားတဲ့ ပမာဏ ထည့်ပါ။'); go({ kind: 'close', amt: v }, PAY[m] + ' ရေတွက်ထားတာ ' + money(v) + (ex === null ? '' : ' (စာရင်းအရ ' + money(ex) + ')') + ' မှတ်မလား?'); } }, 'ရေတွက်ပြီး ပိတ်မည်');
-            return h('div', { class: 'card' },
-              h('b', {}, PAY[m]),
-              op === null ? h('div', { class: 'msg e' }, 'အဖွင့်ငွေ မသတ်မှတ်ရသေးပါ။ အောက်မှာ ကိုယ်တိုင်ရေပြီး ထည့်ပါ။') : h('div', {},
-                row('အဖွင့်ငွေ', money(op)),
-                row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)', money(pin[m])),
-                row('+ ကြွေးကောက်ရငွေ', money(col[m])),
-                compInByM[m] > 0 ? row('+ အိုးလျော်ကြေးရငွေ', money(compInByM[m]), 'var(--ok)') : '',
-                facRefByM[m] > 0 ? row('+ Factory ငွေပြန်အမ်း (Actual Refund)', money(facRefByM[m]), 'var(--ok)') : '',
-                loanInByM[m] > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(loanInByM[m]), 'var(--navy)') : '',
-                xferInByM[m] > 0 ? row('+ ငွေလွှဲလက်ခံ (အဝင်)', money(xferInByM[m]), 'var(--ok)') : '',
-                row('− အသုံးစရိတ်', money(om[m])),
-                gasRefByM[m] > 0 ? row('− Gas ပြန်အမ်းငွေ', money(gasRefByM[m]), 'var(--red)') : '',
-                loanOutByM[m] > 0 ? row('− ချေးငွေပြန်ဆပ် (အထွက်)', money(loanOutByM[m]), 'var(--red)') : '',
-                xferOutByM[m] > 0 ? row('− ငွေလွှဲထုတ် (အထွက်)', money(xferOutByM[m]), 'var(--red)') : '',
-                row('= လက်ကျန်ငွေ (စာရင်းအရ)', money(ex), 'var(--navy)'),
-                cl ? row('ရေတွက်ထားတာ · ကွာ', money(cl.amt) + ' · ' + (cl.amt - ex >= 0 ? '+' : '') + r2(cl.amt - ex), Math.abs(cl.amt - ex) < 0.5 ? 'var(--ok)' : 'var(--red)') : ''
-              ),
-              ia,
-              h('div', { class: 'row', style: 'margin-top:6px' }, ...(op === null ? [setOpen] : [setClose, setOpen]))
-            );
-          };
-          body = [
-            h('button', { class: 'n', style: 'width:100%;margin-bottom:8px;padding:10px;font-weight:700', onclick: () => viewExp(k, 3) }, '⇄ KPay ↔ ငွေသား ငွေလွှဲပြောင်းမည်'),
-            h('div', { class: 'card' },
-              h('b', {}, 'ငွေစာရင်း (စုစုပေါင်း)'),
-              row('အဖွင့်ငွေ', money(sumOp)),
-              row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)', money(sIn)),
-              row('+ ကြွေးကောက်ရငွေ', money(cIn)),
-              lIn > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(lIn), 'var(--navy)') : '',
-              row('− အသုံးစရိတ်', money(oOut)),
-              gOut > 0 ? row('− Gas ပြန်အမ်းငွေ', money(gOut), 'var(--red)') : '',
-              lOut > 0 ? row('− ချေးငွေပြန်ဆပ် (အထွက်)', money(lOut), 'var(--red)') : '',
-              h('div', { class: 'li' }, h('b', {}, '= လက်ကျန်ငွေ'), h('b', { style: 'font-size:18px;color:' + (clo < 0 ? 'var(--red)' : 'var(--ok)') }, money(clo))),
-              unset ? h('div', { class: 'msg e' }, 'အဖွင့်ငွေ မသတ်မှတ်ရသေးတာ ' + unset + ' ခု ရှိလို့ ဒီစုစုပေါင်း မပြည့်စုံသေးပါ။') : ''
+        const card = (m, i) => {
+          const op = ops[i], ex = op === null ? null : op + pin[m] + col[m] + compInByM[m] + facRefByM[m] + loanInByM[m] + depInByM[m] + rentInByM[m] + xferInByM[m] - om[m] - loanOutByM[m] - gasRefByM[m] - depOutByM[m] - xferOutByM[m];
+          const cl = cf.filter(e => e.type === 'bal' && e.kind === 'close' && e.method === m && e.date === k).sort((x, y) => y.at - x.at)[0];
+          const ia = h('input', { type: 'number', inputmode: 'numeric', placeholder: op === null ? 'စတင်လက်ကျန် (ကိုယ်တိုင်ရေထား)' : 'ရေတွက်ထားတဲ့ ငွေ' });
+          const go = async (rec, q) => { if (!(await uiConfirm(q))) return; try { await add('cf', { id: uuid(), at: Date.now(), type: 'bal', date: k, method: m, ...rec }); await reload(); viewReport(k); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
+          const setOpen = h('button', { class: 'n', onclick: () => { const v = parseFloat(ia.value); if (isNaN(v) || v < 0) return note(msg, 'ပမာဏ ထည့်ပါ။'); go({ kind: 'open', amt: v }, PAY[m] + ' အဖွင့်ငွေကို ' + money(v) + ' အဖြစ် မှတ်မလား? (' + k + ')'); } }, op === null ? 'အဖွင့်ငွေ မှတ်မည်' : 'အဖွင့်ငွေ ပြင်မည်');
+          const setClose = h('button', { class: 'n', onclick: () => { const v = parseFloat(ia.value); if (isNaN(v) || v < 0) return note(msg, 'ရေတွက်ထားတဲ့ ပမာဏ ထည့်ပါ။'); go({ kind: 'close', amt: v }, PAY[m] + ' ရေတွက်ထားတာ ' + money(v) + (ex === null ? '' : ' (စာရင်းအရ ' + money(ex) + ')') + ' မှတ်မလား?'); } }, 'ရေတွက်ပြီး ပိတ်မည်');
+          return h('div', { class: 'card' },
+            h('b', {}, PAY[m]),
+            op === null ? h('div', { class: 'msg e' }, 'အဖွင့်ငွေ မသတ်မှတ်ရသေးပါ။ အောက်မှာ ကိုယ်တိုင်ရေပြီး ထည့်ပါ။') : h('div', {},
+              row('အဖွင့်ငွေ', money(op)),
+              row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)', money(pin[m])),
+              row('+ ကြွေးကောက်ရငွေ', money(col[m])),
+              depInByM[m] > 0 ? row('+ O2 အိုးငှား စဘော်လက်ခံ', money(depInByM[m]), 'var(--navy)') : '',
+              rentInByM[m] > 0 ? row('+ O2 အိုးငှားခ ထပ်ဆောင်းရငွေ', money(rentInByM[m]), 'var(--ok)') : '',
+              compInByM[m] > 0 ? row('+ အိုးလျော်ကြေးရငွေ', money(compInByM[m]), 'var(--ok)') : '',
+              facRefByM[m] > 0 ? row('+ Factory ငွေပြန်အမ်း', money(facRefByM[m]), 'var(--ok)') : '',
+              loanInByM[m] > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(loanInByM[m]), 'var(--navy)') : '',
+              xferInByM[m] > 0 ? row('+ ငွေလွှဲလက်ခံ (အဝင်)', money(xferInByM[m]), 'var(--ok)') : '',
+              row('− အသုံးစရိတ်', money(om[m])),
+              depOutByM[m] > 0 ? row('− O2 စဘော် ပြန်အမ်းငွေ', money(depOutByM[m]), 'var(--red)') : '',
+              gasRefByM[m] > 0 ? row('− Gas ပြန်အမ်းငွေ', money(gasRefByM[m]), 'var(--red)') : '',
+              loanOutByM[m] > 0 ? row('− ချေးငွေပြန်ဆပ် (အထွက်)', money(loanOutByM[m]), 'var(--red)') : '',
+              xferOutByM[m] > 0 ? row('− ငွေလွှဲထုတ် (အထွက်)', money(xferOutByM[m]), 'var(--red)') : '',
+              row('= လက်ကျန်ငွေ (စာရင်းအရ)', money(ex), 'var(--navy)'),
+              cl ? row('ရေတွက်ထားတာ · ကွာ', money(cl.amt) + ' · ' + (cl.amt - ex >= 0 ? '+' : '') + r2(cl.amt - ex), Math.abs(cl.amt - ex) < 0.5 ? 'var(--ok)' : 'var(--red)') : ''
             ),
-            ...MTH.map(card)
-          ];
-        }
+            ia,
+            h('div', { class: 'row', style: 'margin-top:6px' }, ...(op === null ? [setOpen] : [setClose, setOpen]))
+          );
+        };
+        body = [
+          h('button', { class: 'n', style: 'width:100%;margin-bottom:8px;padding:10px;font-weight:700', onclick: () => viewExp(k, 3) }, '⇄ KPay ↔ ငွေသား ငွေလွှဲပြောင်းမည်'),
+          h('div', { class: 'card' },
+            h('b', {}, 'ငွေစာရင်း (စုစုပေါင်း)'),
+            row('အဖွင့်ငွေ', money(sumOp)),
+            row('+ ရောင်းရငွေ (ယနေ့ငွေဝင်)', money(sIn)),
+            row('+ ကြွေးကောက်ရငွေ', money(cIn)),
+            dIn > 0 ? row('+ O2 အိုးငှား စဘော်လက်ခံ', money(dIn), 'var(--navy)') : '',
+            rIn > 0 ? row('+ O2 အိုးငှားခ ထပ်ဆောင်းရငွေ', money(rIn), 'var(--ok)') : '',
+            lIn > 0 ? row('+ ယာယီချေးငွေ (အဝင်)', money(lIn), 'var(--navy)') : '',
+            row('− အသုံးစရိတ်', money(oOut)),
+            dOut > 0 ? row('− O2 စဘော် ပြန်အမ်းငွေ', money(dOut), 'var(--red)') : '',
+            gOut > 0 ? row('− Gas ပြန်အမ်းငွေ', money(gOut), 'var(--red)') : '',
+            lOut > 0 ? row('− ချေးငွေပြန်ဆပ် (အထွက်)', money(lOut), 'var(--red)') : '',
+            h('div', { class: 'li' }, h('b', {}, '= လက်ကျန်ငွေ'), h('b', { style: 'font-size:18px;color:' + (clo < 0 ? 'var(--red)' : 'var(--ok)') }, money(clo))),
+            unset ? h('div', { class: 'msg e' }, 'အဖွင့်ငွေ မသတ်မှတ်ရသေးတာ ' + unset + ' ခု ရှိလို့ ဒီစုစုပေါင်း မပြည့်စုံသေးပါ။') : ''
+          ),
+          ...MTH.map(card)
+        ];
       } else if (repTab === 3) {
         body = [
           h('div', { class: 'card' }, h('b', {}, 'ဒီနေ့ စရိတ်'), ...(ed.length ? ed.map(e => h('div', { class: 'li' }, h('span', {}, tm(e.at) + ' · ' + e.desc, h('br'), h('small', {}, (ECAT[e.cat] || e.cat) + ' · ' + PAY[e.m])), h('b', {}, money(e.amt)))) : [h('small', {}, 'စရိတ် မရှိပါ။')]), h('div', { class: 'li' }, h('b', {}, 'စုစုပေါင်း'), h('b', {}, money(ed.reduce((x, e) => x + e.amt, 0))))),
@@ -3652,106 +3811,120 @@
           h('div', { class: 'card' }, h('b', {}, 'ကြွေးကျန် (ယခု) ' + money(debtTotal())), ...(top.length ? top.map(c => row(c.name, money(c.bal))) : [h('small', {}, 'ကြွေးကျန်တဲ့ ဖောက်သည် မရှိပါ။')]))
         ];
       } else if (repTab === 5) {
-        if (!isAdmin()) {
-          body = [adminLockCard('စာရင်းပိတ် (Day Close)')];
-        } else {
-          const ops = MTH.map(m => opening(m, k));
-          const expCash = MTH.map((m, i) => ops[i] === null ? 0 : ops[i] + pin[m] + col[m] + compInByM[m] + facRefByM[m] + loanInByM[m] + xferInByM[m] - om[m] - loanOutByM[m] - gasRefByM[m] - xferOutByM[m]);
-          const totCashBook = expCash.reduce((x, y) => x + y, 0);
-          const cashInputs = MTH.map((m, i) => h('input', { type: 'number', inputmode: 'numeric', placeholder: PAY[m] + ' မြေပြင်လက်ကျန်', value: Math.round(expCash[i]) }));
+        const ops = MTH.map(m => opening(m, k));
+        const expCash = MTH.map((m, i) => ops[i] === null ? 0 : ops[i] + pin[m] + col[m] + compInByM[m] + facRefByM[m] + loanInByM[m] + depInByM[m] + rentInByM[m] + xferInByM[m] - om[m] - loanOutByM[m] - gasRefByM[m] - depOutByM[m] - xferOutByM[m]);
+        const totCashBook = expCash.reduce((x, y) => x + y, 0);
+        const cashInputs = MTH.map((m, i) => h('input', { type: 'number', inputmode: 'numeric', placeholder: PAY[m] + ' မြေပြင်လက်ကျန်', value: Math.round(expCash[i]) }));
 
-          const vissCyl = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'viss').sort((x, y) => x.at - y.at)[0];
-          const canCyl = gasEv.filter(e => !e.voided && e.type === 'cyl' && !e.closed && e.role === 'can').sort((x, y) => x.at - y.at)[0];
-          const vissCylBook = vissCyl ? gasRemOf(vissCyl) : 0;
-          const canCylBook = canCyl ? gasRemOf(canCyl) : 0;
+        const vissCyl = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'viss').sort((x, y) => x.at - y.at)[0];
+        const canCyl = gasEv.filter(e => e.type === 'cyl' && !e.closed && e.role === 'can').sort((x, y) => x.at - y.at)[0];
+        const vissCylBook = vissCyl ? gasRemOf(vissCyl) : 0;
+        const canCylBook = canCyl ? gasRemOf(canCyl) : 0;
 
-          const vissPhysIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: 'ပိဿာဖြည့်အိုး လက်ကျန်ချိန် (ပိဿာ)', value: r2(vissCylBook) });
-          const canPhysIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: 'ဗူးဖြည့်အိုး လက်ကျန်ချိန် (ပိဿာ)', value: r2(canCylBook) });
-          const stCheck = h('select', {}, h('option', { value: 'ok' }, 'ပစ္စည်းလက်ကျန် စာရင်းအတိုင်း ကိုက်ညီပါသည်'), h('option', { value: 'diff' }, 'ကွာဟချက် ရှိပါသည် (မှတ်ချက်ထည့်မည်)'));
-          const closeNote = h('input', { placeholder: 'မှတ်ချက် / ကွာဟရသည့် အကြောင်းရင်း (မရှိရင် ဗလာထား)' });
-          const prevClose = cf.filter(e => !e.voided && e.type === 'dayclose' && e.date === k).sort((x, y) => y.at - x.at)[0];
+        const vissPhysIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: 'ပိဿာဖြည့်အိုး လက်ကျန်ချိန် (ပိဿာ)', value: r2(vissCylBook) });
+        const canPhysIn = h('input', { type: 'number', inputmode: 'decimal', step: 'any', placeholder: 'ဗူးဖြည့်အိုး လက်ကျန်ချိန် (ပိဿာ)', value: r2(canCylBook) });
+        const stCheck = h('select', {}, h('option', { value: 'ok' }, 'ပစ္စည်းလက်ကျန် စာရင်းအတိုင်း ကိုက်ညီပါသည်'), h('option', { value: 'diff' }, 'ကွာဟချက် ရှိပါသည် (မှတ်ချက်ထည့်မည်)'));
+        const closeNote = h('input', { placeholder: 'မှတ်ချက် / ကွာဟရသည့် အကြောင်းရင်း (မရှိရင် ဗလာထား)' });
+        const prevClose = cf.filter(e => e.type === 'dayclose' && e.date === k).sort((x, y) => y.at - x.at)[0];
 
-          const closeDayBtn = h('button', {
-            class: 'o',
-            onclick: async () => {
-              const physCash = cashInputs.map(inp => parseFloat(inp.value) || 0);
-              const totPhysCash = physCash.reduce((x, y) => x + y, 0);
-              const cashDiff = totPhysCash - totCashBook;
-              const pViss = parseFloat(vissPhysIn.value); const pCan = parseFloat(canPhysIn.value);
-              if (isNaN(pViss) || isNaN(pCan)) return note(msg, 'လက်ကျန်အိုး ပိဿာများ ထည့်ပါ။');
-              const vissDiff = pViss - vissCylBook; const canDiff = pCan - canCylBook;
-              const status = Math.abs(cashDiff) < 1 && Math.abs(vissDiff) < 0.05 && Math.abs(canDiff) < 0.05 && stCheck.value === 'ok' ? 'ကိုက်ညီသည် (Balanced)' : 'ကွာဟချက်ရှိသည် (Variance)';
-              const summary = 'ရက်စွဲ: ' + k + '\nအခြေအနေ: ' + status + '\nငွေလက်ကျန် ကွာဟချက်: ' + (cashDiff >= 0 ? '+' : '') + Math.round(cashDiff) + ' ကျပ်\nပိဿာအိုး ကွာဟချက်: ' + (vissDiff >= 0 ? '+' : '') + r2(vissDiff) + ' viss\nဗူးအိုး ကွာဟချက်: ' + (canDiff >= 0 ? '+' : '') + r2(canDiff) + ' viss\n\nကတ္တားချိန်ထားတဲ့ လက်ကျန်ပိဿာအတိုင်း ပြင်ဆင်ပြီး ယနေ့စာရင်း ပိတ်မလား?';
-              if (!(await uiConfirm(summary))) return;
+        const closeDayBtn = h('button', {
+          class: 'o',
+          onclick: async () => {
+            const physCash = cashInputs.map(inp => parseFloat(inp.value) || 0);
+            const totPhysCash = physCash.reduce((x, y) => x + y, 0);
+            const cashDiff = totPhysCash - totCashBook;
+            const pViss = parseFloat(vissPhysIn.value); const pCan = parseFloat(canPhysIn.value);
+            if (isNaN(pViss) || isNaN(pCan)) return note(msg, 'လက်ကျန်အိုး ပိဿာများ ထည့်ပါ။');
+            const vissDiff = pViss - vissCylBook; const canDiff = pCan - canCylBook;
+            const status = Math.abs(cashDiff) < 1 && Math.abs(vissDiff) < 0.05 && Math.abs(canDiff) < 0.05 && stCheck.value === 'ok' ? 'ကိုက်ညီသည် (Balanced)' : 'ကွာဟချက်ရှိသည် (Variance)';
+            const summary = 'ရက်စွဲ: ' + k + '\nအခြေအနေ: ' + status + '\nငွေလက်ကျန် ကွာဟချက်: ' + (cashDiff >= 0 ? '+' : '') + Math.round(cashDiff) + ' ကျပ်\nပိဿာအိုး ကွာဟချက်: ' + (vissDiff >= 0 ? '+' : '') + r2(vissDiff) + ' viss\nဗူးအိုး ကွာဟချက်: ' + (canDiff >= 0 ? '+' : '') + r2(canDiff) + ' viss\n\nကတ္တားချိန်ထားတဲ့ လက်ကျန်ပိဿာအတိုင်း ပြင်ဆင်ပြီး ယနေ့စာရင်း ပိတ်မလား?';
+            if (!(await uiConfirm(summary))) return;
 
-              const now = Date.now();
-              await run(['cf', 'gasEv'], 'readwrite', t => {
-                const os = t.objectStore('cf');
-                MTH.forEach((m, i) => os.add({ id: uuid(), at: now, type: 'bal', kind: 'close', date: k, method: m, amt: physCash[i] }));
-                os.add({ id: uuid(), at: now, type: 'dayclose', date: k, status, cashBook: totCashBook, cashPhys: totPhysCash, vissBook: vissCylBook, vissPhys: pViss, canBook: canCylBook, canPhys: pCan, stockOk: stCheck.value === 'ok', note: closeNote.value.trim() });
-                const gos = t.objectStore('gasEv');
-                if (vissCyl && Math.abs(vissDiff) >= 1e-6) gos.put({ ...vissCyl, adj: (vissCyl.adj || 0) + vissDiff, log: [...(vissCyl.log || []), { at: now, t: 'close weigh ' + r2(vissCylBook) + '→' + r2(pViss) }] });
-                if (canCyl && Math.abs(canDiff) >= 1e-6) gos.put({ ...canCyl, adj: (canCyl.adj || 0) + canDiff, log: [...(canCyl.log || []), { at: now, t: 'close weigh ' + r2(canCylBook) + '→' + r2(pCan) }] });
-              });
-              await reload();
-              viewReport(k, 5);
-              note(msg, 'ယနေ့ (' + k + ') စာရင်း ပိတ်သိမ်းပြီး လက်ကျန်အိုး ပိဿာများနှင့် ငွေလက်ကျန်များကို မနက်ဖြန် အဖွင့်စာရင်းအဖြစ် သိမ်းဆည်းပြီးပါပြီ။', 1);
-            }
-          }, 'လက်ကျန်ချိန်ညှိပြီး ယနေ့စာရင်း ပိတ်မည်');
+            const now = Date.now();
+            await run(['cf', 'gasEv'], 'readwrite', t => {
+              const os = t.objectStore('cf');
+              MTH.forEach((m, i) => os.add({ id: uuid(), at: now, type: 'bal', kind: 'close', date: k, method: m, amt: physCash[i] }));
+              os.add({ id: uuid(), at: now, type: 'dayclose', date: k, status, cashBook: totCashBook, cashPhys: totPhysCash, vissBook: vissCylBook, vissPhys: pViss, canBook: canCylBook, canPhys: pCan, stockOk: stCheck.value === 'ok', note: closeNote.value.trim() });
+              const gos = t.objectStore('gasEv');
+              if (vissCyl && Math.abs(vissDiff) >= 1e-6) gos.put({ ...vissCyl, adj: (vissCyl.adj || 0) + vissDiff, log: [...(vissCyl.log || []), { at: now, t: 'close weigh ' + r2(vissCylBook) + '→' + r2(pViss) }] });
+              if (canCyl && Math.abs(canDiff) >= 1e-6) gos.put({ ...canCyl, adj: (canCyl.adj || 0) + canDiff, log: [...(canCyl.log || []), { at: now, t: 'close weigh ' + r2(canCylBook) + '→' + r2(pCan) }] });
+            });
+            await reload();
+            viewReport(k, 5);
+            note(msg, 'ယနေ့ (' + k + ') စာရင်း ပိတ်သိမ်းပြီး လက်ကျန်အိုး ပိဿာများနှင့် ငွေလက်ကျန်များကို မနက်ဖြန် အဖွင့်စာရင်းအဖြစ် သိမ်းဆည်းပြီးပါပြီ။', 1);
+          }
+        }, 'လက်ကျန်ချိန်ညှိပြီး ယနေ့စာရင်း ပိတ်မည်');
 
-          body = [
-            prevClose ? h('div', { class: 'msg k' }, '✓ ' + k + ' အတွက် စာရင်းပိတ်ပြီးသား (' + prevClose.status + ') · ငွေ ' + money(prevClose.cashPhys)) : '',
-            h('div', { class: 'card' },
-              h('b', {}, '၁။ ငွေစာရင်း တိုက်စစ်ရန် (စာရင်းအရ စုစုပေါင်း: ' + money(totCashBook) + ')'),
-              ...MTH.map((m, i) => h('div', {}, h('label', {}, PAY[m] + ' (စာရင်းအရ ' + money(expCash[i]) + ')'), cashInputs[i]))
-            ),
-            h('div', { class: 'card' },
-              h('b', {}, '၂။ လက်ကျန်အိုးများ ကတ္တားချိန်ပြီး ပိတ်ရန်'),
-              h('small', {}, 'ဒီနေ့ မကုန်သေးတဲ့ ဖွင့်သုံးဆဲအိုးတွေကို ကတ္တားနဲ့ချိန်ပြီး ကျန်ပိဿာအစစ် ထည့်ပါ (နောက်နေ့ အဖွင့်လက်ကျန် ဖြစ်သွားပါမယ်)။'),
-              h('label', {}, 'ပိဿာဖြည့်အိုး လက်ကျန် (စာရင်းအရ ' + r2(vissCylBook) + ' viss) — မြေပြင်ချိန်'), vissPhysIn,
-              h('label', {}, 'ဗူးဖြည့်အိုး လက်ကျန် (စာရင်းအရ ' + r2(canCylBook) + ' viss) — မြေပြင်ချိန်'), canPhysIn
-            ),
-            h('div', { class: 'card' },
-              h('b', {}, '၃။ ပစ္စည်းစာရင်း & အတည်ပြုချက်'),
-              h('label', {}, 'ပစ္စည်းလက်ကျန် စစ်ဆေးမှု'), stCheck,
-              h('label', {}, 'မှတ်ချက်'), closeNote,
-              closeDayBtn
-            )
-          ];
-        }
+        body = [
+          prevClose ? h('div', { class: 'msg k' }, '✓ ' + k + ' အတွက် စာရင်းပိတ်ပြီးသား (' + prevClose.status + ') · ငွေ ' + money(prevClose.cashPhys)) : '',
+          h('div', { class: 'card' },
+            h('b', {}, '၁။ ငွေစာရင်း တိုက်စစ်ရန် (စာရင်းအရ စုစုပေါင်း: ' + money(totCashBook) + ')'),
+            ...MTH.map((m, i) => h('div', {}, h('label', {}, PAY[m] + ' (စာရင်းအရ ' + money(expCash[i]) + ')'), cashInputs[i]))
+          ),
+          h('div', { class: 'card' },
+            h('b', {}, '၂။ လက်ကျန်အိုးများ ကတ္တားချိန်ပြီး ပိတ်ရန်'),
+            h('small', {}, 'ဒီနေ့ မကုန်သေးတဲ့ ဖွင့်သုံးဆဲအိုးတွေကို ကတ္တားနဲ့ချိန်ပြီး ကျန်ပိဿာအစစ် ထည့်ပါ (နောက်နေ့ အဖွင့်လက်ကျန် ဖြစ်သွားပါမယ်)။'),
+            h('label', {}, 'ပိဿာဖြည့်အိုး လက်ကျန် (စာရင်းအရ ' + r2(vissCylBook) + ' viss) — မြေပြင်ချိန်'), vissPhysIn,
+            h('label', {}, 'ဗူးဖြည့်အိုး လက်ကျန် (စာရင်းအရ ' + r2(canCylBook) + ' viss) — မြေပြင်ချိန်'), canPhysIn
+          ),
+          h('div', { class: 'card' },
+            h('b', {}, '၃။ ပစ္စည်းစာရင်း & အတည်ပြုချက်'),
+            h('label', {}, 'ပစ္စည်းလက်ကျန် စစ်ဆေးမှု'), stCheck,
+            h('label', {}, 'မှတ်ချက်'), closeNote,
+            closeDayBtn
+          )
+        ];
       } else {
-        if (!isAdmin()) {
-          body = [adminLockCard('အရှုံး/အမြတ် (Profit & Loss)')];
-        } else {
-          const dPnl = calcPnL(k, false);
-          const mPnl = calcPnL(k.slice(0, 7), true);
-          const pnlBox = (title, p) => h('div', { class: 'card' },
-            h('b', { style: 'font-size:16px' }, title),
-            p.unidGasWarn ? h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, '⚠ Gas Supplier ဝယ်ဈေးမှတ်တမ်း မပြည့်စုံသေးပါ — ခန့်မှန်း COGS (Estimated) ဖြင့် တွက်ထားပါသည်။') : '',
-            p.rentWarn ? h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, '⚠ ' + p.rentWarn) : '',
-            row('Net Revenue (အရောင်းဝင်ငွေ)', money(p.netRev)),
-            row('− Gas COGS (Supplier Latest / Buy-Back)', money(p.gasCogs)),
-            row('− Oxygen COGS (4-Type / Mother Cyl)', money(p.o2Cogs)),
-            row('− Product COGS (Commit-Time + FOC)', money(p.prodCogs)),
-            h('div', { class: 'li', style: 'border-top:1px solid var(--ln)' }, h('b', {}, '= Gross Profit'), h('b', {}, money(p.grossProfit))),
-            row('− Operating Expenses', money(p.opExp)),
-            row('− Supplier Weight Variance Expense', money(p.weightVarExp)),
-            row('− Allocated Shop Rent (750k/mo)', money(p.rentAlloc)),
-            h('div', { class: 'li', style: 'border-top:2px solid var(--navy)' }, h('b', {}, '= Net Profit / (Loss)'), h('b', { style: 'font-size:18px;color:' + (p.netProfit < 0 ? 'var(--red)' : 'var(--ok)') }, money(p.netProfit))),
-            h('div', { style: 'margin-top:6px' }, h('small', {}, 'Applied Gas Rates: ' + Object.entries(p.supRates).map(([ag, sr]) => ag + ' ' + Math.round(sr.perViss) + '/viss' + (sr.date ? ' (' + sr.date + ')' : ' [Est]')).join(' · ')))
-          );
-          body = [pnlBox('နေ့စဉ် အရှုံး/အမြတ် (Daily P&L — ' + k + ')', dPnl), pnlBox('လစဉ် အရှုံး/အမြတ် (Monthly P&L — ' + k.slice(0, 7) + ')', mPnl)];
-        }
+        const dPnl = calcPnL(k, false);
+        const mPnl = calcPnL(k.slice(0, 7), true);
+        const pnlBox = (title, p) => h('div', { class: 'card' },
+          h('b', { style: 'font-size:16px' }, title),
+          p.unidGasWarn ? h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, '⚠ Gas Supplier ဝယ်ဈေးမှတ်တမ်း မပြည့်စုံသေးပါ — ခန့်မှန်း COGS (Estimated) ဖြင့် တွက်ထားပါသည်။') : '',
+          p.rentWarn ? h('div', { class: 'msg e', style: 'background:#FFF3E8;color:#9A4308' }, '⚠ ' + p.rentWarn) : '',
+          row('Net Revenue (အရောင်းဝင်ငွေ + O2 အိုးငှားခ)', money(p.netRev)),
+          row('− Gas COGS (Supplier Latest / Buy-Back)', money(p.gasCogs)),
+          row('− Oxygen COGS (4-Type / Mother Cyl)', money(p.o2Cogs)),
+          row('− Product COGS (Commit-Time + FOC)', money(p.prodCogs)),
+          h('div', { class: 'li', style: 'border-top:1px solid var(--ln)' }, h('b', {}, '= Gross Profit'), h('b', {}, money(p.grossProfit))),
+          row('− Operating Expenses', money(p.opExp)),
+          row('− Supplier Weight Variance Expense', money(p.weightVarExp)),
+          row('− Allocated Shop Rent (750k/mo)', money(p.rentAlloc)),
+          h('div', { class: 'li', style: 'border-top:2px solid var(--navy)' }, h('b', {}, '= Net Profit / (Loss)'), h('b', { style: 'font-size:18px;color:' + (p.netProfit < 0 ? 'var(--red)' : 'var(--ok)') }, money(p.netProfit))),
+          h('div', { style: 'margin-top:6px' }, h('small', {}, 'Applied Gas Rates: ' + Object.entries(p.supRates).map(([ag, sr]) => ag + ' ' + Math.round(sr.perViss) + '/viss' + (sr.date ? ' (' + sr.date + ')' : ' [Est]')).join(' · ')))
+        );
+        body = [pnlBox('နေ့စဉ် အရှုံး/အမြတ် (Daily P&L — ' + k + ')', dPnl), pnlBox('လစဉ် အရှုံး/အမြတ် (Monthly P&L — ' + k.slice(0, 7) + ')', mPnl)];
       }
 
       app.append(h('div', { class: 'card' }, h('b', {}, 'နေ့စဉ် စာရင်းချုပ် & စာရင်းပိတ်'), di), tabs, msg, ...body);
     }
 
     // =========================================================================
-    // 8. TAB 6: OXYGEN (v24-s15 CLOUD SOFT-DELETE FOR FACTORY & OWN ROWS)
+    // 8. TAB 6: OXYGEN (FACTORY + OWN CYLINDER + O2 40L DEPOSIT RENTAL SYSTEM)
     // =========================================================================
     let o2Month = null;
     let o2LedgerTab = 1;
+
+    function calcO2RentalSettlement(startAt, returnAt, depositAmt) {
+      const startDay = new Date(startAt); startDay.setHours(0, 0, 0, 0);
+      const retDay = new Date(returnAt); retDay.setHours(0, 0, 0, 0);
+      const rawDiff = Math.round((retDay.getTime() - startDay.getTime()) / 86400000);
+      const days = Math.max(1, rawDiff + 1);
+      let rentFee = 0;
+      let ruleLabel = '';
+      if (days <= 10) {
+        rentFee = 0;
+        ruleLabel = '၁၀ ရက်အတွင်း အခမဲ့';
+      } else if (days <= 30) {
+        const extraDays = days - 10;
+        rentFee = extraDays * 500;
+        ruleLabel = '၁၀ ရက်ကျော် ' + extraDays + ' ရက် × 500';
+      } else {
+        rentFee = days * 500;
+        ruleLabel = '၁ လကျော် · စငှားရက်မှ ' + days + ' ရက် × 500';
+      }
+      const refund = (Number(depositAmt) || 0) - rentFee;
+      return { days, rentFee, refund, ruleLabel };
+    }
 
     function viewOxy() {
       const app = $('#app');
@@ -3771,15 +3944,240 @@
       const subTabs = h('div', { class: 'row', style: 'margin-bottom:10px' },
         h('button', {
           class: o2LedgerTab === 1 ? '' : 'n',
-          style: 'padding:10px 6px;font-size:13px',
+          style: 'padding:10px 4px;font-size:12.5px',
           onclick: () => { o2LedgerTab = 1; viewOxy(); }
-        }, '၁။ စက်ရုံအိုး (40L / 47L · လကုန်ရှင်း)'),
+        }, '၁။ စက်ရုံအိုး (40L / 47L)'),
         h('button', {
           class: o2LedgerTab === 2 ? '' : 'n',
-          style: 'padding:10px 6px;font-size:13px',
+          style: 'padding:10px 4px;font-size:12.5px',
           onclick: () => { o2LedgerTab = 2; viewOxy(); }
-        }, '၂။ အပိုင်အိုး (40L / Over · လက်ငင်း/ဘောင်ချာကျန်)')
+        }, '၂။ အပိုင်အိုး (40L / Over)'),
+        h('button', {
+          class: o2LedgerTab === 3 ? '' : 'n',
+          style: 'padding:10px 4px;font-size:12.5px',
+          onclick: () => { o2LedgerTab = 3; viewOxy(); }
+        }, '၃။ O2 40L အိုးငှား (စဘော်)')
       );
+
+      if (o2LedgerTab === 3) {
+        const allRentals = cf.filter(e => e.type === 'o2_rent' && !e.voided).sort((a, b) => b.at - a.at);
+        const activeRentals = allRentals.filter(r => !r.returned);
+        const returnedRentals = allRentals.filter(r => r.returned);
+        const totalDepositHeld = activeRentals.reduce((a, r) => a + (Number(r.deposit) || 0), 0);
+
+        const cl = h('datalist', { id: 'o2rent-cl' }, customers().map(c => h('option', { value: c.name })));
+        const rNameIn = h('input', { list: 'o2rent-cl', placeholder: 'ငှားသူအမည် (ဥပမာ ဦးမောင်မောင်)' });
+        const rPhoneIn = h('input', { type: 'tel', inputmode: 'tel', placeholder: 'ဖုန်းနံပါတ် (ဥပမာ 09...)' });
+        const rDateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
+        const rQtyIn = h('input', { type: 'number', inputmode: 'numeric', min: '1', value: '1' });
+        const rDepIn = h('input', { type: 'number', inputmode: 'numeric', min: '0', value: '25000' });
+        const rMethodSel = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
+        const rNoteIn = h('input', { placeholder: 'မှတ်ချက် / လိပ်စာ (မထည့်လည်းရ)' });
+        const rPrintCb = h('input', { type: 'checkbox', checked: '', style: 'width:auto;margin-right:8px' });
+
+        rNameIn.onchange = () => {
+          const ex = customers().find(c => c.key === ck(rNameIn.value));
+          if (ex && ex.phone && !rPhoneIn.value) rPhoneIn.value = ex.phone;
+        };
+
+        const createRentBtn = h('button', {
+          class: 'o',
+          onclick: async () => {
+            const renter = rNameIn.value.trim();
+            const phone = rPhoneIn.value.trim();
+            const qty = parseInt(rQtyIn.value) || 1;
+            const deposit = parseFloat(rDepIn.value);
+            if (!renter) return note(msg, 'ငှားသူအမည် ထည့်ပါ။');
+            if (!(qty >= 1)) return note(msg, 'အိုးအရေအတွက် မှန်ကန်စွာ ထည့်ပါ။');
+            if (isNaN(deposit) || deposit < 0) return note(msg, 'စဘော်ငွေပမာဏ ထည့်ပါ။');
+
+            const startAt = stampAt(rDateIn.value);
+            if (!(await guardMonthLock(startAt, msg))) return;
+
+            const confirmTxt = 'O2 40L အပိုင်အိုး အငှားမှတ်မည်\n' +
+              '• ငှားသူအမည်: ' + renter + (phone ? ' (' + phone + ')' : '') + '\n' +
+              '• စငှားသည့်ရက်: ' + fmtLogDate(rDateIn.value) + '\n' +
+              '• အရေအတွက်: ' + qty + ' လုံး\n' +
+              '• စဘော်ငွေ: ' + money(deposit) + ' (' + PAY[rMethodSel.value] + ')\n' +
+              '• စည်းကမ်း: ၁၀ ရက်အတွင်း အခမဲ့ · ၁၀ ရက်ကျော် တစ်ရက် 500 ကျပ် · ၁ လ (ရက် ၃၀) ကျော်လျှင် စငှားရက်မှ တစ်ရက် 500 ကျပ်';
+            if (!(await uiConfirm(confirmTxt))) return;
+
+            createRentBtn.disabled = true;
+            try {
+              const rec = {
+                id: uuid(),
+                at: startAt,
+                startDate: rDateIn.value,
+                type: 'o2_rent',
+                renter,
+                phone,
+                qty,
+                deposit,
+                m: rMethodSel.value,
+                note: rNoteIn.value.trim(),
+                returned: false
+              };
+              const exCust = customers().find(c => c.key === ck(renter));
+              await run('cf', 'readwrite', t => {
+                const os = t.objectStore('cf');
+                os.add(rec);
+                if (!exCust) os.add({ id: uuid(), at: startAt, type: 'cust', name: renter, phone });
+              });
+              await reload();
+              viewOxy();
+              note(msg, 'O2 40L အိုးငှား စဘော်မှတ်တမ်း သိမ်းပြီးပါပြီ (စဘော် ' + money(deposit) + ' ကို ' + PAY[rMethodSel.value] + ' လက်ကျန်ထဲ ပေါင်းထည့်ပြီးပါပြီ)။', 1);
+              if (rPrintCb.checked) printO2RentalReceipt(rec, null);
+            } catch (err) {
+              createRentBtn.disabled = false;
+              note(msg, 'မသိမ်းနိုင်ပါ: ' + (err && err.message || err));
+            }
+          }
+        }, '✔ O2 40L အိုးငှား မှတ်မည် & စဘော်ဘောင်ချာထုတ်မည်');
+
+        const openReturnModal = r => {
+          const bg = h('div', { class: 'modal-bg' });
+          const retDateIn = h('input', { type: 'date', min: dkey(r.at), max: dkey(Date.now()), value: dkey(Date.now()) });
+          const retMethodSel = h('select', {}, MTH.map(k => h('option', { value: k }, PAY[k])));
+          retMethodSel.value = r.m || 'cash';
+          const calcBox = h('div', { style: 'background:#F4F6F9;padding:10px;border-radius:8px;margin:8px 0;border:1px solid var(--ln)' });
+          const printRetCb = h('input', { type: 'checkbox', checked: '', style: 'width:auto;margin-right:8px' });
+
+          const refreshCalc = () => {
+            const retAt = stampAt(retDateIn.value);
+            const st = calcO2RentalSettlement(r.at, retAt, r.deposit);
+            calcBox.replaceChildren(
+              h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, 'စငှားသည့်ရက်'), h('b', {}, fmtLogDate(dkey(r.at)))),
+              h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, 'ပြန်အပ်သည့်ရက်'), h('b', {}, fmtLogDate(retDateIn.value))),
+              h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, 'စုစုပေါင်း ကြာမြင့်ရက်'), h('b', { style: 'color:var(--navy)' }, st.days + ' ရက်')),
+              h('div', { class: 'li', style: 'padding:3px 0' }, h('span', {}, 'တွက်ချက်မှုစည်းကမ်း'), h('span', { class: st.days > 30 ? 'tag red' : st.days > 10 ? 'tag' : 'tag ok' }, st.ruleLabel)),
+              h('div', { class: 'li', style: 'padding:4px 0;border-top:1px solid var(--ln)' }, h('span', {}, 'စဘော်တင်ငွေ'), h('b', {}, money(r.deposit))),
+              h('div', { class: 'li', style: 'padding:4px 0' }, h('span', {}, 'ကျသင့် အိုးငှားခ'), h('b', { style: 'color:var(--org)' }, money(st.rentFee))),
+              h('div', { class: 'li', style: 'padding:5px 0;border-top:2px solid var(--navy)' },
+                h('b', {}, st.refund >= 0 ? 'စဘော် ပြန်အမ်းရမည့်ငွေ' : 'ထပ်မံတောင်းခံရမည့်ငွေ'),
+                h('b', { style: 'font-size:18px;color:' + (st.refund >= 0 ? 'var(--ok)' : 'var(--red)') }, money(Math.abs(st.refund)))
+              )
+            );
+            return { retAt, st };
+          };
+          retDateIn.onchange = refreshCalc;
+          refreshCalc();
+
+          const confirmRetBtn = h('button', {
+            class: 'o',
+            style: 'margin-top:0',
+            onclick: async () => {
+              const { retAt, st } = refreshCalc();
+              if (!(await guardMonthLock(retAt))) return;
+              confirmRetBtn.disabled = true;
+              const updated = {
+                ...r,
+                returned: true,
+                returnedAt: retAt,
+                returnDate: retDateIn.value,
+                daysUsed: st.days,
+                rentFee: st.rentFee,
+                refund: st.refund,
+                ruleLabel: st.ruleLabel,
+                retMethod: retMethodSel.value
+              };
+              await put('cf', updated);
+              bg.remove();
+              await reload();
+              viewOxy();
+              note(msg, r.renter + ' O2 40L အိုးပြန်အပ် မှတ်ပြီးပါပြီ (ကြာရက် ' + st.days + ' ရက် · ငှားခ ' + money(st.rentFee) + ')။', 1);
+              if (printRetCb.checked) printO2RentalReceipt(updated, updated);
+            }
+          }, '✔ အိုးပြန်အပ် အတည်ပြုမည်');
+
+          bg.append(h('div', { class: 'modal-box' },
+            h('b', { style: 'font-size:16.5px;color:var(--navy)' }, 'O2 40L အပိုင်အိုး ပြန်အပ်ငွေရှင်းရန်'),
+            h('div', { style: 'margin:4px 0' }, h('b', {}, r.renter), r.phone ? ' · ' + r.phone : ''),
+            h('label', {}, 'ပြန်အပ်သည့် ရက်စွဲ'), retDateIn,
+            calcBox,
+            h('label', {}, 'ပြန်အမ်း / ငွေလက်ခံသည့် Channel'), retMethodSel,
+            h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, printRetCb, 'ပြန်အပ်ငွေရှင်း ဘောင်ချာ Print ထုတ်မည်'),
+            h('div', { class: 'row', style: 'margin-top:12px' },
+              h('button', { class: 'n', onclick: () => bg.remove() }, 'မလုပ်ပါ'),
+              confirmRetBtn
+            )
+          ));
+          document.body.appendChild(bg);
+        };
+
+        app.append(
+          cl,
+          h('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px' },
+            h('b', { style: 'font-size:16px' }, 'Oxygen (O2) စာရင်းဇယား'),
+            monthIn
+          ),
+          subTabs,
+          msg,
+          h('div', { class: 'card', style: 'border:2px solid var(--navy);background:#F8FAFC' },
+            h('div', { style: 'display:flex;justify-content:space-between;align-items:center' },
+              h('b', {}, 'လက်ရှိ အငှားထွက်နေသော O2 40L အပိုင်အိုး'),
+              h('b', { style: 'font-size:18px;color:var(--org)' }, activeRentals.reduce((a, r) => a + (r.qty || 1), 0) + ' လုံး')
+            ),
+            h('small', {}, 'လက်ခံထားသော စဘော်ငွေ စုစုပေါင်း: ' + money(totalDepositHeld) + ' (၁၀ ရက်အခမဲ့ · ကျော်ရင် ၅၀၀/ရက် · ၁ လကျော်ရင် စငှားရက်မှ ၅၀၀/ရက်)')
+          ),
+          h('div', { class: 'card' },
+            h('b', { style: 'font-size:15.5px' }, '+ O2 40L အပိုင်အိုး အသစ်ငှားရမ်းရန် (စဘော်တင်)'),
+            h('div', { class: 'row' },
+              h('div', {}, h('label', {}, 'ငှားသူအမည်'), rNameIn),
+              h('div', {}, h('label', {}, 'ဖုန်းနံပါတ်'), rPhoneIn)
+            ),
+            h('div', { class: 'row' },
+              h('div', {}, h('label', {}, 'စငှားသည့် ရက်စွဲ'), rDateIn),
+              h('div', {}, h('label', {}, 'အရေအတွက် (လုံး)'), rQtyIn)
+            ),
+            h('div', { class: 'row' },
+              h('div', {}, h('label', {}, 'စဘော်ငွေ (ပုံသေ 25,000)'), rDepIn),
+              h('div', {}, h('label', {}, 'စဘော်လက်ခံသည့် Channel'), rMethodSel)
+            ),
+            h('label', {}, 'မှတ်ချက် / လိပ်စာ'), rNoteIn,
+            h('label', { style: 'display:flex;align-items:center;margin-top:8px' }, rPrintCb, 'စဘော်ဘောင်ချာ Print ထုတ်မည်'),
+            createRentBtn
+          ),
+          h('h2', {}, 'လက်ရှိ ငှားရမ်းထားသူများ (' + activeRentals.length + ')'),
+          h('div', { class: 'card' }, activeRentals.length ? activeRentals.map(r => {
+            const preview = calcO2RentalSettlement(r.at, Date.now(), r.deposit);
+            return h('div', { class: 'li', style: 'flex-wrap:wrap;align-items:flex-start' },
+              h('span', { style: 'flex:1 1 58%' },
+                h('b', { style: 'font-size:15px' }, r.renter), r.phone ? ' (' + r.phone + ')' : '',
+                h('span', { class: preview.days > 30 ? 'tag red' : preview.days > 10 ? 'tag' : 'tag ok' }, preview.days + ' ရက်မြောက်'),
+                h('br'),
+                h('small', {}, 'စငှားရက်: ' + fmtLogDate(dkey(r.at)) + ' · စဘော်: ' + money(r.deposit) + ' (' + PAY[r.m] + ')' + (r.note ? ' · ' + r.note : '')),
+                h('div', {}, h('small', { style: 'color:' + (preview.rentFee > 0 ? 'var(--org)' : 'var(--ok)') }, 'ယနေ့ပြန်အပ်လျှင်: အိုးငှားခ ' + money(preview.rentFee) + ' · ပြန်အမ်းငွေ ' + money(preview.refund)))
+              ),
+              h('span', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
+                h('button', { class: 'n', style: 'padding:4px 9px;font-size:12px', onclick: () => printO2RentalReceipt(r, null) }, 'စဘော်ဘောင်ချာ'),
+                h('button', { style: 'padding:5px 10px;font-size:12.5px;background:var(--ok)', onclick: () => openReturnModal(r) }, 'အိုးပြန်အပ်ပြီ'),
+                h('button', {
+                  class: 'g',
+                  style: 'padding:4px 8px;font-size:12px',
+                  onclick: async () => {
+                    if (!(await requireAdmin('အိုးငှားမှတ်တမ်း ဖျက်ခြင်း'))) return;
+                    if (!(await uiConfirm('ဒီအိုးငှားမှတ်တမ်းကို ပယ်ဖျက်မလား?'))) return;
+                    await put('cf', { ...r, voided: true, voidedAt: Date.now() });
+                    await reload();
+                    viewOxy();
+                  }
+                }, '×')
+              )
+            );
+          }) : h('small', {}, 'လက်ရှိ အငှားထွက်နေသော အိုး မရှိပါ။')),
+          returnedRentals.length ? h('h2', {}, 'ပြန်အပ်ပြီး မှတ်တမ်းများ (' + returnedRentals.length + ')') : '',
+          returnedRentals.length ? h('div', { class: 'card' }, returnedRentals.slice(0, 25).map(r => h('div', { class: 'li', style: 'flex-wrap:wrap' },
+            h('span', { style: 'flex:1 1 62%' },
+              h('b', {}, r.renter), r.phone ? ' (' + r.phone + ')' : '',
+              h('span', { class: 'tag ok' }, 'ပြန်အပ်ပြီး · ' + r.daysUsed + ' ရက်'),
+              h('br'),
+              h('small', {}, fmtLogDate(dkey(r.at)) + ' → ' + fmtLogDate(dkey(r.returnedAt)) + ' · ငှားခ ' + money(r.rentFee) + ' · ပြန်အမ်း ' + money(r.refund))
+            ),
+            h('button', { class: 'n', style: 'padding:3px 8px;font-size:12px', onclick: () => printO2RentalReceipt(r, r) }, 'Print')
+          ))) : ''
+        );
+        return;
+      }
 
       const isFac = o2LedgerTab === 1;
       const effDateIn = h('input', { type: 'date', max: dkey(Date.now()), value: dkey(Date.now()) });
@@ -3883,7 +4281,7 @@
             const summary = isDamaged
               ? 'အိုးပျက် / ဖြည့်မရ (အခွံပြန်ထုတ်) မှတ်မည် (' + fmtLogDate(dk) + ')\n' +
                 '• ပြန်ထုတ်သည့် အိုးပျက်: 40L (' + e1 + '), Over 40L (' + e2 + ')\n' +
-                '• Stock ထဲမှ လျှော့ပေးမည် · ကျသင့်ငွေ 0 ကျပ် (စရိတ်/ဘောင်ချာကျန် မဝင်ပါ)'
+                '• Stock ထဲမှ လျှော့ပေးမည် · ကျသင့်ငွေ 0 ကျပ်'
               : 'အပိုင်အိုး စာရင်းသွင်းမည် (' + fmtLogDate(dk) + ')\n' +
                 '• Empty: 40L (' + e1 + '), Over 40L (' + e2 + ')\n' +
                 '• Full: 40L (' + f1 + '), Over 40L (' + f2 + ')' +
@@ -3948,23 +4346,23 @@
       let ledgerSection;
 
       if (isFac) {
-        const obRec = stk.filter(e => !e.voided && e.type === 'o2_fac_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
+        const obRec = stk.filter(e => e.type === 'o2_fac_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
         let open40 = 0, open47 = 0;
         if (obRec) {
           open40 = Number(obRec.s40) || 0;
           open47 = Number(obRec.s47) || 0;
         } else {
-          const priorOb = stk.filter(e => !e.voided && e.type === 'o2_fac_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
+          const priorOb = stk.filter(e => e.type === 'o2_fac_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
           const startYm = priorOb ? priorOb.month : '0000-00';
           open40 = priorOb ? (Number(priorOb.s40) || 0) : 0;
           open47 = priorOb ? (Number(priorOb.s47) || 0) : 0;
-          stk.filter(e => !e.voided && e.type === 'o2_fac' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
+          stk.filter(e => e.type === 'o2_fac' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
             if (e.o2type === '40L') open40 += (e.fullQty || 0) - (e.emptyQty || 0);
             if (e.o2type === '47L') open47 += (e.fullQty || 0) - (e.emptyQty || 0);
           });
         }
 
-        const rawFac = stk.filter(e => !e.voided && e.type === 'o2_fac' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
+        const rawFac = stk.filter(e => e.type === 'o2_fac' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
         const rows = [];
         for (let i = 0; i < rawFac.length; i++) {
           const cur = rawFac[i];
@@ -3973,7 +4371,7 @@
             const r40 = cur.o2type === '40L' ? cur : nxt;
             const r47 = cur.o2type === '47L' ? cur : nxt;
             rows.push({
-              items: [r40, r47], at: r40.at, dk: dkey(r40.at),
+              recs: [r40, r47], at: r40.at, dk: dkey(r40.at),
               e40: r40.emptyQty || 0, e47: r47.emptyQty || 0,
               f40: r40.fullQty || 0, f47: r47.fullQty || 0,
               note: r40.note || r47.note || ''
@@ -3982,7 +4380,7 @@
           } else {
             const is40 = cur.o2type === '40L';
             rows.push({
-              items: [cur], at: cur.at, dk: dkey(cur.at),
+              recs: [cur], at: cur.at, dk: dkey(cur.at),
               e40: is40 ? (cur.emptyQty || 0) : 0, e47: !is40 ? (cur.emptyQty || 0) : 0,
               f40: is40 ? (cur.fullQty || 0) : 0, f47: !is40 ? (cur.fullQty || 0) : 0,
               note: cur.note || ''
@@ -4016,13 +4414,13 @@
                 class: 'g',
                 style: 'padding:1px 6px;font-size:11px;min-height:24px;float:right',
                 onclick: async () => {
-                  if (!(await promptAdminPin('စက်ရုံအိုး စာရင်းကြောင်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                  if (!(await requireAdmin('စက်ရုံအိုး မှတ်တမ်းဖျက်ခြင်း'))) return;
                   if (!(await guardMonthLock(r.at, msg))) return;
-                  if (!(await uiConfirm(fmtLogDate(r.dk) + ' စာရင်းကြောင်းကို ဖျက်မလား? (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
+                  if (!(await uiConfirm(fmtLogDate(r.dk) + ' စာရင်းကြောင်းကို ဖျက်မလား? Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။'))) return;
                   const now = Date.now();
                   await run('stk', 'readwrite', t => {
                     const os = t.objectStore('stk');
-                    r.items.forEach(it => os.put({ ...it, voided: true, voidedAt: now }));
+                    r.recs.forEach(rec => os.put({ ...rec, voided: true, voidedAt: now }));
                   });
                   await reload();
                   viewOxy();
@@ -4040,7 +4438,6 @@
           class: 'n',
           style: 'padding:4px 9px;font-size:12px',
           onclick: async () => {
-            if (!(await promptAdminPin('လအစ Stock ပြင်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
             const s40 = parseInt(await uiPrompt(o2Month + ' လအစ စက်ရုံအိုး 40L လက်ကျန် (ဥပမာ 50)', open40, 'number'));
             if (isNaN(s40) || s40 < 0) return;
             const s47 = parseInt(await uiPrompt(o2Month + ' လအစ စက်ရုံအိုး 47L လက်ကျန် (ဥပမာ 23)', open47, 'number'));
@@ -4061,7 +4458,7 @@
             if (!pm) return;
             const now = Date.now();
             if (!(await guardMonthLock(now, msg))) return;
-            if (!(await uiConfirm(o2Month + ' လကုန် စက်ရုံငွေရှင်း ' + money(amt) + ' (' + PAY[pm] + ') မှတ်မလား?\n(အသုံးစရိတ်စာရင်းထဲသို့ တိုက်ရိုက်ထည့်သွင်းပါမည်)'))) return;
+            if (!(await uiConfirm(o2Month + ' လကုန် စက်ရုံငွေရှင်း ' + money(amt) + ' (' + PAY[pm] + ') မှတ်မလား?'))) return;
             await add('cf', { id: uuid(), at: now, type: 'exp', desc: 'O2 စက်ရုံငွေရှင်း (' + o2Month + ')', cat: 'factory', amt, m: pm, isO2Factory: true, facMonth: o2Month });
             await reload();
             viewOxy();
@@ -4112,57 +4509,37 @@
             ),
             h('div', { style: 'margin-top:10px;padding:10px;background:#FFF3E8;border:1.5px solid var(--org);border-radius:8px' },
               h('b', { style: 'font-size:15px;color:#9A4308' }, o2Month + ' လကုန် စက်ရုံသို့ ငွေရှင်းရန် အနှစ်ချုပ်'),
-              h('div', { class: 'li', style: 'padding:4px 0' },
-                h('span', {}, '• 40L Full စုစုပေါင်း: ' + sumF40 + ' လုံး'),
-                h('b', {}, money(sumBill40))
-              ),
-              h('div', { class: 'li', style: 'padding:4px 0' },
-                h('span', {}, '• 47L Full စုစုပေါင်း: ' + sumF47 + ' လုံး'),
-                h('b', {}, money(sumBill47))
-              ),
-              h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid #FDBA74' },
-                h('b', {}, 'စုစုပေါင်း ကျသင့်ငွေ (' + (sumF40 + sumF47) + ' လုံး)'),
-                h('b', { style: 'font-size:16px' }, money(totalMonthBill))
-              ),
-              h('div', { class: 'li', style: 'padding:4px 0' },
-                h('span', {}, 'ပေးချေပြီးငွေ (Paid)'),
-                h('b', { style: 'color:var(--ok)' }, money(monthPaid))
-              ),
-              h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid #FDBA74' },
-                h('b', {}, 'လကုန် ပေးရန်ကျန်ငွေ (Balance Due)'),
-                h('b', { style: 'font-size:18px;color:' + (monthDue > 0 ? 'var(--red)' : 'var(--ok)') }, money(monthDue))
-              ),
+              h('div', { class: 'li', style: 'padding:4px 0' }, h('span', {}, '• 40L Full စုစုပေါင်း: ' + sumF40 + ' လုံး'), h('b', {}, money(sumBill40))),
+              h('div', { class: 'li', style: 'padding:4px 0' }, h('span', {}, '• 47L Full စုစုပေါင်း: ' + sumF47 + ' လုံး'), h('b', {}, money(sumBill47))),
+              h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid #FDBA74' }, h('b', {}, 'စုစုပေါင်း ကျသင့်ငွေ (' + (sumF40 + sumF47) + ' လုံး)'), h('b', { style: 'font-size:16px' }, money(totalMonthBill))),
+              h('div', { class: 'li', style: 'padding:4px 0' }, h('span', {}, 'ပေးချေပြီးငွေ (Paid)'), h('b', { style: 'color:var(--ok)' }, money(monthPaid))),
+              h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid #FDBA74' }, h('b', {}, 'လကုန် ပေးရန်ကျန်ငွေ (Balance Due)'), h('b', { style: 'font-size:18px;color:' + (monthDue > 0 ? 'var(--red)' : 'var(--ok)') }, money(monthDue))),
               settleMonthBtn
             )
           )
         );
       } else {
         const applyOwnDelta = (cur40, curOver, e) => {
-          if (e.damagedReturn) {
-            return [cur40 - (e.emp40 || 0), curOver - (e.empOver || 0)];
-          }
-          return [
-            cur40 + (e.emp40 || 0) - (e.full40 || 0),
-            curOver + (e.empOver || 0) - (e.fullOver || 0)
-          ];
+          if (e.damagedReturn) return [cur40 - (e.emp40 || 0), curOver - (e.empOver || 0)];
+          return [cur40 + (e.emp40 || 0) - (e.full40 || 0), curOver + (e.empOver || 0) - (e.fullOver || 0)];
         };
 
-        const obOwn = stk.filter(e => !e.voided && e.type === 'o2_own_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
+        const obOwn = stk.filter(e => e.type === 'o2_own_ob' && e.month === o2Month).sort((a, b) => b.at - a.at)[0];
         let open40 = 0, openOver = 0;
         if (obOwn) {
           open40 = Number(obOwn.s40) || 0;
           openOver = Number(obOwn.sOver) || 0;
         } else {
-          const priorOb = stk.filter(e => !e.voided && e.type === 'o2_own_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
+          const priorOb = stk.filter(e => e.type === 'o2_own_ob' && e.month < o2Month).sort((a, b) => a.month < b.month ? 1 : -1)[0];
           const startYm = priorOb ? priorOb.month : '0000-00';
           open40 = priorOb ? (Number(priorOb.s40) || 0) : 0;
           openOver = priorOb ? (Number(priorOb.sOver) || 0) : 0;
-          stk.filter(e => !e.voided && e.type === 'o2_own' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
+          stk.filter(e => e.type === 'o2_own' && mkeyOf(e.at) >= startYm && mkeyOf(e.at) < o2Month).forEach(e => {
             [open40, openOver] = applyOwnDelta(open40, openOver, e);
           });
         }
 
-        const ownRows = stk.filter(e => !e.voided && e.type === 'o2_own' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
+        const ownRows = stk.filter(e => e.type === 'o2_own' && mkeyOf(e.at) === o2Month).sort((a, b) => a.at - b.at);
         let run40 = open40, runOver = openOver;
         let sumE40 = 0, sumEOver = 0, sumF40 = 0, sumFOver = 0;
         let paidTotal = 0, unpaidTotal = 0;
@@ -4227,10 +4604,15 @@
                 class: 'g',
                 style: 'padding:1px 6px;font-size:11px;min-height:24px;float:right',
                 onclick: async () => {
-                  if (!(await promptAdminPin('အပိုင်အိုး စာရင်းကြောင်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                  if (!(await requireAdmin('အပိုင်အိုး မှတ်တမ်းဖျက်ခြင်း'))) return;
                   if (!(await guardMonthLock(r.at, msg))) return;
-                  if (!(await uiConfirm(fmtLogDate(dkey(r.at)) + ' အပိုင်အိုး စာရင်းကြောင်းကို ဖျက်မလား? (Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
-                  await softDelete('stk', r);
+                  if (!(await uiConfirm(fmtLogDate(dkey(r.at)) + ' အပိုင်အိုး စာရင်းကြောင်းကို ဖျက်မလား? Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။'))) return;
+                  const now = Date.now();
+                  await run(['stk', 'cf'], 'readwrite', t => {
+                    t.objectStore('stk').put({ ...r, voided: true, voidedAt: now });
+                    const cfStore = t.objectStore('cf');
+                    cf.filter(x => !x.voided && x.o2OwnId === r.id).forEach(expItem => cfStore.put({ ...expItem, voided: true, voidedAt: now }));
+                  });
                   await reload();
                   viewOxy();
                 }
@@ -4239,14 +4621,13 @@
           );
         });
 
-        const allUnpaidOwn = stk.filter(e => !e.voided && e.type === 'o2_own' && !e.damagedReturn && !e.paid && (Number(e.billAmt) || 0) > 0);
+        const allUnpaidOwn = stk.filter(e => e.type === 'o2_own' && !e.damagedReturn && !e.paid && (Number(e.billAmt) || 0) > 0);
         const allUnpaidSum = allUnpaidOwn.reduce((a, e) => a + (Number(e.billAmt) || 0), 0);
 
         const setObOwnBtn = h('button', {
           class: 'n',
           style: 'padding:4px 9px;font-size:12px',
           onclick: async () => {
-            if (!(await promptAdminPin('လအစ Stock ပြင်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
             const s40 = parseInt(await uiPrompt(o2Month + ' လအစ အပိုင်အိုး 40L လက်ကျန် (Stock)', open40, 'number'));
             if (isNaN(s40) || s40 < 0) return;
             const sOv = parseInt(await uiPrompt(o2Month + ' လအစ အပိုင်အိုး Over 40L လက်ကျန် (Stock)', openOver, 'number'));
@@ -4299,14 +4680,8 @@
               )
             ),
             h('div', { style: 'margin-top:10px;padding:10px;background:#F4F6F9;border:1px solid var(--ln);border-radius:8px' },
-              h('div', { class: 'li', style: 'padding:4px 0' },
-                h('span', {}, o2Month + ' လက်ငင်းရှင်းပြီး စုစုပေါင်း (Paid)'),
-                h('b', { style: 'color:var(--ok)' }, money(paidTotal))
-              ),
-              h('div', { class: 'li', style: 'padding:4px 0' },
-                h('span', {}, o2Month + ' ဘောင်ချာကျန် (Unpaid)'),
-                h('b', { style: 'color:var(--red)' }, money(unpaidTotal))
-              ),
+              h('div', { class: 'li', style: 'padding:4px 0' }, h('span', {}, o2Month + ' လက်ငင်းရှင်းပြီး စုစုပေါင်း (Paid)'), h('b', { style: 'color:var(--ok)' }, money(paidTotal))),
+              h('div', { class: 'li', style: 'padding:4px 0' }, h('span', {}, o2Month + ' ဘောင်ချာကျန် (Unpaid)'), h('b', { style: 'color:var(--red)' }, money(unpaidTotal))),
               allUnpaidSum > 0 ? h('div', { class: 'li', style: 'padding:5px 0;border-top:1px solid var(--ln)' },
                 h('b', {}, 'လအားလုံးပေါင်း ဘောင်ချာကျန် စုစုပေါင်း (' + allUnpaidOwn.length + ' စောင်)'),
                 h('b', { style: 'font-size:17px;color:var(--red)' }, money(allUnpaidSum))
@@ -4319,10 +4694,10 @@
       const o2 = products.filter(p => p.cat === 'အောက်ဆီဂျင်'), now = new Date(), t0 = dbounds(dkey(Date.now()))[0], m0 = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
       const cnt = (p, t) => { let q = 0, v = 0; sales.forEach(s => { if (!s.voided && s.at >= t) s.lines.forEach(l => { if (l.pid === p.id) { q += l.qty; v += amt(l); } }); }); return { q, v }; };
       const emptO2 = p => {
-        const c = stk.filter(e => !e.voided && e.pid === p.id && e.type === 'ecount').sort((x, y) => y.at - x.at)[0];
+        const c = stk.filter(e => e.pid === p.id && e.type === 'ecount').sort((x, y) => y.at - x.at)[0];
         if (!c) return null;
         let n = c.qty;
-        stk.forEach(e => { if (!e.voided && e.pid === p.id && e.at > c.at && e.type === 'eret') n -= e.qty; });
+        stk.forEach(e => { if (e.pid === p.id && e.at > c.at && e.type === 'eret') n -= e.qty; });
         sales.forEach(s => { if (!s.voided && s.at > c.at) s.lines.forEach(l => { if (l.pid === p.id) n += l.qty; }); });
         return n;
       };
@@ -4352,7 +4727,7 @@
         const mode = h('select', {}, [['', 'ရွေးပါ'], ['refill', 'ဖောက်သည်အိုး ဖြည့်ပေး (အိုးကြီးမှယူ)'], ['swap', 'အိုးလဲပေး (အပြည့်/အလွတ်)']].map(([v, t]) => h('option', { value: v }, t)));
         mode.value = p.o2 || '';
         mode.onchange = async () => {
-          try { await put('products', { ...p, o2: mode.value || undefined }); await reload(); viewOxy(); }
+          try { await put('products', { ...p, o2: mode.value || undefined, at: Date.now() }); await reload(); viewOxy(); }
           catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); }
         };
         const ex = [];
@@ -4391,7 +4766,7 @@
                 const n = parseFloat(await uiPrompt('အိုးကြီး ၁ လုံးက ' + p.name + ' ကို ဘယ်နှကြိမ် ဖြည့်လို့ရလဲ (သိတဲ့အတိုင်းထည့်ပါ)', p.per || '', 'number'));
                 if (!(n > 0)) return;
                 if (!(await uiConfirm(p.name + ': အိုးကြီး ၁ လုံး = ' + n + ' ကြိမ်။ နောက်ရောင်းမယ့်ဟာတွေကိုပဲ သက်ရောက်မယ်။ မှတ်မလား?'))) return;
-                try { await put('products', { ...p, per: n, use: 1 / n }); await reload(); viewOxy(); }
+                try { await put('products', { ...p, per: n, use: 1 / n, at: Date.now() }); await reload(); viewOxy(); }
                 catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); }
               }
             }, 'အချိုး သတ်မှတ်'))
@@ -4407,8 +4782,8 @@
       };
 
       const stp = t => new Date(t).toLocaleDateString('en-GB') + ' ' + tm(t), pc = x => Math.round(x * 1000) / 10;
-      const oc = stk.filter(e => !e.voided && e.type === 'ocyl'), liveO = oc.filter(c => !c.closed).sort((x, y) => x.at - y.at);
-      const orc = stk.filter(e => !e.voided && e.type === 'orecv').reduce((a, e) => a + e.qty, 0), ort = stk.filter(e => !e.voided && e.type === 'oret').reduce((a, e) => a + e.qty, 0);
+      const oc = stk.filter(e => e.type === 'ocyl'), liveO = oc.filter(c => !c.closed).sort((x, y) => x.at - y.at);
+      const orc = stk.filter(e => e.type === 'orecv').reduce((a, e) => a + e.qty, 0), ort = stk.filter(e => e.type === 'oret').reduce((a, e) => a + e.qty, 0);
       const fullO = orc - oc.length, emptyO = oc.filter(c => c.closed).length - ort;
       const goS = async (rec, q) => { if (q && !(await uiConfirm(q))) return; try { await add('stk', { id: uuid(), at: Date.now(), ...rec }); await reload(); viewOxy(); } catch (e) { note(msg, 'မသိမ်းနိုင်ပါ: ' + (e && e.message || e)); } };
       const pcIn = h('input', { type: 'number', inputmode: 'decimal', placeholder: 'စတင်ကျန် % (မထည့်ရင် 100)' }), xq = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'အိုးအရေအတွက်' });
@@ -4445,7 +4820,7 @@
     }
 
     // =========================================================================
-    // 9. TAB 9: O2 DELIVERY (v24-s15 CLOUD SOFT-DELETE FOR SITE LEDGER)
+    // 9. TAB 9: O2 DELIVERY
     // =========================================================================
     let selectedSiteKey = '';
 
@@ -4488,13 +4863,7 @@
           s.gasVissTotal += dgasViss;
         }
 
-        s.entries.push({
-          ...e,
-          bal40Fac: s.f40,
-          bal47Fac: s.f47,
-          bal40Own: s.own40,
-          balGas: s.gas
-        });
+        s.entries.push({ ...e, bal40Fac: s.f40, bal47Fac: s.f47, bal40Own: s.own40, balGas: s.gas });
       });
 
       return map;
@@ -4689,8 +5058,27 @@
           try {
             const pend = { g: {}, o: {} }, ov = { closed: {}, added: [], ops: [] };
             let gasAlloc = null;
+            let chosenSiteOwnFill = null;
             if (dgasViss > 0 && !isBackdate) {
-              gasAlloc = await allocLine('gas', { gasRole: 'viss', gasViss: dgasViss }, pend.g, ov);
+              const availFills = liveOwnGasFills();
+              if (availFills.length) {
+                const matchFill = availFills.find(x => Math.abs(Number(x.viss) - dgasViss) < 0.05) || availFills[0];
+                const ch = await uiPrompt(
+                  'ဆိုင်ပိုင် Gas အိုးအပြည့် (' + availFills.map(x => x.label).join(', ') + ') အသင့်ရှိနေပါသည်။\nဘယ်အိုးမှ ပို့မလဲ? (နံပါတ်ရိုက်ပါ)\n\n' +
+                  '1 = ဆိုင်ပိုင်အိုး (' + matchFill.label + ') မှ ပို့မည် (ပိဿာအိုးမှ မနှုတ်ဘဲ ဆိုင်ပိုင်အိုး +1 မှတ်မည်)\n' +
+                  '2 = ပုံမှန် ပိဿာဖြည့်အိုးမှ ဖြည့်ပို့မည်',
+                  Math.abs(Number(matchFill.viss) - dgasViss) < 0.05 ? '1' : '2',
+                  'number'
+                );
+                if (ch === null) { saveDelivBtn.disabled = false; return; }
+                if (String(ch).trim() === '1') {
+                  chosenSiteOwnFill = matchFill;
+                  gasAlloc = [{ cyl: null, viss: dgasViss, ownFillId: matchFill.id }];
+                }
+              }
+              if (!chosenSiteOwnFill) {
+                gasAlloc = await allocLine('gas', { gasRole: 'viss', gasViss: dgasViss }, pend.g, ov);
+              }
             }
 
             const delivId = uuid();
@@ -4701,9 +5089,10 @@
             if (down40 > 0) saleLines.push({ name: '40L O2 (အပိုင်အိုး - Delivery)', qty: down40, unit: 'အိုး', price: o2Pr, foc: o2Pr === 0 });
             if (dgasViss > 0) {
               saleLines.push({
-                name: 'Gas (Delivery' + (dgas > 0 ? ' · ' + dgas + ' လုံး' : '') + ')',
+                name: 'Gas (' + (chosenSiteOwnFill ? chosenSiteOwnFill.label : ('Delivery' + (dgas > 0 ? ' · ' + dgas + ' လုံး' : ''))) + ')',
                 qty: dgasViss, unit: 'viss', price: gPr, foc: gPr === 0,
                 gasViss: dgasViss, gasRole: 'viss',
+                ownFillId: chosenSiteOwnFill ? chosenSiteOwnFill.id : null,
                 alloc: gasAlloc,
                 cylId: gasAlloc && gasAlloc[0] ? gasAlloc[0].cyl : null
               });
@@ -4720,8 +5109,12 @@
                 delGas: dgas, delGasViss: dgasViss,
                 emp40Fac: ef40, emp47Fac: ef47, emp40Own: eown40, empGas: egas,
                 o2Price: o2Pr, gasPrice: gPr, totalBill, pay: totalBill > 0 ? pm : 'none',
-                saleId: linkedSaleId, note: noteIn.value.trim()
+                saleId: linkedSaleId, note: (chosenSiteOwnFill ? '[' + chosenSiteOwnFill.label + '] ' : '') + noteIn.value.trim()
               });
+              if (chosenSiteOwnFill) {
+                t.objectStore('gasEv').put({ ...chosenSiteOwnFill, status: 'delivered', deliveredAt: effAt, deliveredTo: canonicalSite, saleId: linkedSaleId });
+                cfStore.add({ id: uuid(), at: effAt + 1, type: 'shell', cust: canonicalSite, qty: 1, note: chosenSiteOwnFill.label + ' (O2 Delivery)' });
+              }
               if (linkedSaleId && saleLines.length) {
                 t.objectStore('sales').add({
                   id: linkedSaleId, at: effAt, hist: isBackdate, pay: pm,
@@ -4873,9 +5266,9 @@
                         class: 'g',
                         style: 'padding:1px 6px;font-size:11px;min-height:24px;float:right',
                         onclick: async () => {
-                          if (!(await promptAdminPin('ဆိုဒ်ပို့စာရင်း ဖျက်ရန် Admin PIN လိုအပ်ပါသည်'))) return;
+                          if (!(await requireAdmin('O2 Delivery မှတ်တမ်းဖျက်ခြင်း'))) return;
                           if (!(await guardMonthLock(r.at, msg))) return;
-                          if (!(await uiConfirm('ဒီမှတ်တမ်းကို ဖျက်မလား? (Cloud Sync ဖြင့် ကျန်ဖုန်းများနှင့် အရောင်း/အကြွေးတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်)'))) return;
+                          if (!(await uiConfirm('ဒီမှတ်တမ်းကို ဖျက်မလား? Cloud Sync ဖြင့် ကျန်ဖုန်းများတွင်ပါ တစ်ခါတည်း ပျက်သွားပါမည်။'))) return;
                           const now = Date.now();
                           await run(['cf', 'sales'], 'readwrite', t => {
                             t.objectStore('cf').put({ ...r, voided: true, voidedAt: now });
@@ -4954,7 +5347,7 @@
     }
 
     // =========================================================================
-    // 10. NAVIGATION, BOOT & SERVICE WORKER (v24-s15)
+    // 10. NAVIGATION, BOOT & SERVICE WORKER
     // =========================================================================
     const VIEWS = {
       1: viewSale,
